@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Track Your Mood</title>
+    <!-- Assuming your main style.css provides global styles and :root variables -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Specific styles for the mood tracker form -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mood_tracker.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="parallax-header">
+            <h1>Track Your Mood</h1>
+            <p>How are you feeling today?</p>
+        </header>
+
+        <div class="card">
+            <div class="mood-form-container">
+                <form action="{{ url_for('save_mood') }}" method="POST">
+                    <div class="mood-options">
+                        <!-- Mood rating options (you can use emojis or simple labels) -->
+                        <input type="radio" id="mood5" name="mood_rating" value="5" required>
+                        <label for="mood5">😊 Very Happy</label>
+
+                        <input type="radio" id="mood4" name="mood_rating" value="4">
+                        <label for="mood4">🙂 Happy</label>
+
+                        <input type="radio" id="mood3" name="mood_rating" value="3">
+                        <label for="mood3">😐 Neutral</label>
+
+                        <input type="radio" id="mood2" name="mood_rating" value="2">
+                        <label for="mood2">😟 Sad</label>
+
+                        <input type="radio" id="mood1" name="mood_rating" value="1">
+                        <label for="mood1">😔 Very Sad</label>
+                    </div>
+
+                    <textarea name="mood_notes" placeholder="Write a few words about why you feel this way (optional)..."></textarea>
+                    
+                    <button type="submit" class="submit-btn">Save Mood</button>
+                </form>
+            </div>
+            <a href="/meditation-options" class="btn btn-secondary" style="margin-top: 30px;">← Back to Meditation Options</a>
+        </div>
+    </div>
+</body>
+</html>

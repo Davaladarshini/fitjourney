@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Welcome</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- 🎉 Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+
+  <style>
+    html, body {
+      height: 100%;
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background: #f7f9fc;
+      color: #333;
+    }
+
+    *, *::before, *::after {
+      box-sizing: border-box;
+    }
+
+    .container {
+      display: flex;
+      min-height: 100vh;
+      width: 100%;
+    }
+
+    aside {
+      width: 220px;
+      background: #fff;
+      padding: 30px 20px;
+      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
+      flex-shrink: 0;
+    }
+
+    .sidebar-user {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 40px;
+    }
+
+    nav a {
+      display: block;
+      margin-bottom: 15px;
+      color: #333;
+      text-decoration: none;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    nav a.active,
+    nav a:hover {
+      background-color: #e6f0ff;
+      color: #007bff;
+    }
+
+    .main {
+      flex: 1;
+      padding: 40px;
+      overflow-y: auto;
+    }
+
+    header {
+      margin-bottom: 30px;
+    }
+
+    header h1 {
+      font-size: 28px;
+      margin: 0;
+    }
+
+    header h1 span {
+      color: #007bff;
+    }
+
+    header p {
+      font-style: italic;
+      color: #555;
+    }
+
+    .card-container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      flex: 1 1 22%;
+      min-width: 220px;
+      box-sizing: border-box;
+    }
+
+    .card h3 {
+      margin-top: 0;
+      font-size: 18px;
+      margin-bottom: 12px;
+    }
+
+    .card input,
+    .card select {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-family: inherit;
+    }
+
+    .btn-save,
+    .btn-start {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 6px;
+      width: 100%;
+      text-align: center;
+      cursor: pointer;
+      font-family: inherit;
+      font-size: 14px;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-save {
+      background: #28a745;
+    }
+
+    .btn-save:hover {
+      background: #218838;
+    }
+
+    .btn-start:hover {
+      background: #0056b3;
+    }
+
+    .card label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: normal;
+    }
+
+    .card p {
+      font-size: 14px;
+      color: #444;
+      margin-bottom: 10px;
+    }
+
+    .card input[type="checkbox"] {
+      width: auto;
+      margin-right: 8px;
+    }
+
+    @media (max-width: 1200px) {
+      .card {
+        flex: 1 1 45%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+      }
+
+      aside {
+        width: 100%;
+        padding: 20px;
+      }
+
+      .main {
+        padding: 20px;
+      }
+
+      .card {
+        flex: 1 1 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <aside>
+    <div class="sidebar-user">
+      <span>{{ name }}</span>
+    </div>
+    <nav>
+      <a href="/welcome" class="active">🏠 Dashboard</a>
+      <a href="/workouts">💪 Workouts</a>
+      <a href="/statistics">📊 Statistics</a>
+      <a href="/logout" style="margin-top: 30px; color: #888;">🔓 Logout</a>
+    </nav>
+  </aside>
+
+  <div class="main">
+    <header>
+      <h1>Welcome back, <span>{{ name }}</span>!</h1>
+      <p>"Every journey begins with a single step. You've got this!"</p>
+    </header>
+
+    <form id="profileForm">
+      <div class="card-container">
+        <!-- Profile Card -->
+        <div class="card">
+          <h3>🧍 Your Profile</h3>
+          <label for="profileHeight">Height (cm)</label>
+          <input type="number" id="profileHeight" placeholder="Enter height in cm" required>
+
+          <label for="profileWeight">Weight (kg)</label>
+          <input type="number" id="profileWeight" placeholder="Enter weight in kg" required>
+
+          <label>Age:</label>
+          <input type="number" name="age" value="28" required>
+
+          <label>Gender:</label>
+          <select name="gender" required>
+            <option value="Male" selected>Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+
+          <input type="hidden" name="email" value="{{ email }}">
+          <button type="submit" class="btn-save">Save Changes ✔</button>
+        </div>
+
+        <!-- BMI Calculator -->
+        <div class="card">
+          <h3>📱 BMI Calculator</h3>
+          <p>Automatically calculates your BMI based on your profile</p>
+          <input type="text" id="bmiResult" name="bmi" placeholder="Your BMI will appear here" readonly>
+          <button type="button" class="btn-start" id="bmiButton">Calculate BMI 📊</button>
+        </div>
+
+        <!-- Health Info -->
+        <div class="card">
+          <h3>❤️ Health Information</h3>
+          <p>Do you have any health issues?</p>
+          <label><input type="checkbox" name="health_issues" value="No health issues"> No health issues</label>
+          <label><input type="checkbox" name="health_issues" value="Heart condition"> Heart condition</label>
+          <label><input type="checkbox" name="health_issues" value="Joint pain"> Joint pain</label>
+          <label><input type="checkbox" name="health_issues" value="High blood pressure"> High blood pressure</label>
+          <label><input type="checkbox" name="health_issues" value="Diabetes"> Diabetes</label>
+        </div>
+
+        <!-- Start Workout -->
+        <div class="card">
+          <h3>🚀 Ready to Start?</h3>
+          <p>Begin your workout session tailored to your profile</p>
+          <a href="/workouts" class="btn-start">Start Workout 💥</a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- 🎉 JS for Confetti -->
+<script>
+  document.getElementById("profileForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    confetti({
+      particleCount: 200,
+      spread: 100,
+      origin: { y: 0.6 }
+    });
+
+    alert("🎉 Profile saved successfully (not really, just for demo)!");
+  });
+</script>
+</body>
+</html>

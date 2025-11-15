@@ -1,0 +1,232 @@
+/* static/css/mood_tracker.css */
+
+/* General container for the mood tracking form */
+.mood-form-container {
+    padding: 20px;
+    /* Use flexbox to center its children (the form elements) */
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center;   /* Center items horizontally (along the cross-axis for column) */
+    width: 100%;           /* Ensure it takes full width of its parent (.card content area) */
+    box-sizing: border-box; /* Include padding in width calculation */
+}
+
+/* Styles for the radio button options (emojis/labels) */
+.mood-options {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center; /* Centers the actual labels within this flex container */
+    gap: 15px; /* Space between mood options */
+    margin-bottom: 25px; /* Space below the options */
+    width: 100%; /* Ensure this takes full width to allow justify-content to work effectively */
+    max-width: 550px; /* Optional: limit overall width of the buttons if they get too wide */
+}
+
+.mood-options label {
+    display: inline-flex; /* Use flexbox for vertical alignment inside label */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 90px; /* Ensure a consistent minimum width for touch targets */
+    padding: 15px;
+    border: 2px solid var(--primary, #6a5acd); /* Border color from primary variable */
+    border-radius: 12px; /* Rounded corners for labels */
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+    font-size: 1.1em;
+    color: var(--text-color, #333); /* Text color from variable */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.08); /* Soft shadow */
+}
+
+/* Hide the actual radio input */
+.mood-options input[type="radio"] {
+    display: none;
+}
+
+/* Styles for the selected mood option */
+.mood-options input[type="radio"]:checked + label {
+    background-color: var(--primary, #6a5acd); /* Primary color when selected */
+    color: white; /* White text when selected */
+    border-color: var(--accent, #ff6347); /* Accent border for selected */
+    transform: translateY(-3px); /* Slight lift effect on selection */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15); /* More prominent shadow on selection */
+}
+
+.mood-options label:hover {
+    transform: translateY(-2px); /* Lift effect on hover */
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Styles for the textarea for mood notes */
+textarea {
+    width: 90%; /* Wider for better user experience */
+    max-width: 500px; /* Limit max width */
+    padding: 12px;
+    margin-top: 20px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    min-height: 120px; /* Taller textarea */
+    font-family: 'Inter', sans-serif; /* Consistent font */
+    font-size: 1em;
+    resize: vertical; /* Allow vertical resizing only */
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05); /* Inner shadow */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+textarea:focus {
+    border-color: var(--primary, #6a5acd);
+    box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.2); /* Focus glow */
+    outline: none;
+}
+
+/* Styles for the submit button */
+.submit-btn {
+    background: linear-gradient(45deg, var(--primary, #6a5acd), var(--accent, #ff6347)); /* Gradient background */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    margin-top: 30px; /* More space above button */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Soft shadow */
+    min-width: 180px; /* Ensure good button size */
+}
+
+.submit-btn:hover {
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+
+.submit-btn:active {
+    transform: translateY(0); /* Press down effect */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Reduced shadow on click */
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 600px) {
+    .mood-options label {
+        min-width: unset; /* Allow labels to shrink more */
+        width: 45%; /* Two per row on smaller screens */
+        padding: 10px;
+        font-size: 1em;
+    }
+    .mood-options {
+        gap: 10px;
+    }
+    textarea {
+        width: 95%;
+    }
+    .submit-btn {
+        padding: 10px 20px;
+        font-size: 1em;
+        min-width: 150px;
+    }
+}
+
+/* --- GLOBAL STYLES FOR CENTERING THE CARD ON THE PAGE --- */
+/* (Copied from breathing_visualizer.css to ensure these are present on mood_tracker.html) */
+
+/* Global Root Variables for consistent theming (ensure these are defined once globally, e.g., in style.css or here) */
+:root {
+    --primary: #6a5acd; /* Example primary color (medium purple) */
+    --secondary: #3cb371; /* Example secondary color (medium sea green) */
+    --accent: #ff6347; /* Example accent color (tomato red) */
+    --text-color: #333; /* Dark gray for general text */
+    --card-bg: #ffffff; /* White for card backgrounds */
+    --body-bg: #f0f2f5; /* Light gray for body background */
+}
+
+/* HTML and Body for full page layout */
+html, body {
+    height: 100%; /* Ensure html and body take full height */
+    width: 100%;  /* Ensure html and body take full width */
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Essential for consistent sizing */
+}
+
+body {
+    font-family: 'Inter', sans-serif; /* Using Inter font as recommended */
+    background-color: var(--body-bg);
+    display: flex; /* Use flexbox for body to center its content */
+    flex-direction: column; /* Stack children (like .container) vertically */
+    align-items: center; /* Center children horizontally (cross-axis for column) */
+    justify-content: flex-start; /* Align content to top, or 'center' if you want vert. centered */
+    min-height: 100vh; /* Ensure body takes at least viewport height */
+}
+
+/* The main .container that wraps the header and card */
+.container {
+    width: 100%; /* Take full available width of its parent (body) */
+    max-width: 1000px; /* Limit the maximum width of the overall content area */
+    margin: 0 auto; /* Crucial: This centers the container itself horizontally */
+    padding: 0 20px; /* Add some horizontal padding for responsiveness */
+    box-sizing: border-box; /* Include padding in width */
+    display: flex; /* Make container a flex container */
+    flex-direction: column; /* Stack header and card vertically */
+    align-items: center; /* Center header and card horizontally within the container */
+}
+
+/* Basic Card styling for the main container, shared across pages like Mood Tracker/History */
+/* THIS IS REDUNDANT IF ALSO INCLUDED IN style.css OR breathing_visualizer.css.
+   Prefer to keep it in one global CSS file like style.css.
+   But for now, it's here to ensure centering is applied. */
+.card {
+    background-color: var(--card-bg, #ffffff);
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 90%; /* Take 90% of parent width */
+    max-width: 600px; /* Max width for the card itself */
+    margin: 40px auto; /* This centers the card horizontally AND provides vertical margin */
+    text-align: center; /* Centers inline content within the card */
+    display: flex; /* Makes the card a flex container */
+    flex-direction: column; /* Stacks its direct children vertically */
+}
+
+/* Parallax header (used in meditation-options, breathing-visualizer, mood tracker/history) */
+.parallax-header {
+    width: 100%; /* Take full width of its parent (.container) */
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-color, #333); /* Changed text color for readability with lighter background */
+    background: transparent; /* Made transparent based on previous request */
+    box-shadow: none; /* Removed shadow based on previous request */
+    margin-bottom: 20px;
+}
+
+.parallax-header h1 {
+    font-size: 2.8em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.parallax-header p {
+    font-size: 1.2em;
+    opacity: 0.9;
+}
+
+/* General button styles for navigation (adjust as per your style.css) */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.btn-secondary {
+    background-color: #f0f0f0;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.btn-secondary:hover {
+    background-color: var(--primary);
+    color: white;
+    transform: translateY(-1px);
+}

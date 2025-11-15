@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Adaptive Plan History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/workout_options_styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Basic styling for demonstration - you can move this to your CSS file */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 800px;
+            text-align: center;
+        }
+        h1 {
+            color: #303050;
+            margin-bottom: 30px;
+            font-size: 2.2em;
+        }
+        .no-plans {
+            color: #666;
+            margin-top: 30px;
+        }
+        .plan-card {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            text-align: left;
+            background-color: #fcfcfc;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        .plan-card h3 {
+            color: #4a7dff;
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+        .plan-card p {
+            margin: 5px 0;
+        }
+        .plan-card .details-toggle {
+            cursor: pointer;
+            color: #6a82fb;
+            text-decoration: underline;
+            font-size: 0.9em;
+            margin-top: 10px;
+            display: inline-block;
+        }
+        .plan-schedule-hidden {
+            display: none;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px dashed #eee;
+        }
+        .plan-schedule-hidden ul {
+            list-style: none;
+            padding: 0;
+        }
+        .plan-schedule-hidden li {
+            background-color: #eef;
+            margin-bottom: 5px;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.9em;
+        }
+        .plan-schedule-hidden li pre {
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            font-size: 0.9em;
+            background: none;
+            border: none;
+            padding: 0;
+        }
+        .back-button {
+            margin-top: 30px;
+        }
+        .btn {
+            background: linear-gradient(to right, #6a82fb, #fc5c7d);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            text-decoration: none;
+            transition: background 0.3s ease;
+            display: inline-block;
+        }
+        .btn:hover {
+            background: linear-gradient(to right, #5c6efb, #eb4a68);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Adaptive Plan History</h1>
+
+        {% if plans %}
+            {% for plan in plans %}
+                <div class="plan-card">
+                    <h3>Plan Started: {{ plan.generated_on.strftime('%Y-%m-%d %H:%M') }}</h3>
+                    <p><strong>Status:</strong> {{ plan.status | capitalize }}</p>
+                    <p><strong>Initial Preferences:</strong>
+                        Level: {{ plan.initial_preferences.fitness_level | capitalize }},
+                        Focus: {{ plan.initial_preferences.focus_area | capitalize }}
+                    </p>
+                    <p><strong>Current Day Index:</strong> {{ plan.current_day_index + 1 }} of {{ plan.plan_schedule|length }}</p>
+
+                    <span class="details-toggle" onclick="toggleDetails(this)">Show Details / Feedback History</span>
+                    <div class="plan-schedule-hidden">
+                        <h4>Plan Schedule:</h4>
+                        <ul>
+                            {% for day in plan.plan_schedule %}
+                                <li>
+                                    <strong>Day {{ day.day }}:</strong> {{ day.type }} -
+                                    Status: {{ day.status | capitalize }}
+                                    {% if day.difficulty_rating %}
+                                        (Difficulty: {{ day.difficulty_rating }}/5)
+                                    {% endif %}
+                                    <pre>{{ day.workout }}</pre>
+                                    {% if day.feedback_notes %}
+                                        <p><em>Notes: {{ day.feedback_notes }}</em></p>
+                                    {% endif %}
+                                </li>
+                            {% endfor %}
+                        </ul>
+
+                        {% if plan.feedback_history %}
+                            <h4>Feedback History:</h4>
+                            <ul>
+                                {% for feedback in plan.feedback_history %}
+                                    <li>
+                                        Day {{ feedback.day_index + 1 }} ({{ feedback.timestamp.strftime('%Y-%m-%d %H:%M') }}):
+                                        Status: {{ feedback.status | capitalize }}, Difficulty: {{ feedback.difficulty }}/5
+                                        {% if feedback.notes %}<br>Notes: {{ feedback.notes }}{% endif %}
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p>No specific feedback logged for this plan yet.</p>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        {% else %}
+            <p class="no-plans">You haven't generated any adaptive workout plans yet.</p>
+        {% endif %}
+
+        <div class="back-button">
+            <a href="{{ url_for('adaptive_plans.start_adaptive_plan') }}" class="btn">Start New Adaptive Plan</a>
+            <a href="{{ url_for('workouts') }}" class="btn">Back to Workout Options</a>
+        </div>
+    </div>
+
+    <script>
+        function toggleDetails(element) {
+            const detailsDiv = element.nextElementSibling;
+            if (detailsDiv.style.display === "block") {
+                detailsDiv.style.display = "none";
+                element.textContent = "Show Details / Feedback History";
+            } else {
+                detailsDiv.style.display = "block";
+                element.textContent = "Hide Details / Feedback History";
+            }
+        }
+    </script>
+</body>
+</html>

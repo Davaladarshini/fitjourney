@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Yoga Challenge Mode</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .challenge-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        .challenge-container h1 {
+            color: #6a5acd;
+        }
+        .challenge-box {
+            background-color: #f8f9fa;
+            border: 2px dashed #6a5acd;
+            padding: 40px 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .challenge-text {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="challenge-container">
+        <h1>Your Daily Yoga Challenge</h1>
+        <p>A new challenge to inspire your practice every day.</p>
+        <div class="challenge-box">
+            <p class="challenge-text">{{ daily_challenge }}</p>
+        </div>
+    </div>
+</body>
+</html>

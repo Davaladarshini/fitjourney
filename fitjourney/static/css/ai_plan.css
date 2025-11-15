@@ -1,0 +1,168 @@
+/* static/css/ai_plan.css */
+
+/* General Body & Typography */
+body {
+    font-family: 'Inter', sans-serif; /* A popular, clean sans-serif font */
+    background-color: #f5f7fa; /* Very light grey background */
+    color: #333; /* Standard dark text color */
+    line-height: 1.6;
+    margin: 0;
+    padding: 40px 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+    box-sizing: border-box; /* Ensures padding doesn't add to element's total width */
+}
+
+/* Main Container - Simple card block */
+.container {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0; /* Simple border */
+    border-radius: 8px; /* Slightly rounded corners */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); /* Subtle shadow */
+    padding: 40px;
+    max-width: 800px; /* Standard width */
+    width: 100%;
+    margin-top: 30px;
+}
+
+/* Headings - Clean and clear */
+h1 {
+    color: #2b6cb0; /* A professional blue */
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 2.2em; /* Readable size */
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #edf2f7; /* Simple bottom border */
+}
+
+h2 {
+    color: #4a5568; /* Slightly darker grey for subheadings */
+    margin-top: 30px;
+    margin-bottom: 18px;
+    font-size: 1.6em;
+    font-weight: 600;
+}
+
+/* Paragraphs */
+p {
+    line-height: 1.7;
+    margin-bottom: 15px;
+    font-size: 1em;
+    color: #555;
+}
+
+/* Plan Content Area - Simple block with a left accent */
+div.plan-content { /* Added a class 'plan-content' for specific styling */
+    background-color: #f8f9fa; /* Very light grey */
+    border: 1px solid #dee2e6; /* Light grey border */
+    border-left: 5px solid #28a745; /* Green accent on the left */
+    border-radius: 5px; /* Minimal rounding */
+    padding: 20px;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    font-family: 'Roboto Mono', monospace; /* Clean monospace font */
+    font-size: 0.9em;
+    color: #495057;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+div.plan-content strong {
+    color: #1e7e34; /* Darker green for bold text in plan */
+    font-weight: bold;
+}
+
+/* Lists within the plan */
+ul {
+    list-style-type: none; /* Remove default bullets */
+    padding-left: 0;
+    margin-bottom: 15px;
+    margin-top: 10px;
+}
+
+li {
+    margin-bottom: 8px;
+    color: #4a5568;
+    position: relative;
+    padding-left: 20px; /* Space for custom bullet */
+}
+
+li::before {
+    content: '•'; /* Simple dot bullet */
+    position: absolute;
+    left: 0;
+    color: #2b6cb0; /* Matches heading blue */
+    font-size: 1em;
+    top: 0;
+}
+
+/* Back Link Button - Simple and clear */
+.back-link {
+    display: block; /* Make it a block element to control its width and centering */
+    width: fit-content; /* Only take width needed */
+    margin: 30px auto 0; /* Center horizontally */
+    background-color: #007bff; /* Standard blue button */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1em;
+    font-weight: 500;
+    text-decoration: none;
+    transition: background-color 0.2s ease; /* Simple hover transition */
+}
+
+.back-link:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        padding: 20px 15px;
+    }
+    .container {
+        padding: 30px 25px;
+    }
+    h1 {
+        font-size: 1.8em;
+        margin-bottom: 25px;
+    }
+    h2 {
+        font-size: 1.4em;
+        margin-top: 25px;
+        margin-bottom: 15px;
+    }
+    div.plan-content {
+        padding: 15px;
+        border-left-width: 4px;
+    }
+    .back-link {
+        padding: 8px 18px;
+        font-size: 0.9em;
+    }
+}
+
+@media (max-width: 480px) {
+    .container {
+        padding: 20px 15px;
+        border-radius: 6px;
+    }
+    h1 {
+        font-size: 1.5em;
+        margin-bottom: 20px;
+    }
+    h2 {
+        font-size: 1.2em;
+        margin-top: 20px;
+        margin-bottom: 12px;
+    }
+    li {
+        padding-left: 18px;
+    }
+}

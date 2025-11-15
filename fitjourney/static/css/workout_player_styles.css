@@ -1,0 +1,180 @@
+/* static/css/workout_player_styles.css */
+
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #e0f2f7; /* Light blue background */
+    color: #333;
+    line-height: 1.6;
+    margin: 0;
+    padding: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 100vh;
+}
+
+.workout-player-container {
+    background-color: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    padding: 40px;
+    max-width: 700px;
+    width: 100%;
+    text-align: center;
+}
+
+h1 {
+    color: #007bff; /* Primary blue */
+    margin-bottom: 30px;
+    font-size: 2.8em;
+    font-weight: 700;
+}
+
+.current-exercise {
+    background-color: #f7f9fc;
+    border: 1px solid #e0e6ed;
+    border-radius: 10px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.03);
+}
+
+.current-exercise h2 {
+    color: #303050;
+    font-size: 2em;
+    margin-bottom: 15px;
+}
+
+#current-exercise-name {
+    color: #007bff; /* Highlight current exercise name */
+    font-weight: bold;
+}
+
+#exercise-details {
+    font-size: 1.2em;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.timer {
+    font-size: 4em;
+    font-weight: bold;
+    color: #28a745; /* Green for timer */
+    margin: 20px 0;
+    letter-spacing: 2px;
+}
+
+.workout-controls button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 25px;
+    margin: 0 10px 15px; /* Added bottom margin for responsiveness */
+    cursor: pointer;
+    font-size: 1.1em;
+    font-weight: 600;
+    transition: background-color 0.2s ease, transform 0.2s ease;
+    display: inline-flex; /* Align icon and text */
+    align-items: center;
+    gap: 8px; /* Space between icon and text */
+}
+
+.workout-controls button:hover:not(:disabled) {
+    background-color: #0056b3;
+    transform: translateY(-2px);
+}
+
+.workout-controls button:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.workout-controls .finish-btn {
+    background-color: #dc3545; /* Red for finish button */
+}
+
+.workout-controls .finish-btn:hover:not(:disabled) {
+    background-color: #c82333;
+}
+
+.upcoming-exercises {
+    margin-top: 40px;
+    text-align: left;
+    background-color: #f0f8ff; /* Lightest blue background */
+    border: 1px solid #cceeff;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+.upcoming-exercises h3 {
+    color: #4a5568;
+    border-bottom: 1px solid #bbddee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+#upcoming-exercises-list {
+    list-style: none;
+    padding: 0;
+}
+
+#upcoming-exercises-list li {
+    background-color: #ffffff;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    color: #555;
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+}
+
+#upcoming-exercises-list li::before {
+    content: '→'; /* Arrow bullet */
+    margin-right: 10px;
+    color: #007bff;
+    font-weight: bold;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .workout-player-container {
+        padding: 30px;
+    }
+    h1 {
+        font-size: 2em;
+    }
+    .current-exercise h2 {
+        font-size: 1.6em;
+    }
+    .timer {
+        font-size: 3em;
+    }
+    .workout-controls button {
+        padding: 10px 20px;
+        font-size: 1em;
+        margin: 5px;
+    }
+}
+
+@media (max-width: 480px) {
+    .workout-player-container {
+        padding: 20px;
+        margin: 15px;
+    }
+    h1 {
+        font-size: 1.8em;
+    }
+    .current-exercise h2 {
+        font-size: 1.4em;
+    }
+    .timer {
+        font-size: 2.5em;
+    }
+    .workout-controls button {
+        width: calc(50% - 10px); /* Two buttons per row */
+        margin: 5px 4px;
+    }
+}

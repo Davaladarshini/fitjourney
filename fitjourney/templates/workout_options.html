@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Choose Your Workout Journey</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/workout_options_styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="page-title">Choose Your Workout Journey</h1>
+        <p class="subtitle">Select an option to personalize your fitness path and enhance your results.</p>
+
+        <div class="options-grid">
+            <div class="option-card">
+                <div class="icon-wrapper bg-blue"> <i class="fas fa-bullseye"></i>
+                </div>
+                <h2>AI-Powered Goal Mapping</h2>
+                <p>Leverage artificial intelligence to define your fitness goals, create a roadmap, and track your progress with smart insights.</p>
+                <a href="{{ url_for('start_goal_mapping') }}" class="btn btn-primary">Start Goal Mapping</a>
+            </div>
+
+            <div class="option-card">
+                <div class="icon-wrapper bg-purple"> <i class="fas fa-chart-line"></i> </div>
+                <h2>Adaptive Workout Plans</h2>
+                <p>Receive dynamic workout plans that adjust to your performance, availability, and preferences for optimal results.</p>
+                <a href="{{ url_for('adaptive_plans.start_adaptive_plan') }}" class="btn btn-primary">Get Adaptive Plan</a>
+            </div>
+
+            <div class="option-card">
+    <div class="icon-wrapper bg-green">
+        <i class="fas fa-edit"></i>
+    </div>
+    <h2>Workout Builder</h2>
+    <p>Create and customize your own workout routines from scratch using our extensive exercise library and intuitive builder.</p>
+    <a href="{{ url_for('build_workout') }}" class="btn btn-primary">Build My Workout</a>
+</div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

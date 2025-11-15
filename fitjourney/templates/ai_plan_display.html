@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your AI-Generated Workout Plan</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/ai_plan.css') }}">
+    </head>
+<body>
+    <div class="container">
+        <h1>Your AI-Generated Workout Plan</h1>
+
+        <h2>Your Goal:</h2>
+        <p>{{ goal }}</p>
+
+        <h2>Your Personalized Plan:</h2>
+        <div class="plan-content"> {# Keep the class 'plan-content' as it's used in ai_plan.css #}
+            {{ plan | safe }} {# Use |safe to render HTML/Markdown if your plan contains it #}
+        </div>
+
+        <a href="{{ url_for('start_goal_mapping') }}" class="back-link">Back to Goal Mapping</a>
+    </div>
+</body>
+</html>

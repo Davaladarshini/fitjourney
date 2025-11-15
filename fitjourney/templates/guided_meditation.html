@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guided Meditation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+
+</head>
+<body>
+    <div class="container">
+        <header class="parallax-header">
+            <h1>Your <span>Guided Meditation</span></h1>
+            <p>Relax and follow the instructions to cultivate inner peace.</p>
+        </header>
+
+        <div class="card" style="max-width: 800px; margin: 40px auto;">
+            <div class="meditation-duration" id="meditationTimer">00:00</div>
+
+           <div class="form-group">
+    <div class="meditation-select-wrapper">
+        <label for="meditationTypeSelect">Choose Meditation Type:</label>
+        <select id="meditationTypeSelect" class="form-control">
+            <option value="focus">Focus</option>
+            <option value="sleep">Sleep</option>
+            <option value="relaxation">Relaxation</option>
+        </select>
+    </div>
+</div>
+
+            <div class="voice-control">
+                <input type="checkbox" id="enableVoice" checked>
+                <label for="enableVoice">Enable Voice Guide</label>
+            </div>
+            
+            <div class="script-display" id="scriptDisplay">
+                <p>Select a meditation type and click "Start" to begin.</p>
+            </div>
+
+            <div class="meditation-controls">
+                <button id="startButton" class="btn btn-select" style="width: 180px;">Start Meditation</button>
+                <button id="stopButton" class="btn btn-select" style="width: 180px; background: var(--secondary); display: none;">Stop Meditation</button>
+                <a href="/meditation-options" class="btn btn-submit" style="width: auto;">← Back to Meditation Options</a>
+            </div>
+        </div>
+    </div>
+
+ <script src="{{ url_for('static', filename='js/guided_meditation_logic.js') }}"></script>
+</body>
+</html>

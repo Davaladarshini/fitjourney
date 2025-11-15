@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Workout In Progress</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/workout_player_styles.css') }}"> {# New CSS for player #}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="workout-player-container">
+        <h1>Workout In Progress</h1>
+
+        <div class="current-exercise">
+            <h2>Current Exercise: <span id="current-exercise-name"></span></h2>
+            <div id="exercise-details"></div>
+            <div class="timer">
+                <span id="timer-display">00:00</span>
+            </div>
+        </div>
+
+        <div class="workout-controls">
+            <button id="prev-exercise-btn" disabled><i class="fas fa-backward"></i> Previous</button>
+            <button id="toggle-pause-btn"><i class="fas fa-pause"></i> Pause</button>
+            <button id="next-exercise-btn">Next <i class="fas fa-forward"></i></button>
+            <button id="finish-workout-btn" class="finish-btn"><i class="fas fa-check"></i> Finish Workout</button>
+        </div>
+
+        <div class="upcoming-exercises">
+            <h3>Upcoming:</h3>
+            <ul id="upcoming-exercises-list">
+                </ul>
+        </div>
+    </div>
+a = {{ workout_data | tojson | safe }};
+</script>
+    <script src="{{ url_for('static', filename='js/workout_player.js') }}"></script> {# New JS for player #}
+</body>
+</html>

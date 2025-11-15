@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Breathing Visualizer</title>
+    <!-- Assuming your main style.css provides global styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Specific styles for the breathing visualizer -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/breathing_visualizer.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="parallax-header">
+            <h1>Breathing Visualizer</h1>
+            <p>Harmonize your breath with calming visual cues.</p>
+        </header>
+
+        <div class="card"> 
+            <div class="breathing-container">
+                <div class="timer" id="timer">00:00</div>
+                <div class="breathing-circle" id="breathingCircle"></div>
+                <div class="instructions" id="instructions">Click 'Start Breathing' to begin</div>
+
+                <label for="patternSelect" class="label-pattern-select">Choose Pattern:</label>
+                <select id="patternSelect" class="select-pattern">
+                    <option value="box">Box Breathing</option>
+                    <option value="4-7-8">4-7-8 Breathing</option>
+                    <option value="energizer">Energizer</option>
+                    <option value="calming">Calming</option>
+                </select>
+
+                <div class="control-buttons">
+                    <button id="startButton" class="btn-breathing">Start Breathing</button>
+                    <button id="stopButton" class="btn-breathing" style="display: none;">Stop Breathing</button>
+                </div>
+            </div>
+            <a href="/meditation-options" class="btn btn-secondary" style="margin-top: 30px;">← Back to Meditation Options</a>
+        </div>
+    </div>
+
+    <!-- Audio elements for background music and vocal cues -->
+    <!-- Ensure these audio files exist in your static/audio/ directory -->
+    <audio id="backgroundMusic" loop preload="auto">
+        <source src="{{ url_for('static', filename='audio/smoothing_breathing_song.mp3') }}" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <audio id="inhaleSound" src="{{ url_for('static', filename='audio/inhale.mp3') }}" preload="auto"></audio>
+    <audio id="exhaleSound" src="{{ url_for('static', filename='audio/exhale.mp3') }}" preload="auto"></audio>
+    <audio id="holdSound" src="{{ url_for('static', filename='audio/hold.mp3') }}" preload="auto"></audio>
+
+    <!-- JavaScript for the breathing visualizer logic -->
+    <script src="{{ url_for('static', filename='js/breathing_visualizer.js') }}"></script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+flask
+pymongo
+requests
+textblob
+openai
+python-dotenv

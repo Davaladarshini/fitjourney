@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Statistics</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" integrity="sha512-SnH5WK+bZxgPHs44uWIX+LLJAJ9/2PkPKZ5QiAj6Ta86w+fsb2TkcmfRyVX3pBnMFcV7oQPJkl9QevSCWr3W6A==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+</head>
+<body>
+
+  <div style="display: flex; min-height: 100vh;">
+    <!-- Sidebar -->
+    <aside style="width: 220px; background: var(--card-bg); padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.05);">
+      <div style="margin-bottom: 40px; font-weight: bold; font-size: 18px;">
+        <span>{{name}}</span>
+      </div>
+      <nav>
+        <a href="/welcome" style="display: block; margin-bottom: 15px; color: var(--text-color); text-decoration: none;">🏠 Dashboard</a>
+        <a href="/workouts" class="active-link" style="display: block; margin-bottom: 15px; text-decoration: none;">💪 Workouts</a>
+        <a href="/statistics" style="display: block; margin-bottom: 15px; color: var(--text-color); text-decoration: none;">📊 Statistics</a>
+        <a href="/logout" style="display: block; margin-top: 30px; color: var(--secondary); text-decoration: none;">🔓 Logout</a>
+      </nav>
+    </aside>
+    
+
+        <main class="stats-main_stat">
+      <section class="motivation_stat">
+        <h2>📢 Daily Motivation</h2>
+        <blockquote>
+          "Small progress is still progress. Celebrate every step!"
+        </blockquote>
+        <p>You're <strong>0%</strong> of the way to your next milestone!</p>
+      </section>
+
+      <section class="summary-cards_stat">
+        <div class="card_stat">
+              <div class="icon-circle">
+                <i class="fas fa-clock"></i> </div>
+              Current Streak<br><strong>0 days</strong>
+            </div>
+        <div class="card_stat">
+              <div class="icon-circle">
+                <i class="fas fa-calendar-alt"></i> </div>
+              Workouts This Month<br><strong>0 sessions</strong>
+            </div>
+        <div class="card_stat">
+              <div class="icon-circle">
+                <i class="fas fa-flag"></i> </div>
+              Journey Started<br><strong>14/6/2025</strong>
+            </div>
+        <div class="card_stat">
+              <div class="icon-circle">
+                <i class="fas fa-trophy"></i> </div>
+              Milestones Achieved<br><strong>0 goals</strong>
+            </div>
+      </section>
+
+      <section class="graphs_stat">
+        <div class="graph-card_stat">
+          <h3>📈 Weight Progress</h3>
+          <canvas id="weightChart"></canvas>
+        </div>
+        <div class="graph-card_stat">
+          <h3>❤️ Activity Overview</h3>
+          <canvas id="activityChart"></canvas>
+        </div>
+        <div class="graph-card_stat">
+          <h3>🏃 Workout Distribution</h3>
+          <canvas id="workoutChart"></canvas>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    const weightChart = new Chart(document.getElementById('weightChart'), {
+      type: 'line',
+      data: {
+        labels: ['Day 1', 'Day 2', 'Day 3'],
+        datasets: [{
+          label: 'Weight (kg)',
+          data: [70, 69.5, 69],
+          borderColor: 'rgba(102, 126, 234, 1)',
+          fill: false
+        }]
+      }
+    });
+
+    const activityChart = new Chart(document.getElementById('activityChart'), {
+      type: 'bar',
+      data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
+        datasets: [{
+          label: 'Minutes Spent',
+          data: [30, 45, 20, 60, 40],
+          backgroundColor: 'rgba(118, 75, 162, 0.6)'
+        }]
+      }
+    });
+
+    const workoutChart = new Chart(document.getElementById('workoutChart'), {
+      type: 'doughnut',
+      data: {
+        labels: ['Cardio', 'Strength', 'Yoga'],
+        datasets: [{
+          data: [40, 35, 25],
+          backgroundColor: ['#667eea', '#764ba2', '#9f7aea']
+        }]
+      }
+    });
+  </script>
+</body>
+</html>

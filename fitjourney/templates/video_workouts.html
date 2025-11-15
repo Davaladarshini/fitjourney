@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>💪 Fitness Hub: Choose Your Workout</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <style>
+        :root {
+            --primary-color: #6A1B9A;
+            --primary-dark: #4A148C;
+            --secondary-color: #9C27B0;
+            --accent-color: #FF4081;
+            --bg-light: #f3e5f5;
+            --bg-dark: #e1bee7;
+            --text-dark: #333;
+            --text-light: #f9f9f9;
+            --card-bg: #ffffff;
+            --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Open Sans', sans-serif;
+            background: linear-gradient(270deg, #e0c3fc, #f5d9fa, #dfe9f3, #e0f7fa, #f3e7ff);
+            background-size: 600% 600%;
+            animation: animatedGradient 20s ease infinite;
+            color: var(--text-dark);
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding: 40px 0;
+        }
+
+        @keyframes animatedGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        /* Adjustments for main container to hold two cards per row */
+        .main {
+            max-width: 1000px; /* Increased max-width to accommodate two cards */
+            width: 95%; /* Adjusted width for better responsiveness */
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+            display: flex; /* Enable Flexbox */
+            flex-wrap: wrap; /* Allow cards to wrap to the next row */
+            justify-content: center; /* Center cards horizontally */
+            gap: 25px; /* Space between cards */
+        }
+
+        h1 {
+            width: 100%; /* Make heading span full width */
+            text-align: center;
+            margin-bottom: 40px;
+            font-family: 'Montserrat', sans-serif;
+            color: var(--primary-dark);
+            font-size: 2.5em;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 25px 30px;
+            /* Removed margin-bottom here as gap in .main handles spacing */
+            box-shadow: var(--shadow-light);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: 1px solid #eee;
+            width: calc(50% - 30px); /* Adjust width for two cards, considering gap */
+            box-sizing: border-box; /* Include padding and border in the width calculation */
+            margin-bottom: 25px; /* Maintain vertical spacing for wrapped rows */
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card h3 {
+            margin-top: 0;
+            color: var(--primary-color);
+            font-family: 'Montserrat', sans-serif;
+            font-size: 1.6em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card p {
+            color: #555;
+            font-size: 0.95em;
+            margin-bottom: 15px;
+        }
+
+        /* Styles for the video player */
+        .video-player {
+            width: 100%;
+            height: 200px; /* Adjust height as needed */
+            background-color: #000;
+            border-radius: 8px;
+            margin-bottom: 15px; /* Space between video and dropdown */
+        }
+
+        /* Styles for the custom dropdown */
+        .custom-dropdown {
+            position: relative;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .dropdown-toggle {
+            background: var(--secondary-color);
+            color: var(--text-light);
+            border: none;
+            padding: 10px 18px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: background 0.3s ease, transform 0.2s ease;
+            outline: none;
+            width: 100%; /* Make button span full width */
+            justify-content: center;
+            box-sizing: border-box; /* Include padding in width */
+        }
+
+        .dropdown-toggle:hover {
+            background: var(--primary-color);
+            transform: translateY(-2px);
+        }
+
+        .dropdown-toggle:active {
+            transform: translateY(0);
+        }
+
+        .dropdown-menu {
+            display: none; /* Hidden by default */
+            position: absolute;
+            background-color: var(--card-bg);
+            min-width: 160px;
+            box-shadow: var(--shadow-light);
+            border-radius: 8px;
+            z-index: 1;
+            margin-top: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+            border: 1px solid #eee;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .dropdown-menu button {
+            color: var(--primary-color);
+            padding: 12px 16px;
+            text-decoration: none;
+            display: block;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background-color 0.2s ease, color 0.2s ease;
+            border-radius: 8px;
+        }
+
+        .dropdown-menu button:hover {
+            background-color: var(--bg-light);
+            color: var(--primary-dark);
+        }
+
+        .dropdown-menu button:not(:last-child) {
+            border-bottom: 1px solid #eee;
+        }
+
+        .arrow {
+            margin-left: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .dropdown-toggle.active .arrow {
+            transform: rotate(180deg);
+        }
+
+        /* Responsive adjustments for smaller screens */
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+                margin-bottom: 30px;
+            }
+
+            .main {
+                padding: 15px;
+                gap: 20px; /* Slightly smaller gap on mobile */
+            }
+
+            .card {
+                width: 100%; /* Cards stack in a single column on smaller screens */
+                margin-bottom: 20px; /* Adjust spacing when stacked */
+                padding: 20px;
+            }
+
+            .card h3 {
+                font-size: 1.4em;
+            }
+
+            .dropdown-toggle {
+                font-size: 0.9em;
+                padding: 8px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main">
+        <h1>🏋️‍♂️ Fitness Hub: Choose Your Workout</h1>
+
+        <!-- Full Body Workout Card -->
+        <div class="card">
+            <h3><i class="fas fa-running"></i> Full Body Workout</h3>
+            <p>A comprehensive routine designed to engage all major muscle groups for overall strength and conditioning. Perfect for a balanced fitness approach.</p>
+            <video controls class="video-player" id="fullBodyVideo">
+                <!-- Default video for Full Body -->
+                <source src="static/video/fitness-fullbody1.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle" onclick="toggleDropdown(this)">
+                    <i class="fas fa-play-circle"></i> Choose Video <span class="arrow">▼</span>
+                </button>
+                <div class="dropdown-menu">
+                    <button onclick="playVideo('fullBodyVideo', 'static/video/fitness-fullbody1.mp4')">Video 1: Full Body Routine A</button>
+                    <button onclick="playVideo('fullBodyVideo', 'static/video/fitness-fullbody2.mp4')">Video 2: Full Body Routine B</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Upper Body Card -->
+        <div class="card">
+            <h3><i class="fas fa-dumbbell"></i> Upper Body</h3>
+            <p>Target your arms, shoulders, chest, and back. Build strength and definition in your upper physique with these focused exercises.</p>
+            <video controls class="video-player" id="upperBodyVideo">
+                <!-- Default video for Upper Body -->
+                <source src="static/video/fitness-upperbody1.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle" onclick="toggleDropdown(this)">
+                    <i class="fas fa-play-circle"></i> Choose Video <span class="arrow">▼</span>
+                </button>
+                <div class="dropdown-menu">
+                    <button onclick="playVideo('upperBodyVideo', 'static/video/fitness-upperbody1.mp4')">Video 1: Upper Body Routine A</button>
+                    <button onclick="playVideo('upperBodyVideo', 'static/video/fitness-upperbody2.mp4')">Video 2: Upper Body Routine B</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lower Body Card -->
+        <div class="card">
+            <h3><i class="fas fa-walking"></i> Lower Body</h3>
+            <p>Strengthen your legs, glutes, and calves. Essential for power, stability, and everyday functional movement.</p>
+            <video controls class="video-player" id="lowerBodyVideo">
+                <!-- Default video for Lower Body -->
+                <source src="static/video/fitness-lowerbody1.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle" onclick="toggleDropdown(this)">
+                    <i class="fas fa-play-circle"></i> Choose Video <span class="arrow">▼</span>
+                </button>
+                <div class="dropdown-menu">
+                    <button onclick="playVideo('lowerBodyVideo', 'static/video/fitness-lowerbody1.mp4')">Video 1: Lower Body Routine A</button>
+                    <button onclick="playVideo('lowerBodyVideo', 'static/video/fitness-lowerbody2.mp4')">Video 2: Lower Body Routine B</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Core Workout Card -->
+        <div class="card">
+            <h3><i class="fas fa-child"></i> Core Workout</h3>
+            <p>
+                Build a strong foundation with targeted exercises for your abdominal and back muscles, improving posture and overall stability.
+            </p>
+            <video controls class="video-player" id="coreVideo">
+                <!-- Default video for Core -->
+                <source src="static/video/fitness-core1.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle" onclick="toggleDropdown(this)">
+                    <i class="fas fa-play-circle"></i> Choose Video <span class="arrow">▼</span>
+                </button>
+                <div class="dropdown-menu">
+                    <button onclick="playVideo('coreVideo', 'static/video/fitness-core1.mp4')">Video 1: Core Routine A</button>
+                    <button onclick="playVideo('coreVideo', 'static/video/fitness-core2.mp4')">Video 2: Core Routine B</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Stretching Card -->
+        <div class="card">
+            <h3><i class="fas fa-spa"></i> Stretching</h3>
+            <p>Enhance flexibility, reduce muscle soreness, and prevent injuries with these essential stretching routines.</p>
+            <video controls class="video-player" id="stretchingVideo">
+                <!-- Default video for Stretching -->
+                <source src="static/video/fitness-stretches1.mp4" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+            <div class="custom-dropdown">
+                <button class="dropdown-toggle" onclick="toggleDropdown(this)">
+                    <i class="fas fa-play-circle"></i> Choose Video <span class="arrow">▼</span>
+                </button>
+                <div class="dropdown-menu">
+                    <button onclick="playVideo('stretchingVideo', 'static/video/fitness-stretches1.mp4')">Video 1: Stretching Routine A</button>
+                    <button onclick="playVideo('stretchingVideo', 'static/video/fitness-stretches2.mp4')">Video 2: Stretching Routine B</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDropdown(buttonElement) {
+            const dropdownMenu = buttonElement.nextElementSibling;
+            const arrow = buttonElement.querySelector('.arrow');
+
+            // Close other open dropdowns
+            document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                if (menu !== dropdownMenu) {
+                    menu.classList.remove('show');
+                    menu.previousElementSibling.classList.remove('active'); // Deactivate other buttons
+                }
+            });
+
+            // Toggle current dropdown
+            dropdownMenu.classList.toggle('show');
+            buttonElement.classList.toggle('active'); // Toggle active state for the button
+        }
+
+        function playVideo(videoId, videoSrc) {
+            const videoPlayer = document.getElementById(videoId);
+            if (videoPlayer) {
+                videoPlayer.src = videoSrc;
+                videoPlayer.load(); // Load the new video
+                videoPlayer.play(); // Play the new video
+            } else {
+                console.error('Video player with ID "' + videoId + '" not found.');
+            }
+
+
+            // Close the dropdown after selecting a video
+            const dropdownMenu = videoPlayer.nextElementSibling.querySelector('.dropdown-menu');
+            const dropdownToggle = videoPlayer.nextElementSibling.querySelector('.dropdown-toggle');
+            dropdownMenu.classList.remove('show');
+            dropdownToggle.classList.remove('active');
+        }
+
+        // Close dropdowns if clicked outside
+        window.onclick = function(event) {
+            if (!event.target.matches('.dropdown-toggle') && !event.target.matches('.dropdown-toggle *')) {
+                document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
+                    menu.classList.remove('show');
+                    menu.previousElementSibling.classList.remove('active');
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,127 @@
+/* static/css/mood_history.css */
+/* Locate the .card rule in your style.css or breathing_visualizer.css */
+.card {
+    background-color: var(--card-bg, #ffffff);
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 90%;
+    max-width: 600px;
+    margin: 40px auto;
+    text-align: center; /* This centers inline-level content like text */
+    display: flex;
+    flex-direction: column;
+    /* REMOVE or comment out this line: */
+    /* align-items: center; */ /* This was causing the issue for block-level children */
+
+    /* Or, if you want to keep align-items for other flex children within the card,
+       but want the mood-history-container specifically centered, you'd apply
+       margin-left: auto; margin-right: auto; to .mood-history-container
+       instead of just margin: 0 auto; if its parent has align-items: center.
+       But removing it from .card is cleaner if it only holds this one main content block.
+    */
+}
+
+/* Ensure the .mood-history-container still has this to center itself within the card */
+.mood-history-container {
+    width: 100%;
+    max-width: 550px;
+    margin: 0 auto; /* This should now work as expected */
+    /* ... other styles ... */
+}
+/* Overall average mood display */
+.avg-mood-display {
+    font-size: 1.4em;
+    font-weight: bold;
+    margin-bottom: 25px;
+    color: var(--primary, #6a5acd);
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--secondary, #3cb371); /* Separator line */
+    text-align: center;
+}
+
+/* Individual mood entry card */
+.mood-entry {
+    background-color: var(--body-bg, #f0f2f5); /* Use a lighter background for individual entries */
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 15px;
+    text-align: left;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08); /* Slightly more prominent shadow */
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    border: 1px solid rgba(0, 0, 0, 0.05); /* Subtle border */
+}
+
+.mood-entry:hover {
+    transform: translateY(-2px); /* Slight lift effect on hover */
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.12);
+}
+
+.mood-entry p {
+    margin: 8px 0; /* More spacing for paragraphs */
+    color: var(--text-color, #333);
+    line-height: 1.5;
+}
+
+.mood-entry .rating {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: var(--primary, #6a5acd); /* Primary color for rating */
+    margin-bottom: 10px;
+    display: flex; /* Align icon and text */
+    align-items: center;
+    gap: 8px; /* Space between emoji and text */
+}
+
+/* Style for potential emoji in rating */
+.mood-entry .rating::before {
+    content: ''; /* Placeholder for emoji, or use JS to inject */
+    font-size: 1.1em;
+}
+
+/* You'd use specific content for different ratings if you want emojis here */
+.mood-entry.rating-5 .rating::before { content: '😊'; }
+.mood-entry.rating-4 .rating::before { content: '🙂'; }
+.mood-entry.rating-3 .rating::before { content: '😐'; }
+.mood-entry.rating-2 .rating::before { content: '😟'; }
+.mood-entry.rating-1 .rating::before { content: '😔'; }
+
+
+.mood-entry .sentiment {
+    font-style: italic;
+    font-weight: 500; /* Slightly bolder italic */
+    color: var(--accent, #ff6347); /* Accent color for sentiment */
+    margin-top: 10px;
+    padding-top: 5px;
+    border-top: 1px dashed rgba(0, 0, 0, 0.1); /* Dotted line separator */
+}
+
+.mood-entry .timestamp {
+    font-size: 0.85em;
+    color: #888;
+    text-align: right; /* Align timestamp to the right */
+    margin-top: 15px;
+}
+
+/* Message when no entries are found */
+.card p {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .mood-history-container {
+        padding: 10px;
+    }
+    .avg-mood-display {
+        font-size: 1.2em;
+    }
+    .mood-entry {
+        padding: 15px;
+    }
+    .mood-entry .rating {
+        font-size: 1.1em;
+    }
+}

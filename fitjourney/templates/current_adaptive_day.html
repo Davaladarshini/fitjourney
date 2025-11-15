@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Current Adaptive Workout Day</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/workout_options_styles.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* Basic styling for demonstration - you can move this to your CSS file */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            color: #333;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            width: 100%;
+            max-width: 700px;
+            text-align: center;
+        }
+        h1 {
+            color: #303050;
+            margin-bottom: 20px;
+            font-size: 2.2em;
+        }
+        h2 {
+            color: #4a7dff;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 5px;
+            text-align: left;
+        }
+        .workout-details {
+            background-color: #f9f9f9;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+        .workout-details p {
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        .workout-details strong {
+            color: #555;
+        }
+        .feedback-form {
+            text-align: left;
+            margin-top: 30px;
+        }
+        .feedback-form label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        .feedback-form select,
+        .feedback-form textarea {
+            width: calc(100% - 20px);
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            box-sizing: border-box;
+        }
+        .feedback-form textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        .btn-submit {
+            background: linear-gradient(to right, #6a82fb, #fc5c7d);
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: background 0.3s ease;
+            display: inline-block; /* To allow text-align: center on parent if needed */
+            margin-top: 10px;
+        }
+        .btn-submit:hover {
+            background: linear-gradient(to right, #5c6efb, #eb4a68);
+        }
+        .flash-messages {
+            margin-top: 20px;
+            list-style: none;
+            padding: 0;
+        }
+        .flash-messages li {
+            background-color: #ffe0b2; /* Light orange for warning/info */
+            color: #e65100; /* Darker orange for text */
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            text-align: center;
+            border: 1px solid #ffcc80;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Day {{ day_number }} of Your Adaptive Plan</h1>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flash-messages">
+                    {% for message in messages %}
+                        <li>{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <div class="workout-details">
+            <p><strong>Type:</strong> {{ current_day_workout.type }}</p>
+            <p><strong>Workout:</strong></p>
+            <pre>{{ current_day_workout.workout }}</pre>
+            <p><strong>Status:</strong> {{ current_day_workout.status | capitalize }}</p>
+        </div>
+
+        {% if current_day_workout.status == 'pending' %}
+            <h2>Log Your Feedback:</h2>
+            <form action="{{ url_for('adaptive_plans.log_adaptive_feedback') }}" method="POST" class="feedback-form">
+                <div class="form-group">
+                    <label for="workout_status">Workout Status:</label>
+                    <select id="workout_status" name="workout_status" required>
+                        <option value="completed">Completed</option>
+                        <option value="skipped">Skipped</option>
+                        <option value="modified">Modified</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="difficulty_rating">Difficulty (1-5, 5 being very hard):</label>
+                    <select id="difficulty_rating" name="difficulty_rating" required>
+                        <option value="1">1 - Very Easy</option>
+                        <option value="2">2 - Easy</option>
+                        <option value="3">3 - Moderate</option>
+                        <option value="4">4 - Hard</option>
+                        <option value="5">5 - Very Hard</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="feedback_notes">Notes (Optional):</label>
+                    <textarea id="feedback_notes" name="feedback_notes" rows="4" placeholder="Any comments about today's workout?"></textarea>
+                </div>
+
+                <button type="submit" class="btn-submit">Submit Feedback</button>
+            </form>
+        {% else %}
+            <p style="text-align: center; margin-top: 20px; color: #666;">Feedback for this day has already been logged.</p>
+            <p style="text-align: center; margin-top: 10px;">
+                <a href="{{ url_for('adaptive_plans.view_current_adaptive_day') }}" class="btn-submit">View Next Day</a>
+            </p>
+        {% endif %}
+
+        <p style="text-align: center; margin-top: 40px;">
+            <a href="{{ url_for('adaptive_plans.adaptive_plan_history') }}" style="color: #4a7dff; text-decoration: none;">View Plan History</a>
+        </p>
+    </div>
+</body>
+</html>

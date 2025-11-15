@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meditation Options</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header class="parallax-header">
+            <h1>Choose Your <span>Meditation Journey</span></h1>
+            <p>Select an option to deepen your practice and enhance your well-being.</p>
+        </header>
+
+        <section class="meditation-options-grid">
+            <div class="option-card">
+    <div class="icon-circle">
+        <i class="fas fa-headphones"></i> </div>
+    <h2>Guided Meditation</h2>
+    <p class="caption">
+        Immerse yourself in expertly guided sessions designed for stress reduction, better sleep, enhanced focus, and cultivating inner peace.
+    </p>
+    <a href="{{ url_for('guided_meditation') }}" class="btn btn-select">Start Guided Session</a>
+</div>
+            <div class="option-card">
+                <div class="icon-circle">
+                    <i class="fas fa-wind"></i> </div>
+                <h2>Breathing Visualizer</h2>
+                <p class="caption">
+                    Harmonize your breath with calming visual cues. Practice techniques like box breathing and 4-7-8 to regulate your nervous system.
+                </p>
+                <a href="{{ url_for('breathing_visualizer') }}" class="btn btn-select">Start Breathing</a>
+            </div>
+
+            <div class="option-card">
+                <div class="icon-circle">
+                    <i class="fas fa-smile-beam"></i> </div>
+                <h2>Mood Tracker</h2>
+                <p class="caption">
+                    Monitor your emotional state before and after your practice. Gain insights into how meditation positively influences your daily mood.
+                </p>
+                <a href="{{ url_for('track_mood_form') }}" class="btn btn-select">Track My Mood</a>
+            </div>
+
+        </section>
+    </div>
+
+
+
+    </body>
+</html>

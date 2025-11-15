@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood History</title>
+    <!-- Assuming your main style.css provides global styles and :root variables -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <!-- Specific styles for the mood history display -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mood_history.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="parallax-header">
+            <h1>Your Mood History</h1>
+            <p>Review your emotional journey.</p>
+        </header>
+
+        <div class="card">
+            <div class="mood-history-container">
+                <div class="avg-mood-display">
+                    Average Mood Rating: {{ avg_mood }} / 5
+                </div>
+
+                {% if moods %}
+                    {% for mood in moods %}
+                    <div class="mood-entry rating-{{ mood.mood_rating }}"> {# Added class for specific emoji if desired #}
+                        <p class="rating">Mood: {{ mood.mood_rating }} / 5</p>
+                        {% if mood.mood_notes %}
+                            <p>Notes: {{ mood.mood_notes }}</p>
+                        {% endif %}
+                        {% if mood.sentiment_score %}
+                            <p class="sentiment">Sentiment: {{ mood.sentiment_score }}</p>
+                        {% endif %}
+                        <p class="timestamp">Logged on: {{ mood.timestamp.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <p>No mood entries yet. Start tracking your mood!</p>
+                {% endif %}
+            </div>
+            <a href="/meditation-options" class="btn btn-secondary" style="margin-top: 30px;">← Back to Meditation Options</a>
+        </div>
+    </div>
+</body>
+</html>

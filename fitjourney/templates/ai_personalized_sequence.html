@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Personalized Sequence</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        .plan-container {
+            max-width: 700px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .plan-container h1 {
+            color: #6a5acd;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .goal-form {
+            text-align: center;
+        }
+        .goal-form select {
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-right: 10px;
+        }
+        .goal-form button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .yoga-sequence {
+            margin-top: 30px;
+        }
+        .pose-item {
+            border-bottom: 1px solid #eee;
+            padding: 15px 0;
+        }
+        .pose-item:last-child {
+            border-bottom: none;
+        }
+        .pose-item h2 {
+            margin: 0;
+            color: #333;
+        }
+        .pose-item p {
+            margin: 5px 0 0;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="plan-container">
+        <h1>AI Personalized Sequence</h1>
+        {% if generated_plan %}
+            <div class="yoga-sequence">
+                <h2>{{ generated_plan.title }}</h2>
+                {% for pose in generated_plan.poses %}
+                    <div class="pose-item">
+                        <h3>{{ pose.name }} - {{ pose.duration }}</h3>
+                        <p>{{ pose.description }}</p>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>Select a goal to generate a custom yoga sequence.</p>
+            <form class="goal-form" method="POST" action="{{ url_for('ai_personalized_sequence') }}">
+                <select name="yoga_goal">
+                    <option value="stress_relief">Stress Relief</option>
+                    <option value="flexibility">Flexibility</option>
+                    <option value="energy_boost">Energy Boost</option>
+                </select>
+                <button type="submit">Generate Plan</button>
+            </form>
+        {% endif %}
+    </div>
+</body>
+</html>

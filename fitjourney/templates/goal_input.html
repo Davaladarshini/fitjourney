@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Define Your Goal</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/workout_options_styles.css') }}">
+    <style>
+        .goal-input-container {
+            max-width: 600px;
+            margin: 50px auto;
+            background-color: #fff;
+            border-radius: 12px;
+            padding: 40px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+        .goal-input-container h1 {
+            color: #303050;
+            margin-bottom: 20px;
+        }
+        .goal-input-container textarea {
+            width: 80%;
+            padding: 15px;
+            margin-bottom: 25px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 1em;
+            resize: vertical;
+            min-height: 120px;
+        }
+        .goal-input-container .btn-primary {
+            /* Inherits styles from workout_options_styles.css */
+            width: auto; /* Allow button to size naturally */
+        }
+    </style>
+</head>
+<body>
+    <div class="goal-input-container">
+        <h1>What's your goal this month?</h1>
+        <p class="subtitle">Tell us about your fitness aspirations (e.g., "lose 5kg", "run a 5k", "build muscle", "improve flexibility").</p>
+        <form action="{{ url_for('generate_ai_plan') }}" method="POST">
+            <textarea name="goal_description" placeholder="Describe your goal in detail..." required></textarea>
+            <button type="submit" class="btn btn-primary">Generate My Plan</button>
+        </form>
+    </div>
+</body>
+</html>

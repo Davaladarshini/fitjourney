@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Repetition Counter</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f2f5;
+            padding: 20px;
+        }
+        .counter-container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 40px;
+            background-color: #fff;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            color: #4a4a4a;
+            margin-bottom: 10px;
+        }
+        .instruction-box {
+            background-color: #e6f0ff;
+            border-left: 5px solid #007bff;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+            color: #333;
+            font-size: 1.1em;
+            text-align: left;
+        }
+        .ai-message {
+            font-style: italic;
+            color: #6a5acd;
+            margin-bottom: 20px;
+        }
+        #reps-display {
+            font-size: 5em;
+            font-weight: bold;
+            color: #6a5acd;
+            margin: 20px 0;
+            transition: transform 0.2s ease-in-out;
+        }
+        .counter-btn {
+            padding: 15px 30px;
+            font-size: 1.2em;
+            cursor: pointer;
+            border: none;
+            border-radius: 8px;
+            margin: 0 10px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .counter-btn:hover {
+            transform: translateY(-2px);
+        }
+        .start-btn {
+            background-color: #28a745;
+            color: white;
+        }
+        .increment-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .reset-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .button-group {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="counter-container">
+        <h1>AI Repetition Counter</h1>
+        <div id="ai-message" class="ai-message">Hello! I'm your AI guide. Let's start with some yoga repetitions.</div>
+        <div id="reps-display">0</div>
+        
+        <div class="button-group">
+            <button class="counter-btn start-btn" onclick="startWorkout()">Start</button>
+            <button class="counter-btn increment-btn" onclick="addRep()" disabled>Complete Rep</button>
+            <button class="counter-btn reset-btn" onclick="resetReps()">Reset</button>
+        </div>
+
+        <div id="instruction-box" class="instruction-box" style="display: none;">
+            <strong>AI Instruction:</strong>
+            <p id="current-instruction"></p>
+        </div>
+    </div>
+
+    <script>
+        let reps = 0;
+        const repsDisplay = document.getElementById('reps-display');
+        const aiMessage = document.getElementById('ai-message');
+        const instructionBox = document.getElementById('instruction-box');
+        const instructionText = document.getElementById('current-instruction');
+        const incrementBtn = document.querySelector('.increment-btn');
+        const startBtn = document.querySelector('.start-btn');
+
+        const yogaInstructions = {
+            intro: "Let's begin. I'll guide you through Sun Salutations. Stand tall at the top of your mat.",
+            repetition: "Round [REP_NUMBER]. Inhale, lift your arms. Exhale, fold forward. Move with your breath.",
+            outro: "You have completed your reps! Great job!",
+            pose_1: "Stand in Tadasana, Mountain Pose.",
+            pose_2: "Inhale, reach up and look towards your hands.",
+            pose_3: "Exhale, gently fold forward, Uttanasana.",
+            pose_4: "Inhale, lift and lengthen your spine for Ardha Uttanasana.",
+            pose_5: "Exhale, step or jump back into a plank.",
+            pose_6: "Lower down slowly to Chaturanga Dandasana.",
+            pose_7: "Inhale into Urdhva Mukha Svanasana, Upward-Facing Dog.",
+            pose_8: "Exhale back to Adho Mukha Svanasana, Downward-Facing Dog.",
+            pose_9: "Step or jump forward, inhale, lift and lengthen.",
+            pose_10: "Exhale, fold forward.",
+            pose_11: "Inhale, rise up with a flat back, reaching your arms overhead.",
+            pose_12: "Exhale, hands to heart center."
+        };
+
+        const poseSequence = [
+            'pose_1', 'pose_2', 'pose_3', 'pose_4', 'pose_5', 'pose_6', 'pose_7', 'pose_8', 'pose_9', 'pose_10', 'pose_11', 'pose_12'
+        ];
+        let currentPoseIndex = 0;
+
+        // Function to speak text using the Web Speech API
+        function speak(text) {
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                window.speechSynthesis.speak(utterance);
+            } else {
+                console.log("Speech Synthesis not supported by this browser.");
+            }
+        }
+
+        function startWorkout() {
+            reps = 0;
+            repsDisplay.textContent = reps;
+            instructionBox.style.display = 'block';
+            incrementBtn.disabled = false;
+            startBtn.disabled = true;
+            aiMessage.textContent = "Let's begin! I'll guide you through the first pose.";
+            speak(yogaInstructions.intro);
+            guideNextPose();
+        }
+
+        function guideNextPose() {
+            const poseKey = poseSequence[currentPoseIndex];
+            const instruction = yogaInstructions[poseKey];
+            instructionText.textContent = instruction;
+            speak(instruction);
+            currentPoseIndex = (currentPoseIndex + 1) % poseSequence.length;
+        }
+
+        function addRep() {
+            reps++;
+            repsDisplay.textContent = reps;
+            const message = yogaInstructions.repetition.replace('[REP_NUMBER]', reps);
+            aiMessage.textContent = message;
+            speak(message);
+            // Vibrate the counter display to give visual feedback
+            repsDisplay.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                repsDisplay.style.transform = 'scale(1.0)';
+            }, 200);
+
+            // After a short delay, guide the next pose in the sequence
+            setTimeout(() => {
+                guideNextPose();
+            }, 3000);
+        }
+
+        function resetReps() {
+            reps = 0;
+            repsDisplay.textContent = reps;
+            incrementBtn.disabled = true;
+            startBtn.disabled = false;
+            instructionBox.style.display = 'none';
+            aiMessage.textContent = "Session reset. Click 'Start' to begin again.";
+            speak("Session reset. Ready when you are.");
+        }
+    </script>
+</body>
+</html>

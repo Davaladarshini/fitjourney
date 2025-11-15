@@ -1,0 +1,237 @@
+/* static/css/breathing_visualizer.css */
+
+/* General container for the breathing elements */
+.breathing-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 50vh; /* Minimum height for better centering */
+    text-align: center;
+    padding: 20px;
+    gap: 15px; /* Space between elements */
+}
+
+/* Styling for the animated breathing circle */
+.breathing-circle {
+    width: 150px;
+    height: 150px;
+    background-color: var(--primary, #6a5acd); /* Default color */
+    border-radius: 50%; /* Makes it a circle */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 30px; /* Space below the circle */
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2); /* Soft shadow */
+    transition: transform 0.5s ease-in-out, background-color 0.3s ease; /* Smooth transitions for size and color */
+    color: white; /* Text color inside the circle */
+    font-size: 2.5em; /* Larger font for the countdown */
+    font-weight: bold;
+    user-select: none; /* Prevent text selection */
+}
+
+/* Animation states for the breathing circle */
+.breathing-circle.expand {
+    transform: scale(1.5); /* Grows larger */
+    background-color: var(--accent, #ff6347); /* Changes color on inhale */
+}
+.breathing-circle.contract {
+    transform: scale(0.8); /* Shrinks smaller */
+    background-color: var(--secondary, #3cb371); /* Changes color on exhale */
+}
+.breathing-circle.hold {
+    transform: scale(1.2); /* Slightly larger, indicating a hold */
+    background-color: var(--primary, #6a5acd); /* Stays primary color or similar */
+}
+
+/* Styling for the instruction text (Inhale, Exhale, Hold) */
+.instructions {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--text-color, #333);
+    margin-bottom: 20px;
+    min-height: 2em; /* Ensures consistent height to prevent layout shifts */
+}
+
+/* Styling for the overall session timer */
+.timer {
+    font-size: 2.5em; /* Prominent size */
+    font-weight: bold;
+    color: var(--accent, #ff6347); /* Accent color for visibility */
+    margin-top: 10px;
+    margin-bottom: 30px;
+    letter-spacing: 2px; /* A bit of spacing for readability */
+}
+
+/* Styling for the pattern selection dropdown */
+.label-pattern-select {
+    font-size: 1.1em;
+    color: var(--text-color, #555);
+    margin-bottom: 5px;
+}
+
+.select-pattern {
+    padding: 10px 15px;
+    border: 2px solid var(--primary, #6a5acd);
+    border-radius: 8px;
+    background-color: var(--card-bg, #f9f9f9);
+    color: var(--text-color, #333);
+    font-size: 1em;
+    margin-bottom: 25px;
+    cursor: pointer;
+    outline: none; /* Remove default focus outline */
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.select-pattern:hover {
+    border-color: var(--accent, #ff6347);
+}
+
+.select-pattern:focus {
+    box-shadow: 0 0 0 3px rgba(106, 90, 205, 0.4); /* Focus glow */
+}
+
+
+/* Container for Start/Stop buttons */
+.control-buttons {
+    display: flex;
+    gap: 20px; /* Space between buttons */
+}
+
+/* Styling for breathing control buttons */
+.btn-breathing {
+    background: linear-gradient(45deg, var(--primary, #6a5acd), var(--accent, #ff6347)); /* Gradient background */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Soft shadow */
+    min-width: 150px; /* Ensure buttons have consistent width */
+}
+.btn-breathing:hover {
+    transform: translateY(-2px); /* Slight lift effect */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2); /* Enhanced shadow on hover */
+}
+.btn-breathing:active {
+    transform: translateY(0); /* Press down effect */
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Reduced shadow on click */
+}
+
+/* Basic Card styling for the main container, similar to your other pages */
+.card {
+    background-color: var(--card-bg, #ffffff);
+    border-radius: 15px;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    width: 90%;
+    max-width: 600px;
+    margin: 40px auto;
+    text-align: center;
+    display: flex; /* Use flexbox for inner alignment */
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .breathing-circle {
+        width: 120px;
+        height: 120px;
+        font-size: 2em; /* Adjust font size */
+    }
+    .instructions {
+        font-size: 1.2em;
+    }
+    .timer {
+        font-size: 1.8em;
+    }
+    .btn-breathing {
+        padding: 10px 20px;
+        font-size: 1em;
+        min-width: 120px;
+    }
+    .control-buttons {
+        flex-direction: column; /* Stack buttons on small screens */
+        gap: 10px;
+    }
+    .card {
+        padding: 25px;
+        margin: 20px auto;
+    }
+}
+
+/* Assuming you have a style.css that defines these variables or similar base styles */
+:root {
+    --primary: #6a5acd; /* Example primary color (medium purple) */
+    --secondary: #3cb371; /* Example secondary color (medium sea green) */
+    --accent: #ff6347; /* Example accent color (tomato red) */
+    --text-color: #333; /* Dark gray for general text */
+    --card-bg: #ffffff; /* White for card backgrounds */
+    --body-bg: #f0f2f5; /* Light gray for body background */
+}
+
+body {
+    font-family: 'Inter', sans-serif; /* Using Inter font as recommended */
+    background-color: var(--body-bg);
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+/* Parallax header (adjust as per your style.css) */
+.parallax-header {
+    width: 100%;
+    text-align: center;
+    padding: 60px 20px;
+    /* --- CHANGE THESE LINES FOR TRANSPARENT BACKGROUND --- */
+    color: var(--text-color, #333); /* Change text color so it's visible against a lighter background */
+    background: transparent; /* Makes the background completely clear */
+    /* background: linear-gradient(135deg, var(--primary), var(--secondary)); /* Comment out or remove original gradient */
+    /* --- You might also remove or adjust the box-shadow if it looks odd on a transparent background --- */
+    box-shadow: none; /* Remove shadow */
+    /* -------------------------------------- */
+    margin-bottom: 20px;
+}
+
+
+.parallax-header h1 {
+    font-size: 2.8em;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.parallax-header p {
+    font-size: 1.2em;
+    opacity: 0.9;
+}
+
+/* General button styles for navigation (adjust as per your style.css) */
+.btn {
+    display: inline-block;
+    padding: 10px 20px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.btn-secondary {
+    background-color: #f0f0f0;
+    color: var(--primary);
+    border: 1px solid var(--primary);
+}
+
+.btn-secondary:hover {
+    background-color: var(--primary);
+    color: white;
+    transform: translateY(-1px);
+}
