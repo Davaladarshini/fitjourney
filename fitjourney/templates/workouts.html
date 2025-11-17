@@ -43,7 +43,9 @@
                 <div class="card">
                     <h3>🤖 Auto-Classify</h3>
                     <p>Let our AI suggest the perfect workout based on your stats</p>
-                    <button type="button">Select →</button>
+                    <form action="{{ url_for('auto_classify') }}" method="get">
+                        <button type="submit">Select →</button>
+                    </form>
                 </div>
 
                 <div class="card">

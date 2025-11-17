@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AI Fitness Auto-Classifier</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            background-color: #121212;
+            color: #f0f0f0;
+        }
+        #sidebar {
+            width: 280px;
+            background-color: #1e1e1e;
+            padding: 20px;
+            box-sizing: border-box;
+            border-right: 1px solid #333;
+        }
+        #main {
+            flex-grow: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #222;
+            padding: 10px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #61dafb;
+            text-align: center;
+        }
+        ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        ul li {
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+        #videoFeed {
+            max-width: 90vw;
+            max-height: 90vh;
+            border-radius: 8px;
+            box-shadow: 0 0 12px #61dafb;
+        }
+        .feedback {
+            margin-top: 20px;
+            font-size: 1.3em;
+            text-align: center;
+            color: #6eff6e;
+            min-height: 40px;
+        }
+        .active {
+            color: #6eff6e;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h2>Exercise Info</h2>
+        <p><strong>Active Exercise:</strong> <span id="activeExercise">Waiting...</span></p>
+        <h3>Reps Count</h3>
+        <ul id="repCounts">
+            <li>Squat: 0</li>
+            <li>Push-up: 0</li>
+            <li>Lunge: 0</li>
+            <li>Jumping Jack: 0</li>
+            <li>Sit-up: 0</li>
+        </ul>
+        <div class="feedback" id="feedbackText">Start moving to lock an exercise!</div>
+    </div>
+    <div id="main">
+        <img id="videoFeed" src="{{ url_for('video_feed') }}" alt="Live video feed" />
+    </div>
+
+    <script>
+        setInterval(() => {
+            fetch('/exercise_info')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('activeExercise').textContent = data.active_exercise || 'Waiting...';
+                    const repCounts = data.rep_counts;
+                    const repList = document.getElementById('repCounts');
+                    repList.innerHTML = '';
+                    for (const ex in repCounts) {
+                        const isActive = (ex === data.active_exercise);
+                        repList.innerHTML += `<li class='${isActive ? 'active' : ''}'>${ex}: ${repCounts[ex]}</li>`;
+                    }
+                    document.getElementById('feedbackText').textContent = data.feedback || '';
+                });
+        }, 500);
+    </script>
+</body>
+</html>
