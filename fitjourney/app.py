@@ -44,14 +44,25 @@ EXERCISE_DISPATCHER = {
     }
 } 
 
+# Replace the old loop logic (lines 49-62 in app.py) with the following:
+
 ALL_EXERCISES = {}
 for key, data in EXERCISE_DISPATCHER.items():
     target_data = data['target_data']
     
     # 1. Determine the representative target angle for display
-    # Use DOWN_KNEE_ANGLE (new key for max depth) if available
-    # Fallback to the old 'end_angle_rep' if the exercise file is old (e.g., jumping_jack)
-    angle = target_data.get('DOWN_KNEE_ANGLE', target_data.get('end_angle_rep', 0))
+    angle = 0.0
+    thresholds = target_data.get('angle_thresholds', {})
+    
+    if key in ['body_weight_squat_ohp', 'body_weight_squats']:
+        # Use knee_down for squat-type exercises
+        angle = thresholds.get('knee_down', 0)
+    elif key == 'alternate_lunges_rotation':
+        # Use front_knee_down for lunges
+        angle = thresholds.get('front_knee_down', 0)
+    elif key == 'jumping_jack':
+        # Use arm_open for jumping jacks
+        angle = thresholds.get('arm_open', 0)
     
     # 2. Determine the display feedback text
     # Use the old 'feedback' key if available, otherwise use a generic message suitable for multi-angle tracking.

@@ -62,11 +62,14 @@
                     </form>
                 </div>
 
-                <div class="card">
-                    <h3>📷 Webcam Trainer</h3>
-                    <p>Get real-time feedback on your form</p>
-                    <button type="button">Select →</button>
-                </div>
+
+            <div class="card">
+                <h3>📷 Webcam Trainer</h3>
+                <p>Get real-time feedback on your form</p>
+                <form action="{{ url_for('webcam_options') }}" method="get">
+                    <button type="submit">Select →</button>
+                </form>
+            </div>
 
                 <div class="card">
                     <h3>🧘 Meditation & Yoga</h3>

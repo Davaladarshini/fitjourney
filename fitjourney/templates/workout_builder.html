@@ -37,6 +37,6 @@
     // Pass workout data from Flask to JavaScript securely
     var workoutData = {{ workout_data | default([]) | tojson | safe }};
 </script>
-    <script src="{{ url_for('static', filename='js/workout_player.js') }}"></script> {# New JS for player #}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.14.0/Sortable.min.js"></script>
 </body>
 </html>

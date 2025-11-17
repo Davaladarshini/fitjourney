@@ -157,6 +157,7 @@
             currentPoseIndex = (currentPoseIndex + 1) % poseSequence.length;
         }
 
+        // In the <script> block, update the addRep function (around line 102):
         function addRep() {
             reps++;
             repsDisplay.textContent = reps;
@@ -170,9 +171,9 @@
             }, 200);
 
             // After a short delay, guide the next pose in the sequence
-            setTimeout(() => {
-                guideNextPose();
-            }, 3000);
+            // REMOVED: setTimeout(() => {
+            // REMOVED:     guideNextPose();
+            // REMOVED: }, 3000);
         }
 
         function resetReps() {

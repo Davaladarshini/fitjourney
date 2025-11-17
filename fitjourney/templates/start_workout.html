@@ -34,6 +34,11 @@
     </div>
 a = {{ workout_data | tojson | safe }};
 </script>
+
+<script type="text/javascript">
+        // Pass workout data from Flask to JavaScript securely
+        var workoutData = {{ workout_data | tojson | safe }};
+    </script>
     <script src="{{ url_for('static', filename='js/workout_player.js') }}"></script> {# New JS for player #}
 </body>
 </html>
