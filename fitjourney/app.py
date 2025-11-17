@@ -91,7 +91,12 @@ app.register_blueprint(breathing_bp)
 app.register_blueprint(adaptive_bp)
 
 # MongoDB Connection
+# =======================================================================
+# --- FIXED: Changed port 2717 to 27017 ---
+# =======================================================================
 client = MongoClient(os.getenv('MONGO_URI', "mongodb://localhost:27017/"))
+# =======================================================================
+
 db = client["user_db"]
 users_collection = db["users"]
 profile_collection = db['profiles']
@@ -323,6 +328,22 @@ def exercise_info():
         "active_exercise": active_exercise,
     })
 
+# =======================================================================
+# --- NEW ROUTE FOR AUTO-CLASSIFY VIDEO FEED ---
+# =======================================================================
+@app.route('/auto_classify_video_feed')
+def auto_classify_video_feed():
+    """
+    This new route specifically serves the auto-classifying generator 
+    (generate_frames) defined above.
+    """
+    return Response(
+        generate_frames(), 
+        mimetype='multipart/x-mixed-replace; boundary=frame'
+    )
+# =======================================================================
+
+
 @app.route('/')
 def index():
     return redirect(url_for('login'))
@@ -381,9 +402,17 @@ def challenge_mode():
     daily_challenge = challenges[(day_of_year - 1) % len(challenges)]
     return render_template('challenge_mode.html', daily_challenge=daily_challenge)
 
+# =======================================================================
+# --- FIXED /auto-classify ROUTE ---
+# =======================================================================
 @app.route('/auto-classify')
 def auto_classify():
-    return "Auto-Classify: AI recommends a workout based on your profile."
+    """
+    FIXED: This route now renders the auto_classify.html template
+    instead of just returning a string.
+    """
+    return render_template('auto_classify.html')
+# =======================================================================
 
 @app.route('/video-workouts')
 def video_workouts():

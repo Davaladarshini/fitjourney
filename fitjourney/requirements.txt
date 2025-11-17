@@ -2,7 +2,7 @@ flask
 pymongo
 requests
 textblob
-openai
+openai 
 python-dotenv
 opencv-python 
 numpy
