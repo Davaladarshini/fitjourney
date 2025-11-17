@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Trainer Selection 🏋️</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* BASE & TYPOGRAPHY */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f0f2f5; 
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        /* CONTAINER - CLEAN WHITE BOX */
+        .selection-container {
+            max-width: 1000px;
+            width: 90%;
+            padding: 50px;
+            background-color: white;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            text-align: center;
+        }
+
+        /* HEADER */
+        .selection-container h1 {
+            color: #6a5acd;
+            margin-bottom: 5px;
+            font-size: 2.5em;
+        }
+        .selection-container p.subtitle {
+            margin-bottom: 40px;
+            color: #777;
+            font-size: 1.1em;
+        }
+        
+        /* GRID LAYOUT */
+        .exercise-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+
+        /* EXERCISE CARD (Link styling) */
+        .exercise-card {
+            display: flex;
+            align-items: center;
+            text-align: left;
+            background-color: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s;
+            text-decoration: none;
+            color: inherit;
+        }
+        .exercise-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 25px rgba(106, 92, 205, 0.2);
+            border-color: #6a5acd;
+        }
+
+        /* ICON STYLING */
+        .card-icon {
+            font-size: 3em;
+            color: #6a5acd;
+            min-width: 60px;
+            margin-right: 20px;
+            text-align: center;
+        }
+
+        /* CONTENT & BUTTON */
+        .card-content-wrapper {
+            flex-grow: 1;
+        }
+        .card-content-wrapper h3 {
+            margin: 0 0 5px 0;
+            color: #333;
+            font-size: 1.3em;
+            font-weight: 600;
+        }
+        .card-content-wrapper p {
+            margin: 0;
+            color: #888;
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+        
+        .select-btn {
+            background-color: #6a5acd;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-left: 20px;
+            flex-shrink: 0;
+        }
+        .select-btn:hover {
+            background-color: #574cae;
+        }
+        
+        /* BACK BUTTON */
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 25px;
+            background-color: #f0f0f0;
+            color: #555;
+            border: 1px solid #ddd;
+            text-decoration: none;
+            border-radius: 8px;
+            transition: background-color 0.3s;
+            font-weight: 600;
+        }
+        .btn-secondary:hover {
+            background-color: #e0e0e0;
+        }
+    </style>
+</head>
+<body>
+    <div class="selection-container">
+        <h1><i class="fas fa-video"></i> Trainer Selection</h1>
+        <p class="subtitle">Choose an exercise below to launch the real-time, webcam-guided form analysis.</p>
+        
+        {% macro get_exercise_icon(key) %}
+            {% if 'lunge' in key %}<i class="fas fa-redo-alt"></i>
+            {% elif 'squat' in key or 'ohp' in key %}<i class="fas fa-hands-bias"></i>
+            {% elif 'square' in key %}<i class="fas fa-weight-hanging"></i>
+            {% elif 'jack' in key %}<i class="fas fa-walking"></i>
+            {% else %}<i class="fas fa-dumbbell"></i>
+            {% endif %}
+        {% endmacro %}
+        
+        <div class="exercise-grid">
+            {% for key, data in exercises.items() %}
+            <a href="{{ url_for('webcam_start', exercise_name=key) }}" class="exercise-card">
+                <div class="card-icon">{{ get_exercise_icon(key) }}</div>
+                <div class="card-content-wrapper">
+                    <h3>{{ key | replace('_', ' ') | capitalize }}</h3>
+                    <p>Focuses on a target angle of {{ data['target_angle'] }}°. {{ data['feedback'] | default("Analyze movement.") }}</p>
+                </div>
+                <button class="select-btn">Start →</button>
+            </a>
+            {% endfor %}
+            {% if not exercises %}
+                <p style="grid-column: 1 / -1; color: red;">Error: Could not load exercise data. Please check app.py and webcam_stream.py</p>
+            {% endif %}
+        </div>
+        <a href="{{ url_for('workouts') }}" class="btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back to Workouts
+        </a>
+    </div>
+
+</body>
+
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Webcam Trainer: {{ exercise | replace('_', ' ') | capitalize }}</title> 
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <style>
+        /* BASE & LAYOUT STYLES (Sleek Dark Mode) */
+        body, html {
+            margin: 0; padding: 0; height: 100%; 
+            background-color: #0d1117; 
+            font-family: 'Inter', sans-serif; 
+            overflow: hidden;
+            color: #c9d1d9; 
+        }
+        .stream-container {
+            position: relative; width: 100vw; height: 100vh;
+        }
+
+        /* LEFT PANE (25% Aesthetic Area) */
+        #left-pane {
+            position: absolute; top: 0; left: 0; width: 25vw; height: 100vh;
+            background: #161b22; 
+            box-shadow: 5px 0 15px rgba(0, 0, 0, 0.7);
+            display: flex; flex-direction: column; 
+            align-items: center; 
+            padding: 30px 10px 10px 10px; 
+            z-index: 5;
+            overflow-y: auto; 
+        }
+        .guide-title {
+            color: #58a6ff; 
+            font-size: 1.6em; margin-bottom: 20px; 
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+        }
+        
+        /* Guide Figure Container (Maximized size in left panel) */
+        #guide-figure-container {
+            width: 95%; 
+            max-width: 400px; 
+            max-height: 40vh; 
+            border-radius: 10px; overflow: hidden; background: #21262d;
+            border: 3px solid #58a6ff; 
+            box-shadow: 0 0 10px rgba(88, 166, 255, 0.5); 
+            margin-bottom: 30px; 
+        }
+        #guide-video {
+             width: 100%; height: 100%;
+             object-fit: contain;
+        }
+        
+        /* DYNAMIC ANIME GUIDE (Cute AI Coach Bot) */
+        .anime-guide { 
+            position: absolute; bottom: 30px; left: 30px; 
+            width: 120px; 
+            height: 120px; 
+            background: #4facfe; 
+            border-radius: 50%; 
+            box-shadow: 0 0 12px #4facfe, 0 0 25px #00f2fe; 
+            z-index: 10; pointer-events: none; 
+            display: flex; align-items: center; justify-content: center; 
+            animation: pulse 1.5s infinite alternate, bounce 1.5s infinite; 
+            border: 4px solid #fff;
+        }
+        .anime-guide i {
+            font-size: 5em;
+            color: #0d1117; 
+            text-shadow: 0 0 5px rgba(255, 255, 255, 0.5);
+        }
+        @keyframes bounce { 
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); } 
+            40% { transform: translateY(-20px); } 
+            60% { transform: translateY(-10px); } 
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); box-shadow: 0 0 12px #4facfe, 0 0 0px #00f2fe; }
+            100% { transform: scale(1.08); box-shadow: 0 0 20px #4facfe, 0 0 30px #00f2fe; }
+        }
+
+        /* WEBCAM FEED */
+        #webcam-feed {
+            position: absolute; top: 0; right: 0; 
+            width: 75vw; height: 100vh;
+            object-fit: cover; 
+            transition: opacity 0.5s;
+            z-index: 1; 
+        }
+        
+        /* UI OVERLAY */
+        .ui-overlay {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            pointer-events: none; 
+            z-index: 10;
+        }
+
+        /* AI COACHING PANEL (Left Panel) */
+        #ai-coach-panel {
+            width: 90%; 
+            padding: 20px;
+            margin: 0 auto 150px; 
+            
+            background: #1f1f1f; 
+            border-radius: 12px;
+            border: 1px solid #30363d; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+            text-align: left;
+            
+            color: #c9d1d9;
+            min-height: 150px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        
+        .panel-header {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #4facfe; 
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Feedback Text Area */
+        #real-time-feedback-box {
+            font-size: 1.6em; 
+            font-weight: 700;
+            margin-bottom: 15px;
+            line-height: 1.2;
+            min-height: 50px;
+            color: #E0E0E0; 
+            
+            padding: 10px;
+            border-radius: 6px;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        
+        /* Reps and Stage Footer */
+        .panel-footer {
+            font-size: 0.9em;
+            color: #8b949e; 
+            border-top: 1px solid #30363d;
+            padding-top: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .rep-count-data {
+            color: #c9d1d9;
+            font-weight: bold;
+        }
+
+        /* Exit Button */
+        .exit-btn { 
+            position: absolute; top: 20px; right: 20px; padding: 10px 20px; 
+            background-color: #db6d6d;
+            color: white; border: none; 
+            border-radius: 8px; cursor: pointer; z-index: 11; 
+            pointer-events: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.4); 
+            transition: background-color 0.3s, transform 0.2s; 
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="stream-container">
+        
+        <!-- LEFT PANE (Guide Video & AI Coach Panel) -->
+        <div id="left-pane">
+            <h2 class="guide-title"><i class="fas fa-video"></i> Reference: {{ exercise | replace('_', ' ') | capitalize }}</h2>
+            
+            <div id="guide-figure-container">
+                <video id="guide-video" 
+                       autoplay loop muted preload="auto" 
+                       src="{{ url_for('static', filename='videos/' + exercise + '.mp4') }}"
+                       width="100%" height="100%" >
+                       
+                    <source src="{{ url_for('static', filename='videos/' + exercise + '.mp4') }}" type="video/mp4">
+                    
+                    <p style="color: white; padding: 10px; text-align: center;">
+                        ERROR: Video guide file not found. Check static/videos/{{ exercise }}.mp4
+                    </p>
+                </video>
+            </div>
+            
+            <!-- AI COACHING PANEL -->
+            <div id="ai-coach-panel">
+                <div>
+                    <div class="panel-header">
+                        <i class="fas fa-ruler-combined"></i> Angle Measurement
+                    </div>
+                    <!-- Feedback Text Area: Updated by JS for color/content -->
+                    <div id="real-time-feedback-box">
+                        Checking camera and pose detection...
+                    </div>
+                </div>
+
+                <!-- Reps, Stage, Angle display -->
+                <div class="panel-footer">
+                    <span>REPS: <span id="rep-count-display" class="rep-count-data">0</span></span>
+                    <span>STAGE: <span id="stage-display" class="rep-count-data">WAIT</span></span>
+                    <span>ANGLE: <span id="angle-display" class="rep-count-data">N/A</span></span>
+                </div>
+            </div>
+
+
+            <!-- DYNAMIC ANIME GUIDE (Cute, bigger bot) -->
+            <div class="anime-guide">
+                <i class="fas fa-robot"></i> 
+            </div>
+        </div>
+
+        <!-- PRELOADER -->
+        <div id="preloader">
+            <h1 style="display: flex; align-items: center;">
+                <i class="fas fa-camera" style="margin-right: 15px;"></i> Initializing Trainer...
+            </h1>
+            <div id="motivational-message"></div>
+        </div>
+        
+        <!-- WEBCAM FEED (MJPEG Stream) -->
+        <img id="webcam-feed" 
+             src="{{ url_for('video_feed', exercise_name=exercise) }}" 
+             alt="Webcam Trainer Video Feed"
+             style="opacity: 0;">
+
+        <!-- UI OVERLAY -->
+        <div class="ui-overlay">
+            
+            <button class="exit-btn" onclick="window.location.href='{{ url_for('workouts') }}'">
+                <i class="fas fa-times-circle"></i> Exit Trainer
+            </button>
+        </div>
+    </div>
+    
+    <script>
+        const EXERCISE_NAME = "{{ exercise }}";
+        const feedbackBox = document.getElementById('real-time-feedback-box');
+        
+        // Displays
+        const repDisplay = document.getElementById('rep-count-display');
+        const stageDisplay = document.getElementById('stage-display');
+        const angleDisplay = document.getElementById('angle-display');
+
+        let lastFeedbackText = ""; 
+
+        // --- TTS Initialization ---
+        const speaker = window.speechSynthesis;
+        const voice = speaker.getVoices().find(v => v.name.includes('Google') || v.name.includes('Samantha') || v.name.includes('Zira')) || speaker.getVoices()[0];
+        
+        function speakFeedback(text) {
+            // Check if the current message is different from the last one spoken
+            // We speak all completion messages and specific error messages
+            if (text.trim() === "" || text === lastFeedbackText) return;
+
+            // Simple filter for generic messages that shouldn't be spoken repeatedly
+            if (text.includes("Tracking Active") || text.includes("No Pose") || text.includes("Maintain depth")) return;
+
+            // Logically filter if the message is critical (rep count, error, or command)
+            if (text.includes("REP") || text.includes("Error") || text.includes("DEEPEN") || text.includes("STRAIGHTEN") || text.includes("ANKLE")) {
+                const utterance = new SpeechSynthesisUtterance(text);
+                utterance.voice = voice;
+                utterance.rate = 1.1; 
+                utterance.pitch = 1.0;
+                speaker.speak(utterance);
+                
+                lastFeedbackText = text;
+            }
+        }
+
+
+        // --- REAL-TIME FEEDBACK POLLING ---
+        function updateFeedback(data) {
+            let feedback = data.feedback || "Loading...";
+            let currentAngle = data.angle;
+            
+            // --- UI/Aesthetic Logic ---
+            let boxBg = "#21262d"; // Dark background default
+            let boxFg = "#4facfe"; // Blue text default
+            let speakNow = false;
+
+            // Success (PERFECT FORM/REP)
+            if (feedback.includes("PERFECT FORM") || feedback.includes("Well Done")) {
+                boxBg = "#238636"; // Green background
+                boxFg = "white";
+                speakNow = true;
+            // Error/Warning (Need to move deeper/higher)
+            } else if (feedback.includes("DEEPEN") || feedback.includes("DROP") || feedback.includes("RAISE") || feedback.includes("SIT") || feedback.includes("STRAIGHTEN") || feedback.includes("ANKLE")) {
+                boxBg = "#F85149"; // Red background
+                boxFg = "white";
+                speakNow = true;
+            } else {
+                // Neutral/Tracking/Wait
+                boxBg = "#21262d"; 
+                boxFg = "#4facfe"; 
+            }
+            
+            feedbackBox.textContent = feedback;
+            feedbackBox.style.color = boxFg;
+            feedbackBox.style.backgroundColor = boxBg;
+            
+            // --- TTS Trigger ---
+            if (speakNow) {
+                speakFeedback(feedback);
+            }
+            
+            // --- Display Metrics ---
+            repDisplay.textContent = data.reps;
+            stageDisplay.textContent = data.stage;
+            angleDisplay.textContent = data.angle ? data.angle.toFixed(1) + '°' : 'N/A';
+        }
+
+        async function fetchFeedback() {
+            try {
+                const response = await fetch(`/get_feedback/${EXERCISE_NAME}`);
+                if (!response.ok) throw new Error('Network response was not ok');
+                
+                const data = await response.json();
+                updateFeedback(data);
+
+            } catch (error) {
+                console.error("Error fetching feedback:", error);
+                feedbackBox.textContent = "AI Analysis Offline";
+                feedbackBox.style.backgroundColor = "#555";
+            }
+        }
+
+        // --- PRELOADER LOGIC ---
+        const preloaderMessages = ["We're checking your camera...", "Optimizing detection...", "Waiting for pose input..."];
+        let messageIndex = 0;
+        const preloader = document.getElementById('preloader');
+        const webcamFeed = document.getElementById('webcam-feed');
+        const messageElement = document.getElementById('motivational-message');
+        
+        function cyclePreloaderMessage() {
+            messageElement.style.opacity = 0;
+            setTimeout(() => {
+                messageElement.textContent = preloaderMessages[messageIndex % preloaderMessages.length];
+                messageIndex++;
+                messageElement.style.opacity = 1;
+            }, 300);
+        }
+
+        cyclePreloaderMessage();
+        const preloaderInterval = setInterval(cyclePreloaderMessage, 2000); 
+        const preloadTime = 3000;
+        
+        setTimeout(() => {
+            clearInterval(preloaderInterval);
+            preloader.style.opacity = 0;
+            webcamFeed.style.opacity = 1;
+            
+            setTimeout(() => {
+                preloader.style.display = 'none';
+                // START POLLING (The real work)
+                setInterval(fetchFeedback, 500); 
+            }, 700);
+        }, preloadTime); 
+        
+    </script>
+</body>
+</html>
