@@ -43,7 +43,7 @@
                 <div class="card">
                     <h3>🤖 Auto-Classify</h3>
                     <p>Let our AI suggest the perfect workout based on your stats</p>
-                    <form action="{{ url_for('auto_classify') }}" method="get">
+                    <form action="{{ url_for('webcam.auto_classify') }}" method="get">
                         <button type="submit">Select →</button>
                     </form>
                 </div>
@@ -51,7 +51,7 @@
                 <div class="card">
                     <h3>🎥 Video Workouts</h3>
                     <p>Follow along with our expert trainers</p>
-                    <form action="{{ url_for('video_workouts') }}" method="get">
+                    <form action="{{ url_for('webcam.video_workouts') }}" method="get">
                         <button type="submit">Select →</button>
                     </form>
                 </div>
@@ -59,7 +59,7 @@
                 <div class="card">
                     <h3>📝 Custom Workout</h3>
                     <p>Build your own personalized workout plan tailored to your needs and goals.</p>
-                    <form action="{{ url_for('workout_options') }}" method="get">
+                    <form action="{{ url_for('main.workout_options') }}" method="get">
                         <button type="submit">Select →</button>
                     </form>
                 </div>
@@ -68,7 +68,7 @@
             <div class="card">
                 <h3>📷 Webcam Trainer</h3>
                 <p>Get real-time feedback on your form</p>
-                <form action="{{ url_for('webcam_options') }}" method="get">
+                <form action="{{ url_for('webcam.webcam_options') }}" method="get">
                     <button type="submit">Select →</button>
                 </form>
             </div>
@@ -79,8 +79,8 @@
                     <div class="dropdown-container">
                         <button class="dropdown-btn" onclick="toggleDropdown(this)">Select ▼</button>
                         <div class="dropdown-options">
-                            <a href="{{ url_for('guided_meditation') }}" class="dropdown-option">Meditation</a>
-                            <a href="{{ url_for('yoga_workouts') }}" class="dropdown-option">Yoga</a>
+                            <a href="{{ url_for('mindfulness.guided_meditation') }}" class="dropdown-option">Meditation</a>
+                            <a href="{{ url_for('yoga.yoga_workouts') }}" class="dropdown-option">Yoga</a>
                         </div>
                     </div>
                 </div>

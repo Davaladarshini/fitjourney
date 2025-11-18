@@ -225,14 +225,13 @@
         
         <!-- WEBCAM FEED (MJPEG Stream) -->
         <img id="webcam-feed" 
-             src="{{ url_for('video_feed', exercise_name=exercise) }}" 
+             src="{{ url_for('webcam.video_feed', exercise_name=exercise) }}" 
              alt="Webcam Trainer Video Feed"
              style="opacity: 0;">
 
         <!-- UI OVERLAY -->
-        <div class="ui-overlay">
-            
-            <button class="exit-btn" onclick="window.location.href='{{ url_for('workouts') }}'">
+        <div class="ui-overlay">            
+            <button class="exit-btn" onclick="window.location.href='{{ url_for('main.workouts') }}'">
                 <i class="fas fa-times-circle"></i> Exit Trainer
             </button>
         </div>

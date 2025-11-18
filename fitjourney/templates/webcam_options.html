@@ -147,7 +147,7 @@
         
         <div class="exercise-grid">
             {% for key, data in exercises.items() %}
-            <a href="{{ url_for('webcam_start', exercise_name=key) }}" class="exercise-card">
+            <a href="{{ url_for('webcam.webcam_start', exercise_name=key) }}" class="exercise-card">
                 <div class="card-icon">{{ get_exercise_icon(key) }}</div>
                 <div class="card-content-wrapper">
                     <h3>{{ key | replace('_', ' ') | capitalize }}</h3>
@@ -160,7 +160,7 @@
                 <p style="grid-column: 1 / -1; color: red;">Error: Could not load exercise data. Please check app.py and webcam_stream.py</p>
             {% endif %}
         </div>
-        <a href="{{ url_for('workouts') }}" class="btn-secondary">
+        <a href="{{ url_for('main.workouts') }}" class="btn-secondary">
             <i class="fas fa-arrow-left"></i> Back to Workouts
         </a>
     </div>

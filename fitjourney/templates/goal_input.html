@@ -39,7 +39,7 @@
     <div class="goal-input-container">
         <h1>What's your goal this month?</h1>
         <p class="subtitle">Tell us about your fitness aspirations (e.g., "lose 5kg", "run a 5k", "build muscle", "improve flexibility").</p>
-        <form action="{{ url_for('generate_ai_plan') }}" method="POST">
+        <form action="{{ url_for('ai_workouts.generate_ai_plan') }}" method="POST">
             <textarea name="goal_description" placeholder="Describe your goal in detail..." required></textarea>
             <button type="submit" class="btn btn-primary">Generate My Plan</button>
         </form>

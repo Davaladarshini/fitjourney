@@ -72,7 +72,7 @@
             </div>
         {% else %}
             <p>Select a goal to generate a custom yoga sequence.</p>
-            <form class="goal-form" method="POST" action="{{ url_for('ai_personalized_sequence') }}">
+            <form class="goal-form" method="POST" action="{{ url_for('yoga.ai_personalized_sequence') }}">
                 <select name="yoga_goal">
                     <option value="stress_relief">Stress Relief</option>
                     <option value="flexibility">Flexibility</option>
