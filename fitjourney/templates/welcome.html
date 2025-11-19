@@ -17,7 +17,7 @@
       flex: 1;
     }
     
-    /* Welcome Header */
+    /* Welcome Banner */
     .welcome-banner {
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
@@ -34,6 +34,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
       gap: 25px;
+      margin-bottom: 25px;
     }
 
     /* Metric Cards */
@@ -66,9 +67,79 @@
     .icon-purple { background: #f3e5f5; color: #9c27b0; }
     .icon-orange { background: #fff3e0; color: #ff9800; }
 
+    /* --- NEW: BMI Visualizer Styles --- */
+    .bmi-visualizer-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      margin-bottom: 30px; /* Space before action section */
+    }
+    
+    .bmi-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+    }
+    .bmi-header h3 { margin: 0; color: #333; font-size: 1.1rem; font-weight: 600; }
+    .bmi-header span { font-weight: bold; color: #667eea; }
+
+    .bmi-bar-container {
+        position: relative;
+        height: 40px; /* Container height */
+        margin-top: 10px;
+    }
+
+    .bmi-bar {
+        width: 100%;
+        height: 12px;
+        border-radius: 6px;
+        /* Gradient representing BMI Ranges: 
+           Blue (<18.5), Green (18.5-25), Yellow (25-30), Red (>30) */
+        background: linear-gradient(90deg, 
+            #4fc3f7 0%, #4fc3f7 28.3%, 
+            #66bb6a 28.3%, #66bb6a 50%, 
+            #ffca28 50%, #ffca28 66.6%, 
+            #ef5350 66.6%, #ef5350 100%
+        );
+        position: absolute;
+        top: 14px;
+    }
+
+    .bmi-marker {
+        position: absolute;
+        top: 5px; /* Aligns marker */
+        width: 4px;
+        height: 30px;
+        background: #2d3748;
+        border-radius: 2px;
+        transform: translateX(-50%);
+        transition: left 1.5s cubic-bezier(0.22, 1, 0.36, 1); /* Smooth slide animation */
+        box-shadow: 0 0 5px rgba(0,0,0,0.3);
+        z-index: 2;
+    }
+    .bmi-marker::after {
+        content: '▼';
+        position: absolute;
+        top: -14px;
+        left: 50%;
+        transform: translateX(-50%);
+        font-size: 10px;
+        color: #2d3748;
+    }
+
+    .bmi-labels {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.8rem;
+        color: #888;
+        margin-top: 0px;
+    }
+    /* --- END BMI Styles --- */
+
     /* Action Area */
     .action-section {
-      margin-top: 30px;
       display: grid;
       grid-template-columns: 2fr 1fr;
       gap: 25px;
@@ -79,9 +150,13 @@
       padding: 30px;
       border-radius: 12px;
       box-shadow: 0 4px 15px rgba(0,0,0,0.05);
-      text-align: center;
     }
 
+    /* Custom mapping for fa-height */
+    .fa-height:before {
+        content: "\f044"; /* Unicode for fa-ruler-vertical */
+    }
+    
     .btn-action {
       display: inline-block;
       padding: 12px 30px;
@@ -143,10 +218,10 @@
     <div class="dashboard-grid">
       <div class="metric-card">
         <div class="metric-info">
-          <h3>Your BMI</h3>
-          <p>{{ user_details.bmi if user_details and user_details.bmi else '--' }}</p>
+          <h3>height</h3>
+          <p>{{ user_details.height if user_details and user_details.height else '--' }}</p>
         </div>
-        <div class="metric-icon icon-blue"><i class="fas fa-calculator"></i></div>
+        <div class="metric-icon icon-blue"><i class="fas fa-ruler-vertical"></i></div>
       </div>
 
       <div class="metric-card">
@@ -166,6 +241,23 @@
       </div>
     </div>
 
+    <div class="bmi-visualizer-card">
+        <div class="bmi-header">
+            <h3>BMI Analysis</h3>
+            <span>{{ user_details.bmi if user_details and user_details.bmi else '0.0' }}</span>
+        </div>
+        <div class="bmi-bar-container">
+            <div class="bmi-bar"></div>
+            <div class="bmi-marker" id="bmiMarker"></div>
+        </div>
+        <div class="bmi-labels">
+            <span>Underweight</span>
+            <span style="margin-left: -20px;">Normal</span>
+            <span style="margin-right: -20px;">Overweight</span>
+            <span>Obese</span>
+        </div>
+    </div>
+
     <div class="action-section">
       <div class="action-card" style="text-align: left; display: flex; justify-content: space-between; align-items: center;">
         <div>
@@ -178,11 +270,38 @@
       <div class="action-card">
         <h3 style="margin-top: 0;">Update Stats</h3>
         <p style="color: #666; font-size: 0.9rem;">Keep your profile up to date for better AI accuracy.</p>
-        <a href="{{ url_for('auth.profile') }}" class="btn-action btn-secondary-action">Edit Profile</a>
+        <a href="{{ url_for('auth.edit_profile') }}" class="btn-action btn-secondary-action">Edit Profile</a>
       </div>
     </div>
 
   </div>
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Get BMI from the template, default to 0 if missing
+        const bmiVal = parseFloat("{{ user_details.bmi if user_details and user_details.bmi else 0 }}");
+        const marker = document.getElementById('bmiMarker');
+        
+        if (bmiVal > 0) {
+            // Mapping Logic:
+            // Range shown is roughly BMI 10 to 40 (Total span = 30)
+            // Min (0%) = 10 BMI
+            // Max (100%) = 40 BMI
+            
+            let percentage = ((bmiVal - 10) / 30) * 100;
+            
+            // Clamp the percentage between 0% and 100% so it doesn't fly off the bar
+            if (percentage < 0) percentage = 0;
+            if (percentage > 100) percentage = 100;
+            
+            marker.style.left = percentage + "%";
+        } else {
+            // Default position if no BMI
+            marker.style.left = "0%"; 
+        }
+    });
+</script>
+
 </body>
 </html>

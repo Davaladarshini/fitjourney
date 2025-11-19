@@ -5,79 +5,173 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Choose Your Workout</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { margin: 0; font-family: sans-serif; }
-        .card { width: 250px; background: #f5f5f5; padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1); text-align: center; }
-        .card h3 { margin-top: 0; }
-        .card button, .dropdown-btn { padding: 10px 15px; background: #007BFF; border: none; color: white; border-radius: 8px; cursor: pointer; font-size: 14px; }
-        .dropdown-container { position: relative; }
-        .dropdown-options { display: none; position: absolute; top: 40px; left: 0; background-color: white; border: 1px solid #ccc; width: 100%; z-index: 1000; border-radius: 5px; }
-        .dropdown-option { display: block; padding: 10px; text-decoration: none; color: #333; cursor: pointer; }
-        .dropdown-option:hover { background-color: #f0f0f0; }
-        aside a.active-link { font-weight: bold; color: #007BFF; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; }
+        
+        /* Layout Container */
+        .layout-container {
+            display: flex; 
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles (Matched to Dashboard) */
+        aside {
+            width: 250px; 
+            background: #fff; 
+            padding: 30px 20px; 
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05); 
+            display: flex; 
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
+        /* Main Content Area */
+        main {
+            flex-grow: 1; 
+            padding: 40px;
+            overflow-y: auto;
+        }
+
+        /* Card Styles */
+        .workout-grid {
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 30px;
+        }
+        
+        .card { 
+            width: 280px; 
+            background: #fff; 
+            padding: 30px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05); 
+            text-align: center; 
+            transition: transform 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .card:hover { transform: translateY(-5px); }
+        .card h3 { margin-top: 15px; color: #333; }
+        .card p { color: #666; flex-grow: 1; margin-bottom: 20px; }
+        
+        .card button, .dropdown-btn { 
+            padding: 12px 25px; 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+            border: none; 
+            color: white; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold;
+            width: 100%;
+        }
+        
+        /* Dropdown Styles */
+        .dropdown-container { position: relative; width: 100%; }
+        .dropdown-options { 
+            display: none; 
+            position: absolute; 
+            top: 100%; 
+            left: 0; 
+            background-color: white; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
+            width: 100%; 
+            z-index: 100; 
+            border-radius: 8px; 
+            margin-top: 5px;
+            overflow: hidden;
+        }
+        .dropdown-option { 
+            display: block; 
+            padding: 12px; 
+            text-decoration: none; 
+            color: #333; 
+            border-bottom: 1px solid #eee;
+        }
+        .dropdown-option:last-child { border-bottom: none; }
+        .dropdown-option:hover { background-color: #f0f4ff; color: #667eea; }
     </style>
 </head>
 <body>
 
-    <div style="display: flex; min-height: 100vh;">
+    <div class="layout-container">
         
-        <aside style="width: 220px; background: #f0f0f0; padding: 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.05);">
-            <div style="margin-bottom: 40px; font-weight: bold; font-size: 18px;">
-                <span>{{ name }}</span>
+        <aside>
+            <div style="font-size: 20px; font-weight: bold; color: #667eea; margin-bottom: 40px; display: flex; align-items: center; gap: 10px;">
+                <i class="fas fa-bolt"></i> FITJourney
             </div>
-            <nav>
-                <a href="/welcome" style="display: block; margin-bottom: 15px; text-decoration: none;">🏠 Dashboard</a>
-                <a href="/workouts" class="active-link" style="display: block; margin-bottom: 15px; text-decoration: none;">💪 Workouts</a>
-                <a href="/statistics" style="display: block; margin-bottom: 15px; text-decoration: none;">📊 Statistics</a>
-                <a href="/logout" style="display: block; margin-top: 30px; text-decoration: none;">🔓 Logout</a>
+            
+            <nav style="flex: 1;">
+                <a href="/welcome" style="display: block; padding: 12px; margin-bottom: 10px; color: #555; text-decoration: none;">
+                    <i class="fas fa-home" style="width: 25px;"></i> Dashboard
+                </a>
+                <a href="/workouts" style="display: block; padding: 12px; margin-bottom: 10px; background: #f0f4ff; color: #667eea; border-radius: 8px; font-weight: 600; text-decoration: none;">
+                    <i class="fas fa-dumbbell" style="width: 25px;"></i> Workouts
+                </a>
+                <a href="/statistics" style="display: block; padding: 12px; margin-bottom: 10px; color: #555; text-decoration: none;">
+                    <i class="fas fa-chart-line" style="width: 25px;"></i> Statistics
+                </a>
+                <a href="{{ url_for('auth.profile') }}" style="display: block; padding: 12px; margin-bottom: 10px; color: #555; text-decoration: none;">
+                    <i class="fas fa-user-circle" style="width: 25px;"></i> My Profile
+                </a>
             </nav>
+
+            <a href="/logout" style="display: block; padding: 12px; color: #ef4444; text-decoration: none; margin-top: auto;">
+                <i class="fas fa-sign-out-alt" style="width: 25px;"></i> Logout
+            </a>
         </aside>
 
-        <main style="flex-grow: 1; padding: 40px 20px;">
-            <header style="text-align: center; margin-bottom: 40px;">
-                <h1>Choose Your Workouts</h1>
+        <main>
+            <header style="text-align: center; margin-bottom: 50px;">
+                <h1 style="color: #333;">Choose Your Workouts</h1>
                 <p style="font-size: 18px; color: #666;">Select from the personalized options</p>
             </header>
 
-            <div style="display: flex; flex-wrap: wrap; justify-content: center; gap: 20px;">
+            <div class="workout-grid">
                 <div class="card">
-                    <h3>🤖 Auto-Classify</h3>
+                    <i class="fas fa-robot" style="font-size: 40px; color: #667eea; margin-bottom: 15px;"></i>
+                    <h3>Auto-Classify</h3>
                     <p>Let our AI suggest the perfect workout based on your stats</p>
-                    <form action="{{ url_for('webcam.auto_classify') }}" method="get">
-                        <button type="submit">Select →</button>
+                    <form action="{{ url_for('webcam.auto_classify') }}" method="get" style="width: 100%;">
+                        <button type="submit">Select <i class="fas fa-arrow-right"></i></button>
                     </form>
                 </div>
 
                 <div class="card">
-                    <h3>🎥 Video Workouts</h3>
+                    <i class="fas fa-play-circle" style="font-size: 40px; color: #764ba2; margin-bottom: 15px;"></i>
+                    <h3>Video Workouts</h3>
                     <p>Follow along with our expert trainers</p>
-                    <form action="{{ url_for('webcam.video_workouts') }}" method="get">
-                        <button type="submit">Select →</button>
+                    <form action="{{ url_for('webcam.video_workouts') }}" method="get" style="width: 100%;">
+                        <button type="submit">Select <i class="fas fa-arrow-right"></i></button>
                     </form>
                 </div>
 
                 <div class="card">
-                    <h3>📝 Custom Workout</h3>
-                    <p>Build your own personalized workout plan tailored to your needs and goals.</p>
-                    <form action="{{ url_for('main.workout_options') }}" method="get">
-                        <button type="submit">Select →</button>
+                    <i class="fas fa-edit" style="font-size: 40px; color: #4facfe; margin-bottom: 15px;"></i>
+                    <h3>Custom Workout</h3>
+                    <p>Build your own personalized workout plan.</p>
+                    <form action="{{ url_for('main.workout_options') }}" method="get" style="width: 100%;">
+                        <button type="submit">Select <i class="fas fa-arrow-right"></i></button>
                     </form>
                 </div>
 
-
-            <div class="card">
-                <h3>📷 Webcam Trainer</h3>
-                <p>Get real-time feedback on your form</p>
-                <form action="{{ url_for('webcam.webcam_options') }}" method="get">
-                    <button type="submit">Select →</button>
-                </form>
-            </div>
+                <div class="card">
+                    <i class="fas fa-camera" style="font-size: 40px; color: #ff9a9e; margin-bottom: 15px;"></i>
+                    <h3>Webcam Trainer</h3>
+                    <p>Get real-time feedback on your form</p>
+                    <form action="{{ url_for('webcam.webcam_options') }}" method="get" style="width: 100%;">
+                        <button type="submit">Select <i class="fas fa-arrow-right"></i></button>
+                    </form>
+                </div>
 
                 <div class="card">
-                    <h3>🧘 Meditation & Yoga</h3>
+                    <i class="fas fa-spa" style="font-size: 40px; color: #43e97b; margin-bottom: 15px;"></i>
+                    <h3>Meditation & Yoga</h3>
                     <p>Mindfulness and flexibility exercises</p>
                     <div class="dropdown-container">
-                        <button class="dropdown-btn" onclick="toggleDropdown(this)">Select ▼</button>
+                        <button class="dropdown-btn" onclick="toggleDropdown(this)">Select <i class="fas fa-chevron-down"></i></button>
                         <div class="dropdown-options">
                             <a href="{{ url_for('mindfulness.guided_meditation') }}" class="dropdown-option">Meditation</a>
                             <a href="{{ url_for('yoga.yoga_workouts') }}" class="dropdown-option">Yoga</a>
@@ -87,18 +181,15 @@
             </div>
         </main>
     </div>
-    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+
     <script>
         function toggleDropdown(button) {
             const dropdownOptions = button.nextElementSibling;
-            if (dropdownOptions) {
-                dropdownOptions.style.display = dropdownOptions.style.display === 'block' ? 'none' : 'block';
-            }
+            dropdownOptions.style.display = dropdownOptions.style.display === 'block' ? 'none' : 'block';
         }
 
-        // Optional: Close dropdown if user clicks outside
         window.onclick = function(event) {
-            if (!event.target.matches('.dropdown-btn')) {
+            if (!event.target.matches('.dropdown-btn') && !event.target.matches('.dropdown-btn *')) {
                 const dropdowns = document.getElementsByClassName("dropdown-options");
                 for (let i = 0; i < dropdowns.length; i++) {
                     const openDropdown = dropdowns[i];
@@ -106,7 +197,7 @@
                         openDropdown.style.display = 'none';
                     }
                 }
-            }
+            }a
         }
     </script>
 </body>
