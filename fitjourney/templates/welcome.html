@@ -2,281 +2,190 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Welcome</title>
+  <title>Dashboard | FITJourney</title>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-  <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <!-- 🎉 Confetti CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
-
   <style>
-    html, body {
-      height: 100%;
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background: #f7f9fc;
-      color: #333;
+    /* Dashboard Specific Styles */
+    body {
+      background-color: #f4f7f6;
     }
-
-    *, *::before, *::after {
-      box-sizing: border-box;
-    }
-
-    .container {
-      display: flex;
-      min-height: 100vh;
-      width: 100%;
-    }
-
-    aside {
-      width: 220px;
-      background: #fff;
-      padding: 30px 20px;
-      box-shadow: 2px 0 5px rgba(0, 0, 0, 0.05);
-      flex-shrink: 0;
-    }
-
-    .sidebar-user {
-      font-weight: bold;
-      font-size: 18px;
-      margin-bottom: 40px;
-    }
-
-    nav a {
-      display: block;
-      margin-bottom: 15px;
-      color: #333;
-      text-decoration: none;
-      padding: 8px 12px;
-      border-radius: 8px;
-      transition: all 0.3s ease;
-    }
-
-    nav a.active,
-    nav a:hover {
-      background-color: #e6f0ff;
-      color: #007bff;
-    }
-
-    .main {
-      flex: 1;
+    .main-content {
       padding: 40px;
-      overflow-y: auto;
+      flex: 1;
     }
-
-    header {
-      margin-bottom: 30px;
-    }
-
-    header h1 {
-      font-size: 28px;
-      margin: 0;
-    }
-
-    header h1 span {
-      color: #007bff;
-    }
-
-    header p {
-      font-style: italic;
-      color: #555;
-    }
-
-    .card-container {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: space-between;
-      gap: 20px;
-    }
-
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      flex: 1 1 22%;
-      min-width: 220px;
-      box-sizing: border-box;
-    }
-
-    .card h3 {
-      margin-top: 0;
-      font-size: 18px;
-      margin-bottom: 12px;
-    }
-
-    .card input,
-    .card select {
-      width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
-      border-radius: 5px;
-      border: 1px solid #ccc;
-      font-family: inherit;
-    }
-
-    .btn-save,
-    .btn-start {
-      background: #007bff;
+    
+    /* Welcome Header */
+    .welcome-banner {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
       color: white;
-      border: none;
-      padding: 10px;
-      border-radius: 6px;
-      width: 100%;
+      padding: 30px;
+      border-radius: 15px;
+      margin-bottom: 30px;
+      box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+    .welcome-banner h1 { margin: 0; font-size: 2.2rem; }
+    .welcome-banner p { margin: 10px 0 0; opacity: 0.9; font-size: 1.1rem; }
+
+    /* Grid Layout for Cards */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 25px;
+    }
+
+    /* Metric Cards */
+    .metric-card {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: transform 0.3s ease;
+    }
+    .metric-card:hover { transform: translateY(-5px); }
+    
+    .metric-info h3 { margin: 0; font-size: 0.9rem; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+    .metric-info p { margin: 5px 0 0; font-size: 1.8rem; font-weight: bold; color: #333; }
+    
+    .metric-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+    }
+    .icon-blue { background: #e3f2fd; color: #2196f3; }
+    .icon-green { background: #e8f5e9; color: #4caf50; }
+    .icon-purple { background: #f3e5f5; color: #9c27b0; }
+    .icon-orange { background: #fff3e0; color: #ff9800; }
+
+    /* Action Area */
+    .action-section {
+      margin-top: 30px;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 25px;
+    }
+    
+    .action-card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
       text-align: center;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 14px;
-      transition: background-color 0.3s ease;
     }
 
-    .btn-save {
-      background: #28a745;
+    .btn-action {
+      display: inline-block;
+      padding: 12px 30px;
+      background: #667eea;
+      color: white;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+      transition: background 0.3s;
+      margin-top: 15px;
     }
-
-    .btn-save:hover {
-      background: #218838;
+    .btn-action:hover { background: #5a6fd6; }
+    .btn-secondary-action {
+        background: #e2e8f0;
+        color: #333;
     }
+    .btn-secondary-action:hover { background: #cbd5e1; }
 
-    .btn-start:hover {
-      background: #0056b3;
-    }
-
-    .card label {
-      display: block;
-      margin-bottom: 5px;
-      font-weight: normal;
-    }
-
-    .card p {
-      font-size: 14px;
-      color: #444;
-      margin-bottom: 10px;
-    }
-
-    .card input[type="checkbox"] {
-      width: auto;
-      margin-right: 8px;
-    }
-
-    @media (max-width: 1200px) {
-      .card {
-        flex: 1 1 45%;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        flex-direction: column;
-      }
-
-      aside {
-        width: 100%;
-        padding: 20px;
-      }
-
-      .main {
-        padding: 20px;
-      }
-
-      .card {
-        flex: 1 1 100%;
-      }
+    @media (max-width: 900px) {
+      .action-section { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 
 <body>
-<div class="container">
-  <aside>
-    <div class="sidebar-user">
-      <span>{{ name }}</span>
+<div style="display: flex; min-height: 100vh;">
+  
+  <aside style="width: 250px; background: #fff; padding: 30px 20px; box-shadow: 2px 0 5px rgba(0,0,0,0.05); display: flex; flex-direction: column;">
+    <div style="font-size: 20px; font-weight: bold; color: #667eea; margin-bottom: 40px; display: flex; align-items: center; gap: 10px;">
+        <i class="fas fa-bolt"></i> FITJourney
     </div>
-    <nav>
-      <a href="/welcome" class="active">🏠 Dashboard</a>
-      <a href="/workouts">💪 Workouts</a>
-      <a href="/statistics">📊 Statistics</a>
-      <a href="/logout" style="margin-top: 30px; color: #888;">🔓 Logout</a>
+    
+    <nav style="flex: 1;">
+      <a href="/welcome" style="display: block; padding: 12px; margin-bottom: 10px; background: #f0f4ff; color: #667eea; border-radius: 8px; font-weight: 600; text-decoration: none;">
+        <i class="fas fa-home" style="width: 25px;"></i> Dashboard
+      </a>
+      <a href="/workouts" style="display: block; padding: 12px; margin-bottom: 10px; color: #555; text-decoration: none;">
+        <i class="fas fa-dumbbell" style="width: 25px;"></i> Workouts
+      </a>
+      <a href="/statistics" style="display: block; padding: 12px; margin-bottom: 10px; color: #555; text-decoration: none;">
+        <i class="fas fa-chart-line" style="width: 25px;"></i> Statistics
+      </a>
+      <a href="{{ url_for('auth.profile') }}" style="display: block; padding: 12px; margin-bottom: 10px; color: #555; text-decoration: none;">
+        <i class="fas fa-user-circle" style="width: 25px;"></i> My Profile
+      </a>
     </nav>
+
+    <a href="/logout" style="display: block; padding: 12px; color: #ef4444; text-decoration: none; margin-top: auto;">
+      <i class="fas fa-sign-out-alt" style="width: 25px;"></i> Logout
+    </a>
   </aside>
 
-  <div class="main">
-    <header>
-      <h1>Welcome back, <span>{{ name }}</span>!</h1>
-      <p>"Every journey begins with a single step. You've got this!"</p>
-    </header>
+  <div class="main-content">
+    <div class="welcome-banner">
+      <h1>Welcome back, {{ name }}!</h1>
+      <p>Ready to crush your goals today?</p>
+    </div>
 
-    <form id="profileForm">
-      <div class="card-container">
-        <!-- Profile Card -->
-        <div class="card">
-          <h3>🧍 Your Profile</h3>
-          <label for="profileHeight">Height (cm)</label>
-          <input type="number" id="profileHeight" placeholder="Enter height in cm" required>
-
-          <label for="profileWeight">Weight (kg)</label>
-          <input type="number" id="profileWeight" placeholder="Enter weight in kg" required>
-
-          <label>Age:</label>
-          <input type="number" name="age" value="28" required>
-
-          <label>Gender:</label>
-          <select name="gender" required>
-            <option value="Male" selected>Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-          </select>
-
-          <input type="hidden" name="email" value="{{ email }}">
-          <button type="submit" class="btn-save">Save Changes ✔</button>
+    <div class="dashboard-grid">
+      <div class="metric-card">
+        <div class="metric-info">
+          <h3>Your BMI</h3>
+          <p>{{ user_details.bmi if user_details and user_details.bmi else '--' }}</p>
         </div>
-
-        <!-- BMI Calculator -->
-        <div class="card">
-          <h3>📱 BMI Calculator</h3>
-          <p>Automatically calculates your BMI based on your profile</p>
-          <input type="text" id="bmiResult" name="bmi" placeholder="Your BMI will appear here" readonly>
-          <button type="button" class="btn-start" id="bmiButton">Calculate BMI 📊</button>
-        </div>
-
-        <!-- Health Info -->
-        <div class="card">
-          <h3>❤️ Health Information</h3>
-          <p>Do you have any health issues?</p>
-          <label><input type="checkbox" name="health_issues" value="No health issues"> No health issues</label>
-          <label><input type="checkbox" name="health_issues" value="Heart condition"> Heart condition</label>
-          <label><input type="checkbox" name="health_issues" value="Joint pain"> Joint pain</label>
-          <label><input type="checkbox" name="health_issues" value="High blood pressure"> High blood pressure</label>
-          <label><input type="checkbox" name="health_issues" value="Diabetes"> Diabetes</label>
-        </div>
-
-        <!-- Start Workout -->
-        <div class="card">
-          <h3>🚀 Ready to Start?</h3>
-          <p>Begin your workout session tailored to your profile</p>
-          <a href="{{ url_for('main.workouts') }}" class="btn-start">Start Workout 💥</a>
-        </div>
+        <div class="metric-icon icon-blue"><i class="fas fa-calculator"></i></div>
       </div>
-    </form>
+
+      <div class="metric-card">
+        <div class="metric-info">
+          <h3>Weight</h3>
+          <p>{{ user_details.weight if user_details and user_details.weight else '--' }} <span style="font-size:0.6em; color:#999;">kg</span></p>
+        </div>
+        <div class="metric-icon icon-purple"><i class="fas fa-weight"></i></div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-info">
+          <h3>Age</h3>
+          <p>{{ user_details.age if user_details and user_details.age else '--' }} <span style="font-size:0.6em; color:#999;">yrs</span></p>
+        </div>
+        <div class="metric-icon icon-orange"><i class="fas fa-birthday-cake"></i></div>
+      </div>
+    </div>
+
+    <div class="action-section">
+      <div class="action-card" style="text-align: left; display: flex; justify-content: space-between; align-items: center;">
+        <div>
+            <h2 style="margin-top: 0; color: #333;">Start Your Workout</h2>
+            <p style="color: #666; margin-bottom: 0;">Choose from AI plans, Webcam training, or Yoga.</p>
+        </div>
+        <a href="{{ url_for('main.workouts') }}" class="btn-action">Go to Workouts <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <div class="action-card">
+        <h3 style="margin-top: 0;">Update Stats</h3>
+        <p style="color: #666; font-size: 0.9rem;">Keep your profile up to date for better AI accuracy.</p>
+        <a href="{{ url_for('auth.profile') }}" class="btn-action btn-secondary-action">Edit Profile</a>
+      </div>
+    </div>
+
   </div>
 </div>
-
-<!-- 🎉 JS for Confetti -->
-<script>
-  document.getElementById("profileForm").addEventListener("submit", function (e) {
-    e.preventDefault();
-
-    confetti({
-      particleCount: 200,
-      spread: 100,
-      origin: { y: 0.6 }
-    });
-
-    alert("🎉 Profile saved successfully (not really, just for demo)!");
-  });
-</script>
 </body>
+<<<<<<< HEAD
 </html>
 ... (Previous content of welcome.html)
 <div class="main">
@@ -388,4 +297,6 @@
 
 </script>
 </body>
+=======
+>>>>>>> f5896c2f50063ec152da6d7ff1a81499e431ea56
 </html>

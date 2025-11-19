@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>My Profile | FITJourney</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <style>
+        body {
+            background: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            font-family: 'Segoe UI', sans-serif;
+        }
+        .profile-card {
+            background: white;
+            width: 100%;
+            max-width: 700px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            overflow: hidden;
+            position: relative;
+        }
+        .profile-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 20px;
+            text-align: center;
+            color: white;
+        }
+        .profile-avatar {
+            width: 100px;
+            height: 100px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: #764ba2;
+            margin: 0 auto 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .profile-header h1 { margin: 0; font-size: 1.8rem; }
+        .profile-header p { margin: 5px 0 0; opacity: 0.8; }
+
+        .profile-body { padding: 30px; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+        .stat-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 1px solid #eef2f7;
+        }
+        .stat-box label { display: block; font-size: 0.85rem; color: #666; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 1px; }
+        .stat-box span { font-size: 1.4rem; font-weight: bold; color: #333; }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 8px;
+        }
+
+        .health-badge {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            display: inline-block;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #c8e6c9;
+        }
+        .health-badge i { margin-right: 6px; }
+
+        .btn-edit {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.4);
+            padding: 8px 15px;
+            border-radius: 20px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+        .btn-edit:hover { background: rgba(255,255,255,0.3); }
+
+        .back-btn {
+            display: block;
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="profile-card">
+    <a href="{{ url_for('auth.edit_profile') }}" class="btn-edit"><i class="fas fa-pen"></i> Edit</a>
+    
+    <div class="profile-header">
+        <div class="profile-avatar">
+            <i class="fas fa-user"></i>
+        </div>
+        <h1>{{ user_details.name }}</h1>
+        <p>{{ user_details.email }}</p>
+    </div>
+
+    <div class="profile-body">
+        <div class="stats-grid">
+            <div class="stat-box">
+                <label>Age</label>
+                <span>{{ user_details.age if user_details.age else '--' }}</span>
+            </div>
+            <div class="stat-box">
+                <label>Weight</label>
+                <span>{{ user_details.weight if user_details.weight else '--' }} <small>kg</small></span>
+            </div>
+            <div class="stat-box">
+                <label>Height</label>
+                <span>{{ user_details.height if user_details.height else '--' }} <small>cm</small></span>
+            </div>
+            <div class="stat-box">
+                <label>BMI</label>
+                <span style="color: #4facfe;">{{ user_details.bmi if user_details.bmi else '--' }}</span>
+            </div>
+            <div class="stat-box">
+                <label>Gender</label>
+                <span>{{ user_details.gender if user_details.gender else '--' }}</span>
+            </div>
+            <div class="stat-box">
+                <label>DOB</label>
+                <span style="font-size: 1rem;">{{ user_details.DoB if user_details.DoB else '--' }}</span>
+            </div>
+        </div>
+
+        <div class="section-title"><i class="fas fa-heartbeat"></i> Health Profile (AI Analyzed)</div>
+        
+        {% if health_info and health_info.ai_processed_issues %}
+            <div style="margin-bottom: 20px;">
+                {% for issue in health_info.ai_processed_issues.split(',') %}
+                    <span class="health-badge"><i class="fas fa-check-circle"></i> {{ issue.strip() }}</span>
+                {% endfor %}
+            </div>
+            <p style="color: #666; font-size: 0.9rem; font-style: italic;">
+                "{{ health_info.raw_input }}"
+            </p>
+        {% else %}
+            <p style="color: #999;">No health issues recorded.</p>
+        {% endif %}
+
+        <a href="{{ url_for('auth.welcome') }}" class="back-btn">← Back to Dashboard</a>
+    </div>
+</div>
+
+</body>
+</html>
