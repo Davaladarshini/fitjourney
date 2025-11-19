@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
-from .extensions import openai_client, workout_plans_collection, custom_workouts_collection
+from .extensions import gemini_client, workout_plans_collection, custom_workouts_collection
 from datetime import datetime
 
 ai_workouts_bp = Blueprint('ai_workouts', __name__)
@@ -22,15 +22,20 @@ def generate_ai_plan():
         """
         user_prompt = f"Create a workout plan for someone whose goal is: {user_goal}"
         
-        response = openai_client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+        # --- GEMINI API CALL for Plan Generation ---
+        response = gemini_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[
+                {"role": "user", "parts": [
+                    {"text": system_prompt},
+                    {"text": user_prompt}
+                ]}
             ],
-            temperature=0.7
+            config={"temperature": 0.7}
         )
-        ai_generated_plan = response.choices[0].message.content
+        # --- END GEMINI API CALL ---
+        
+        ai_generated_plan = response.text 
         
         if 'user_email' in session:
             plan_entry = {
@@ -52,6 +57,51 @@ def generate_ai_plan():
         print(f"An error occurred during AI plan generation: {e}")
         flash(f"An error occurred: {e}. Please try again.", "error")
         return redirect(url_for('ai_workouts.start_goal_mapping'))
+
+# --- CORRECTED CHATBOT ROUTE (using generate_content for history) ---
+@ai_workouts_bp.route('/chat_with_ai', methods=['POST'])
+def chat_with_ai():
+    data = request.get_json()
+    user_message = data.get('message')
+    conversation_history = data.get('history', [])
+
+    if not user_message:
+        return jsonify({'response': 'Please enter a message.'}), 400
+
+    system_instruction = """
+    You are 'FitBot', a friendly, highly knowledgeable, and motivating fitness and health coach. 
+    Your goal is to provide concise, safe, and helpful advice on fitness, workouts, nutrition, and well-being. 
+    Keep your responses encouraging and under 100 words. Do not provide medical advice.
+    """
+    
+    # Manually build the contents list, including the system instruction
+    contents = [
+        {"role": "user", "parts": [{"text": system_instruction}]}
+    ]
+
+    # Reconstruct history for the request
+    for msg in conversation_history:
+        # Gemini uses 'model' for its responses, not 'assistant' or 'ai'
+        role = "user" if msg['sender'] == 'user' else "model"
+        contents.append({"role": role, "parts": [{"text": msg['text']}]})
+
+    # Add the current user message
+    contents.append({"role": "user", "parts": [{"text": user_message}]})
+
+    try:
+        # Use generate_content with the full history
+        response = gemini_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=contents,
+            config={"temperature": 0.7}
+        )
+        ai_response = response.text
+        return jsonify({'response': ai_response})
+    except Exception as e:
+        # Now we print the actual error if the API key or connection fails
+        print(f"Gemini Chatbot Error: {e}") 
+        return jsonify({'response': 'Sorry, FitBot is resting right now. Try again later!'}), 500
+# --- END CHATBOT ROUTE ---
 
 @ai_workouts_bp.route('/build_workout')
 def build_workout():

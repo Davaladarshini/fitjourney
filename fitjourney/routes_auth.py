@@ -1,5 +1,6 @@
+# davaladarshini/fitjourney/fitjourney-91d06a9bed6e94f39b02db2c17256440962f8b46/fitjourney/routes_auth.py
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from .extensions import users_collection, personal_details_collection, health_issues_collection, openai_client
+from .extensions import users_collection, personal_details_collection, health_issues_collection, gemini_client # Updated import
 from datetime import datetime
 
 auth_bp = Blueprint('auth', __name__)
@@ -9,20 +10,27 @@ def process_health_issues_with_ai(user_text):
     if not user_text or user_text.strip() == "":
         return []
     
+    # System prompt is passed as a content part in Gemini's API
+    system_prompt = "You are a medical assistant. Extract specific health conditions from the user's text. Return ONLY a comma-separated list of conditions (e.g., 'Hypertension, Knee Injury'). If none, return 'None'."
+    
     try:
-        response = openai_client.chat.completions.create(
-            model="gpt-4o-mini",
-            messages=[
-                {"role": "system", "content": "You are a medical assistant. Extract specific health conditions from the user's text. Return ONLY a comma-separated list of conditions (e.g., 'Hypertension, Knee Injury'). If none, return 'None'."},
-                {"role": "user", "content": f"User input: {user_text}"}
-            ]
+        response = gemini_client.models.generate_content( # Updated API call
+            model="gemini-2.5-flash", # Using the Gemini model
+            contents=[
+                {"role": "user", "parts": [
+                    {"text": system_prompt},
+                    {"text": f"User input: {user_text}"}
+                ]}
+            ],
+            config={"temperature": 0.0}
         )
-        ai_summary = response.choices[0].message.content
+        ai_summary = response.text # Use .text for the response content
         return ai_summary
     except Exception as e:
         print(f"AI Error: {e}")
         return user_text # Fallback to raw text if AI fails
 
+# ... (rest of the file remains the same)
 # --- Routes ---
 
 @auth_bp.route('/')

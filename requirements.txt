@@ -1,8 +1,9 @@
+# davaladarshini/fitjourney/fitjourney-91d06a9bed6e94f39b02db2c17256440962f8b46/requirements.txt
 flask
 pymongo
 requests
 textblob
-openai 
+google-genai # Changed from openai 
 python-dotenv
 opencv-python 
 numpy

@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        /* CSS for AI Chatbot */
+        #chatbot-toggle-btn {
+            position: fixed;
+            bottom: 30px;
+            left: 30px;
+            z-index: 1000;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #chatbot-toggle-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        #chatbot-window {
+            position: fixed;
+            bottom: 100px;
+            left: 20px;
+            width: 320px;
+            height: 400px;
+            background: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            z-index: 999;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .chatbot-header {
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chatbot-messages {
+            flex-grow: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background-color: #f7f7f7;
+        }
+
+        .message-box {
+            margin-bottom: 10px;
+            max-width: 85%;
+            padding: 8px 12px;
+            border-radius: 15px;
+            line-height: 1.4;
+        }
+
+        .message-user {
+            background-color: #667eea;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-ai {
+            background-color: #e0e0e0;
+            color: #333;
+            margin-right: auto;
+            text-align: left;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chatbot-input {
+            display: flex;
+            border-top: 1px solid #ddd;
+            padding: 10px;
+            background-color: #fff;
+        }
+
+        .chatbot-input input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 20px;
+            margin-right: 10px;
+            font-size: 0.9em;
+        }
+
+        .chatbot-input button {
+            background-color: #764ba2;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .chatbot-input button:hover {
+            background-color: #6a5acd;
+        }
+
+        .typing-indicator {
+            padding: 5px 12px;
+            font-style: italic;
+            color: #777;
+            font-size: 0.8em;
+        }
+    </style>
+</head>
+<body>
+
+<button id="chatbot-toggle-btn" title="Chat with FitBot">
+    <i class="fas fa-robot"></i>
+</button>
+
+<div id="chatbot-window">
+    <div class="chatbot-header">
+        <i class="fas fa-dumbbell"></i> FITJourney Bot
+    </div>
+    <div class="chatbot-messages" id="chatbot-messages">
+        <div class="message-box message-ai">
+            Hi! I'm FitBot. I can help with workout ideas, nutrition tips, and motivation. How can I assist you on your fitness journey today?
+        </div>
+    </div>
+    <div class="chatbot-input">
+        <input type="text" id="chat-input" placeholder="Ask FitBot a question..." autocomplete="off">
+        <button id="send-btn" title="Send">
+            <i class="fas fa-paper-plane"></i>
+        </button>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleBtn = document.getElementById('chatbot-toggle-btn');
+        const chatWindow = document.getElementById('chatbot-window');
+        const messagesContainer = document.getElementById('chatbot-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        let conversationHistory = [];
+
+        // --- UI Logic ---
+        toggleBtn.addEventListener('click', () => {
+            chatWindow.style.display = chatWindow.style.display === 'flex' ? 'none' : 'flex';
+            if (chatWindow.style.display === 'flex') {
+                chatInput.focus();
+            }
+        });
+
+        // --- Chat Message Management ---
+        function appendMessage(text, sender) {
+            const messageBox = document.createElement('div');
+            messageBox.classList.add('message-box', `message-${sender}`);
+            messageBox.textContent = text;
+            messagesContainer.appendChild(messageBox);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Save to history
+            conversationHistory.push({ text: text, sender: sender });
+        }
+
+        function showTypingIndicator() {
+            const indicator = document.createElement('div');
+            indicator.classList.add('typing-indicator');
+            indicator.id = 'typing-indicator';
+            indicator.textContent = 'FitBot is typing...';
+            messagesContainer.appendChild(indicator);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function removeTypingIndicator() {
+            const indicator = document.getElementById('typing-indicator');
+            if (indicator) {
+                indicator.remove();
+            }
+        }
+
+        // --- AI Communication ---
+        async function sendMessage() {
+            const message = chatInput.value.trim();
+            if (message === '') return;
+
+            chatInput.value = '';
+            chatInput.disabled = true;
+            sendBtn.disabled = true;
+
+            appendMessage(message, 'user');
+            showTypingIndicator();
+
+            try {
+                const response = await fetch('{{ url_for("ai_workouts.chat_with_ai") }}', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message, history: conversationHistory })
+                });
+
+                const data = await response.json();
+                removeTypingIndicator();
+                
+                if (response.ok) {
+                    appendMessage(data.response, 'ai');
+                } else {
+                    appendMessage(data.response || "Error getting response.", 'ai');
+                }
+
+            } catch (error) {
+                console.error('Chatbot API error:', error);
+                removeTypingIndicator();
+                appendMessage('Network error. Could not connect to FitBot.', 'ai');
+            } finally {
+                chatInput.disabled = false;
+                sendBtn.disabled = false;
+                chatInput.focus();
+            }
+        }
+
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && !sendBtn.disabled) {
+                sendMessage();
+            }
+        });
+    });
+</script>
+</body>
+</html>
