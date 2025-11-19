@@ -278,3 +278,114 @@
 </script>
 </body>
 </html>
+... (Previous content of welcome.html)
+<div class="main">
+    <header>
+      <h1>Welcome back, <span>{{ name }}</span>!</h1>
+      <p>"Every journey begins with a single step. You've got this!"</p>
+    </header>
+... (Rest of the main content)
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="chatbot-fixed-container">
+    <div id="chatbotWindow" class="chatbot-window">
+        <div class="chat-header">
+            <span>FITJourney AI Coach</span>
+            <button class="chat-close-btn" onclick="toggleChatbot()">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="chat-body">
+            <p style="color: #6a5acd;">Hi there! I'm your AI fitness coach. How can I assist you on your journey today?</p>
+        </div>
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Ask a question...">
+            <button onclick="simulateResponse()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+    </div>
+    
+    <button id="chatbotToggleBtn" class="chatbot-toggle-btn" onclick="toggleChatbot()">
+        <i class="fas fa-comments"></i>
+    </button>
+</div>
+
+<script>
+  document.getElementById("profileForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+
+    confetti({
+      particleCount: 200,
+      spread: 100,
+      origin: { y: 0.6 }
+    });
+
+    // In a real application, you would make an AJAX call to save the profile here.
+    alert("🎉 Profile saved successfully (not really, just for demo)!");
+  });
+
+
+  // --- CHATBOT TOGGLE LOGIC (New Script) ---
+  const chatbotWindow = document.getElementById('chatbotWindow');
+  const chatbotBody = document.querySelector('.chat-body');
+
+  function toggleChatbot() {
+    chatbotWindow.classList.toggle('open');
+    // Optional: Scroll to the bottom of the chat when opening
+    if (chatbotWindow.classList.contains('open')) {
+        chatbotBody.scrollTop = chatbotBody.scrollHeight;
+    }
+  }
+
+  function simulateResponse() {
+    const input = document.getElementById('chatInput');
+    const userText = input.value.trim();
+
+    if (userText === '') return;
+
+    // 1. Display user message
+    const userMsg = document.createElement('p');
+    userMsg.style.textAlign = 'right';
+    userMsg.style.color = '#845ec2';
+    userMsg.textContent = `You: ${userText}`;
+    chatbotBody.appendChild(userMsg);
+
+    input.value = '';
+    chatbotBody.scrollTop = chatbotBody.scrollHeight;
+
+    // 2. Simulate AI response
+    setTimeout(() => {
+        const aiMsg = document.createElement('p');
+        aiMsg.style.textAlign = 'left';
+        aiMsg.style.color = '#6a5acd';
+        
+        let responseText;
+        if (userText.toLowerCase().includes('workout') || userText.toLowerCase().includes('exercise')) {
+            responseText = "I can guide you to the Workouts page! You can choose an AI-plan, a video workout, or a webcam trainer. Go to the 'Workouts' link in your sidebar.";
+        } else if (userText.toLowerCase().includes('hi') || userText.toLowerCase().includes('hello')) {
+            responseText = "Hello! I hope you're ready for another great day of fitness.";
+        } else if (userText.toLowerCase().includes('bmi')) {
+            responseText = "To calculate your BMI, make sure you have entered your Height and Weight in the 'Your Profile' card above, then click 'Calculate BMI 📊'.";
+        } else {
+            responseText = "I'm sorry, I am currently programmed to assist with navigation and basic fitness info. Try asking about your workout, BMI, or a specific feature.";
+        }
+        
+        aiMsg.textContent = `AI: ${responseText}`;
+        chatbotBody.appendChild(aiMsg);
+        chatbotBody.scrollTop = chatbotBody.scrollHeight;
+    }, 1000);
+  }
+
+  // Allow sending message with Enter key
+  document.getElementById('chatInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+          e.preventDefault();
+          simulateResponse();
+      }
+  });
+
+</script>
+</body>
+</html>
