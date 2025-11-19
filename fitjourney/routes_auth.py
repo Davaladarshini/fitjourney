@@ -1,20 +1,34 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from .extensions import users_collection, profile_collection
+from .extensions import users_collection, personal_details_collection, health_issues_collection, openai_client
 from datetime import datetime
 
 auth_bp = Blueprint('auth', __name__)
 
+# --- Helper: AI Processing for Health Issues ---
+def process_health_issues_with_ai(user_text):
+    if not user_text or user_text.strip() == "":
+        return []
+    
+    try:
+        response = openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a medical assistant. Extract specific health conditions from the user's text. Return ONLY a comma-separated list of conditions (e.g., 'Hypertension, Knee Injury'). If none, return 'None'."},
+                {"role": "user", "content": f"User input: {user_text}"}
+            ]
+        )
+        ai_summary = response.choices[0].message.content
+        return ai_summary
+    except Exception as e:
+        print(f"AI Error: {e}")
+        return user_text # Fallback to raw text if AI fails
+
+# --- Routes ---
+
 @auth_bp.route('/')
 def index():
-    return redirect(url_for('auth.login'))
-
-@auth_bp.route('/login2', methods=['GET', 'POST'])
-def login2():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        return f"Email: {email}, Password: {password}"
-    return render_template('Login2.html')
+    # Landing Page
+    return render_template('login.html')
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -27,11 +41,13 @@ def login():
             session['user_name'] = user['name']
             session['user_email'] = user['email']
             flash(f"Welcome back, {user['name']}!")
-            return redirect(url_for('auth.welcome'))
+            return redirect(url_for('auth.welcome')) 
         else:
-            flash("Invalid email or password. Please try again.")
+            flash("Invalid email or password.")
             return redirect(url_for('auth.login'))
-    return render_template('login.html')
+    
+    # Actual Login Form
+    return render_template('Login2.html')
 
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
@@ -41,15 +57,29 @@ def register():
         password = request.form['password']
 
         if users_collection.find_one({'email': email}):
-            flash('Email already registered. Please login.')
+            flash('Email already registered.')
             return redirect(url_for('auth.register'))
 
+        # 1. Create Login Entry
         users_collection.insert_one({
             'name': name,
             'email': email,
-            'password': password,
-            'joining_date': datetime.now()
+            'password': password, 
+            'created_at': datetime.now()
         })
+
+        # 2. Create Initial Personal Details Entry
+        personal_details_collection.insert_one({
+            'name': name,
+            'email': email,
+            'DoB': None,
+            'age': None, 
+            'gender': None,
+            'height': None,
+            'weight': None,
+            'bmi': None
+        })
+
         flash('Registration successful. Please log in.')
         return redirect(url_for('auth.login'))
     return render_template('register.html')
@@ -57,31 +87,100 @@ def register():
 @auth_bp.route('/logout')
 def logout():
     session.clear()
-    flash("You have been logged out.")
     return redirect(url_for('auth.login'))
 
 @auth_bp.route('/welcome')
 def welcome():
-    if 'user_name' in session:
-        return render_template('welcome.html', name=session['user_name'])
-    return redirect(url_for('auth.login'))
+    if 'user_name' not in session:
+        return redirect(url_for('auth.login'))
+    
+    # Fetch existing data to pre-fill the dashboard
+    details = personal_details_collection.find_one({'email': session['user_email']})
+    return render_template('welcome.html', name=session['user_name'], user_details=details)
 
+# --- PROFILE ROUTES ---
+
+# 1. VIEW Profile (Read-Only)
+@auth_bp.route('/profile')
+def profile():
+    if 'user_email' not in session:
+        return redirect(url_for('auth.login'))
+    
+    details = personal_details_collection.find_one({'email': session['user_email']})
+    health = health_issues_collection.find_one({'email': session['user_email']})
+    
+    return render_template('profile.html', user_details=details, health_info=health)
+
+# 2. EDIT Profile (The Form)
+@auth_bp.route('/edit_profile')
+def edit_profile():
+    if 'user_email' not in session:
+        return redirect(url_for('auth.login'))
+    
+    details = personal_details_collection.find_one({'email': session['user_email']})
+    health = health_issues_collection.find_one({'email': session['user_email']})
+    
+    return render_template('edit_profile.html', user_details=details, health_info=health)
+
+# 3. SAVE Profile (Updates DB and redirects to View)
 @auth_bp.route('/save_profile', methods=['POST'])
 def save_profile():
     if 'user_email' not in session:
-        flash("Please log in to save your profile.")
         return redirect(url_for('auth.login'))
 
+    email = session['user_email']
     data = request.form
-    profile_data = {
-        'email': session['user_email'],
-        'height': int(data['height']),
-        'weight': int(data['weight']),
-        'age': int(data['age']),
-        'gender': data['gender'],
-        'bmi': float(data['bmi']) if data['bmi'] else None,
-        'health_issues': request.form.getlist('health_issues')
-    }
-    profile_collection.update_one({'email': session['user_email']}, {'$set': profile_data}, upsert=True)
-    flash("Your profile has been saved successfully!")
-    return redirect(url_for('auth.welcome'))
+
+    # Calculate BMI
+    height = None
+    weight = None
+    bmi = None
+    try:
+        height = float(data['height']) 
+        weight = float(data['weight']) 
+        bmi = round(weight / ((height / 100) ** 2), 2)
+    except (ValueError, TypeError):
+        pass
+
+    # Calculate Age
+    age = None
+    dob_val = data.get('dob')
+    if dob_val:
+        try:
+            dob_date = datetime.strptime(dob_val, '%Y-%m-%d')
+            today = datetime.now()
+            age = today.year - dob_date.year - ((today.month, today.day) < (dob_date.month, dob_date.day))
+        except ValueError:
+            pass 
+
+    # Update Personal Details
+    personal_details_collection.update_one(
+        {'email': email},
+        {'$set': {
+            'DoB': dob_val,
+            'age': age,
+            'gender': data['gender'],
+            'height': height,
+            'weight': weight,
+            'bmi': bmi
+        }},
+        upsert=True
+    )
+
+    # Process Health Issues with AI
+    raw_health_input = data.get('health_issues_input', '')
+    if raw_health_input:
+        ai_processed_issues = process_health_issues_with_ai(raw_health_input)
+        
+        health_issues_collection.update_one(
+            {'email': email},
+            {'$set': {
+                'raw_input': raw_health_input,
+                'ai_processed_issues': ai_processed_issues,
+                'last_updated': datetime.now()
+            }},
+            upsert=True
+        )
+
+    flash("Profile updated successfully!")
+    return redirect(url_for('auth.profile'))

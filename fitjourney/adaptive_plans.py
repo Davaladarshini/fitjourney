@@ -1,14 +1,12 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from pymongo import MongoClient
+from .extensions import workout_plans_collection
 from bson.objectid import ObjectId
 from datetime import datetime
 import os
 
 adaptive_bp = Blueprint('adaptive_plans', __name__, template_folder='templates')
 
-client = MongoClient(os.getenv('MONGO_URI', "mongodb://localhost:27017/"))
-db = client["user_db"]
-workout_plans_collection = db["workout_plans"]
+
 
 @adaptive_bp.route('/start_adaptive_plan', methods=['GET'])
 def start_adaptive_plan():
