@@ -1,7 +1,10 @@
+# davaladarshini/fitjourney/fitjourney-e53c093079553197daf0844b57fee768990dab1a/fitjourney/__init__.py
+
 import os
 from flask import Flask
 from dotenv import load_dotenv
 from .extensions import init_extensions
+from . import stats_calculator 
 
 def create_app():
     load_dotenv()

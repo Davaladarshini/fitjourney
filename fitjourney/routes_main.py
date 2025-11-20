@@ -1,4 +1,7 @@
+# davaladarshini/fitjourney/fitjourney-e53c093079553197daf0844b57fee768990dab1a/fitjourney/routes_main.py
+
 from flask import Blueprint, render_template, session, redirect, url_for
+from . import stats_calculator # Import the new stats module
 
 main_bp = Blueprint('main', __name__)
 
@@ -12,7 +15,14 @@ def dashboard():
 def statistics():
     if 'user_name' not in session:
         return redirect(url_for('auth.login'))
-    return render_template('statistics.html', name=session['user_name'])
+        
+    user_email = session['user_email']
+    # Call the calculation function from the separate file
+    stats = stats_calculator.calculate_user_stats(user_email)
+
+    return render_template('statistics.html', 
+                           name=session['user_name'], 
+                           stats=stats) # Pass the dynamic data
 
 @main_bp.route('/workouts')
 def workouts():

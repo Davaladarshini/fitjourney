@@ -1,6 +1,8 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
-from .extensions import gemini_client, workout_plans_collection, custom_workouts_collection
+# UPDATED IMPORT: Added personal_details_collection and re
+from .extensions import gemini_client, workout_plans_collection, custom_workouts_collection, personal_details_collection 
 from datetime import datetime
+import re # Used for keyword matching
 
 ai_workouts_bp = Blueprint('ai_workouts', __name__)
 
@@ -16,11 +18,48 @@ def generate_ai_plan():
             flash("Please provide a goal!")
             return redirect(url_for('ai_workouts.start_goal_mapping'))
         
+        # --- NEW LOGIC: FETCH USER PROFILE AND APPLY HEALTH CHECK ---
+        ai_warning_message = None
+        user_details = personal_details_collection.find_one({'email': session.get('user_email')})
+        # BMI is calculated and saved on profile update (routes_auth.py)
+        user_bmi = user_details.get('bmi') if user_details else None
+
+        # Simple check for common weight loss keywords
+        # Checks if phrases like 'lose weight', 'reduce 5kg', etc., are present
+        is_weight_loss_goal = bool(re.search(r'\b(lose|reduce|drop|cut)\b.*(\d+\s*kg|weight|fat|mass)', user_goal, re.IGNORECASE))
+        
+        # Check if user is underweight (BMI < 18.5) and is trying to lose weight
+        if user_bmi is not None and user_bmi < 18.5 and is_weight_loss_goal:
+            
+            # 1. Create a strong warning message for the display
+            ai_warning_message = f"""
+***HEALTH WARNING: Goal Adjustment Recommended***
+
+Based on your profile, your current BMI is **{user_bmi}**, which is classified as **Underweight**.
+
+Your stated goal of "{user_goal}" is **not recommended** for your current health status. 
+The priority should be **safe weight gain, muscle building, and improving foundational strength**.
+
+The plan generated below is **ADJUSTED** to focus on healthy **muscle gain and balanced nutrition** rather than weight loss. Please consult a healthcare professional before pursuing weight loss.
+---
+"""
+            # 2. Re-phrase the user prompt to force the AI to generate a SAFE plan
+            modified_goal = f"My user is underweight (BMI {user_bmi}) and initially asked to lose weight. IGNORE that request and instead, generate a comprehensive workout plan focused purely on safe weight gain, muscle hypertrophy, and building core strength. Emphasize a calorie-surplus diet. The user's original input was: '{user_goal}'."
+            user_prompt_to_use = modified_goal
+        
+        else:
+            # Use the original prompt/goal if the health check passes or is irrelevant
+            user_prompt_to_use = f"Create a workout plan for someone whose goal is: {user_goal}"
+            
+        # --- END NEW LOGIC ---
+
+        # UPDATED SYSTEM PROMPT: Forbids Markdown and focuses on clean text formatting.
         system_prompt = """
-        You are a highly experienced and motivational fitness coach. 
-        Your task is to generate a comprehensive, personalized workout plan in Markdown format. 
-        """
-        user_prompt = f"Create a workout plan for someone whose goal is: {user_goal}"
+You are a highly experienced and motivational fitness coach. 
+Your task is to generate a comprehensive, personalized workout plan. 
+Format the response using only line breaks and simple punctuation, like dashes or parentheses. 
+DO NOT use Markdown, Hashtags (#), Asterisks (*), or bold formatting unless specifically requested in the user prompt (e.g., if the user prompt includes the health warning message).
+"""
         
         # --- GEMINI API CALL for Plan Generation ---
         response = gemini_client.models.generate_content(
@@ -28,7 +67,7 @@ def generate_ai_plan():
             contents=[
                 {"role": "user", "parts": [
                     {"text": system_prompt},
-                    {"text": user_prompt}
+                    {"text": user_prompt_to_use}
                 ]}
             ],
             config={"temperature": 0.7}
@@ -37,13 +76,18 @@ def generate_ai_plan():
         
         ai_generated_plan = response.text 
         
+        # Prepend the warning message if the safety check was triggered
+        if ai_warning_message:
+            ai_generated_plan = ai_warning_message + ai_generated_plan
+            
         if 'user_email' in session:
             plan_entry = {
                 'user_email': session['user_email'],
                 'goal': user_goal,
                 'plan_content': ai_generated_plan,
                 'timestamp': datetime.now(),
-                'plan_type': 'goal_mapping'
+                'plan_type': 'goal_mapping',
+                'safety_check_applied': bool(ai_warning_message)
             }
             workout_plans_collection.insert_one(plan_entry)
             flash("Your workout plan has been saved successfully!")

@@ -82,19 +82,19 @@
       <section class="summary-cards">
         <div class="stat-card">
             <i class="fas fa-fire"></i>
-            Current Streak<br><strong>0 days</strong>
+            Current Streak<br><strong>{{ stats.current_streak if stats else '0' }} days</strong>
         </div>
         <div class="stat-card">
             <i class="fas fa-calendar-check"></i>
-            Workouts This Month<br><strong>0 sessions</strong>
+            Workouts This Month<br><strong>{{ stats.monthly_workouts_count if stats else '0' }} sessions</strong>
         </div>
         <div class="stat-card">
             <i class="fas fa-flag"></i>
-            Journey Started<br><strong>14/6/2025</strong>
+            Journey Started<br><strong>{{ stats.journey_start_date if stats else 'N/A' }}</strong>
         </div>
         <div class="stat-card">
             <i class="fas fa-trophy"></i>
-            Milestones<br><strong>0 goals</strong>
+            Milestones<br><strong>{{ stats.milestones_completed if stats else '0' }} goals</strong>
         </div>
       </section>
 
@@ -116,13 +116,24 @@
   </div>
 
   <script>
+    // ULTIMATE FIX: Wrap the Jinja output in quotes and use JSON.parse().
+    // The 'or "{}"' fallback guarantees a valid JSON string is produced, 
+    // eliminating JavaScript syntax errors from empty/None Python objects.
+    const allStats = JSON.parse('{{ stats | tojson | safe or "{}" }}');
+    
+    // Dynamically load data from 'allStats' using default empty arrays for robustness
+    // We check for the existence of the property on 'allStats' or default to an empty array.
+    const workoutLabels = allStats.chart_labels || [];
+    const workoutData = allStats.chart_data || [];
+
+    // 1. Weight Chart (Placeholder Data - Should be replaced with real user weight history)
     const weightChart = new Chart(document.getElementById('weightChart'), {
       type: 'line',
       data: {
         labels: ['Day 1', 'Day 2', 'Day 3'],
         datasets: [{
           label: 'Weight (kg)',
-          data: [70, 69.5, 69],
+          data: [70, 69.5, 69], // Placeholder Data
           borderColor: '#667eea',
           tension: 0.4,
           fill: false
@@ -130,26 +141,40 @@
       }
     });
 
+    // 2. Activity Chart (Placeholder Data - Should be replaced with real activity data)
     const activityChart = new Chart(document.getElementById('activityChart'), {
       type: 'bar',
       data: {
         labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri'],
         datasets: [{
           label: 'Minutes Spent',
-          data: [30, 45, 20, 60, 40],
+          data: [30, 45, 20, 60, 40], // Placeholder Data
           backgroundColor: 'rgba(118, 75, 162, 0.6)'
         }]
       }
     });
 
+    // 3. Workout Distribution (Now Dynamic and Robust)
     const workoutChart = new Chart(document.getElementById('workoutChart'), {
       type: 'doughnut',
       data: {
-        labels: ['Cardio', 'Strength', 'Yoga'],
+        labels: workoutLabels, // Dynamic Labels
         datasets: [{
-          data: [40, 35, 25],
-          backgroundColor: ['#667eea', '#764ba2', '#9f7aea']
+          data: workoutData, // Dynamic Data
+          backgroundColor: ['#667eea', '#764ba2', '#9f7aea', '#4facfe', '#ff9a9e', '#43e97b'] // Colors
         }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            position: 'top',
+          },
+          title: {
+            display: false,
+            text: 'Workout Distribution'
+          }
+        }
       }
     });
   </script>

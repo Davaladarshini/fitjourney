@@ -1,13 +1,43 @@
+# fitjourney/routes_yoga.py
+
 from flask import Blueprint, render_template, request, url_for
 from datetime import datetime
 
 yoga_bp = Blueprint('yoga', __name__)
 
 def generate_yoga_sequence(goal):
+    """Generates a multi-pose yoga sequence based on the selected goal."""
     sequences = {
-        'stress_relief': {'title': "Stress Relief Sequence", 'poses': [{'name': 'Child\'s Pose', 'duration': '60 seconds'}]},
-        'flexibility': {'title': "Flexibility Flow", 'poses': [{'name': 'Low Lunge', 'duration': '45 seconds each side'}]},
-        'energy_boost': {'title': "Energy Boost Flow", 'poses': [{'name': 'Sun Salutations', 'duration': '5 rounds'}]}
+        'stress_relief': {
+            'title': "Calming Stress Relief Sequence",
+            'poses': [
+                {'name': 'Child\'s Pose (Balasana)', 'duration': '90 seconds', 'description': 'Deeply relaxing for the back and nervous system.'},
+                {'name': 'Cat-Cow Flow (Marjaryasana-Bitilasana)', 'duration': '60 seconds', 'description': 'Gently warms up the spine and coordinates breath.'},
+                {'name': 'Downward-Facing Dog (Adho Mukha Svanasana)', 'duration': '60 seconds', 'description': 'Stretches the shoulders, hamstrings, and calves.'},
+                {'name': 'Seated Forward Fold (Paschimottanasana)', 'duration': '60 seconds', 'description': 'Calms the brain and helps relieve stress.'},
+                {'name': 'Reclined Bound Angle Pose (Supta Baddha Konasana)', 'duration': '120 seconds', 'description': 'Opens the hips and promotes deep relaxation.'}
+            ]
+        },
+        'flexibility': {
+            'title': "Deep Hip & Hamstring Flexibility Flow",
+            'poses': [
+                {'name': 'Low Lunge (Anjaneyasana)', 'duration': '45 seconds each side', 'description': 'Stretches the hip flexors and quadriceps.'},
+                {'name': 'Pyramid Pose (Parsvottanasana)', 'duration': '45 seconds each side', 'description': 'Intense stretch for the hamstrings and calves.'},
+                {'name': 'Bound Angle Pose (Baddha Konasana)', 'duration': '60 seconds', 'description': 'Opens inner thighs, groins, and knees.'},
+                {'name': 'Pigeon Pose (Eka Pada Rajakapotasana)', 'duration': '60 seconds each side', 'description': 'Deep hip opener targeting the glutes.'},
+                {'name': 'Supported Bridge Pose (Setu Bandhasana)', 'duration': '45 seconds', 'description': 'Opens chest and helps lengthen the spine.'}
+            ]
+        },
+        'energy_boost': {
+            'title': "Morning Energy Boost Flow",
+            'poses': [
+                {'name': 'Sun Salutations (Surya Namaskar)', 'duration': '5 rounds', 'description': 'Dynamically links breath and movement for full-body warmth.'},
+                {'name': 'Chair Pose (Utkatasana)', 'duration': '30 seconds', 'description': 'Strengthens hips, thighs, and calves.'},
+                {'name': 'Warrior II (Virabhadrasana II)', 'duration': '45 seconds each side', 'description': 'Increases stamina and concentration.'},
+                {'name': 'Tree Pose (Vrksasana)', 'duration': '30 seconds each side', 'description': 'Improves balance and focus.'},
+                {'name': 'Backbend (Urdhva Mukha Svanasana)', 'duration': '45 seconds', 'description': 'Stretches the chest and invigorates the body.'}
+            ]
+        }
     }
     return sequences.get(goal, {"title": "General Sequence", "poses": [{"name": "No goal selected. Please choose a goal."}]})
 
