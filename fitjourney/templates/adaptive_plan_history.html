@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+=<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -7,129 +7,252 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/workout_options_styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Basic styling for demonstration - you can move this to your CSS file */
+        /* INTERFACE FIX: Enhanced Status, Interactivity, and Structure */
+        /* Color Palette: #4facfe (Primary/Blue), #845ec2 (Accent/Purple), #ff6b6b (Secondary/Red) */
+
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f7f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #eef5ff, #f4f7f6); 
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start; 
             min-height: 100vh;
             margin: 0;
+            padding: 40px 20px;
             color: #333;
         }
         .container {
             background-color: #ffffff;
             padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 16px;
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
             width: 100%;
-            max-width: 800px;
+            max-width: 850px;
             text-align: center;
         }
         h1 {
-            color: #303050;
+            color: #333;
             margin-bottom: 30px;
-            font-size: 2.2em;
+            font-size: 2.5em;
         }
         .no-plans {
             color: #666;
             margin-top: 30px;
+            font-style: italic;
         }
         .plan-card {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 20px;
-            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
             text-align: left;
-            background-color: #fcfcfc;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            background-color: #fcfcfc; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: transform 0.2s;
+            border-left: 6px solid #845ec2; /* Main accent for the plan */
+            position: relative; /* Needed for absolute positioning of delete button */
+        }
+        .plan-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
         .plan-card h3 {
-            color: #4a7dff;
+            color: #845ec2; 
             margin-top: 0;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            font-size: 1.4em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px dashed #eee;
+            padding-bottom: 10px;
         }
         .plan-card p {
-            margin: 5px 0;
+            margin: 8px 0;
+            font-size: 0.95em;
+            color: #555;
         }
+        .plan-card strong {
+            color: #333;
+        }
+        
+        /* --- STATUS COLORS --- */
+        .status-completed { color: #28a745; font-weight: bold; } /* Success Green */
+        .status-active, .status-pending { color: #4facfe; font-weight: bold; } /* Primary Blue */
+        .status-skipped, .status-modified { color: #ff6b6b; font-weight: bold; } /* Secondary/Red */
+
         .plan-card .details-toggle {
             cursor: pointer;
-            color: #6a82fb;
-            text-decoration: underline;
-            font-size: 0.9em;
-            margin-top: 10px;
-            display: inline-block;
+            color: #4facfe; 
+            text-decoration: none;
+            font-size: 1em;
+            margin-top: 15px;
+            padding: 5px 10px;
+            border-radius: 6px;
+            background-color: #eef7ff; 
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            transition: all 0.2s;
         }
+        .plan-card .details-toggle:hover {
+            color: #ffffff;
+            background-color: #4facfe;
+        }
+
         .plan-schedule-hidden {
             display: none;
-            margin-top: 15px;
-            padding-top: 15px;
-            border-top: 1px dashed #eee;
+            margin-top: 25px;
+            padding-top: 25px;
+            border-top: 1px dashed #ddd;
+        }
+        .plan-schedule-hidden h4 {
+            color: #333;
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 1.1em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
         }
         .plan-schedule-hidden ul {
             list-style: none;
             padding: 0;
         }
+        /* Schedule List Item Styles */
         .plan-schedule-hidden li {
-            background-color: #eef;
-            margin-bottom: 5px;
-            padding: 8px 12px;
-            border-radius: 5px;
+            margin-bottom: 12px;
+            padding: 15px;
+            border-radius: 8px;
             font-size: 0.9em;
+            background-color: #ffffff;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.05);
+            border: 1px solid #f0f0f0;
+            padding-left: 20px; 
         }
+        /* Border color coding for status in detail view */
+        .plan-schedule-hidden li[style*="completed"] { border-left: 4px solid #28a745; background-color: #e6f7e9; } /* Completed */
+        .plan-schedule-hidden li[style*="skipped"] { border-left: 4px solid #ff9800; background-color: #fff9e6; } /* Skipped/Modified */
+        .plan-schedule-hidden li[style*="pending"] { border-left: 4px solid #4facfe; background-color: #eef7ff; } /* Pending/Active */
+
         .plan-schedule-hidden li pre {
             white-space: pre-wrap;
             word-wrap: break-word;
-            font-size: 0.9em;
+            font-size: 0.95em;
             background: none;
             border: none;
-            padding: 0;
+            padding: 10px 0 0;
+            color: #444;
         }
+        
+        /* Feedback History List Item Styles */
+        .feedback-history {
+            margin-top: 10px;
+        }
+        .feedback-history li {
+            border-left: 4px solid #845ec2;
+            background-color: #f0f0ff; /* Soft purple background for feedback */
+            font-style: italic;
+        }
+        
         .back-button {
-            margin-top: 30px;
+            margin-top: 40px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
         }
         .btn {
-            background: linear-gradient(to right, #6a82fb, #fc5c7d);
+            background: linear-gradient(to right, #4facfe, #845ec2);
             color: white;
-            padding: 12px 25px;
+            padding: 15px 30px;
             border: none;
-            border-radius: 8px;
+            border-radius: 30px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 1.1em;
             font-weight: bold;
             text-decoration: none;
-            transition: background 0.3s ease;
+            transition: all 0.3s ease;
             display: inline-block;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .btn:hover {
-            background: linear-gradient(to right, #5c6efb, #eb4a68);
+            background: linear-gradient(to right, #845ec2, #4facfe);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.2);
+        }
+
+        /* --- DELETE BUTTON STYLES --- */
+        .delete-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background-color: #ff6b6b; /* Red secondary color */
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 35px;
+            height: 35px;
+            font-size: 0.9em;
+            cursor: pointer;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            transition: background-color 0.2s;
+        }
+        .delete-btn:hover {
+            background-color: #cc5656;
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <h1>Your Adaptive Plan History</h1>
+        <h1><i class="fas fa-history" style="color: #333; margin-right: 10px;"></i> Your Adaptive Plan History</h1>
+
+        {% with messages = get_flashed_messages() %}
+            {% if messages %}
+                <ul class="flash-messages">
+                    {% for message in messages %}
+                        <li><i class="fas fa-info-circle"></i> {{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
 
         {% if plans %}
             {% for plan in plans %}
                 <div class="plan-card">
-                    <h3>Plan Started: {{ plan.generated_on.strftime('%Y-%m-%d %H:%M') }}</h3>
-                    <p><strong>Status:</strong> {{ plan.status | capitalize }}</p>
+                    
+                    <form action="{{ url_for('adaptive_plans.delete_adaptive_plan', plan_id=plan._id) }}" method="POST" onsubmit="return confirm('Are you sure you want to delete this plan? This action cannot be undone.');">
+                        <button type="submit" class="delete-btn" title="Delete this plan">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </form>
+                    <h3><i class="fas fa-calendar-check"></i> Plan Started: {{ plan.generated_on.strftime('%Y-%m-%d %H:%M') }}</h3>
+                    <p><strong>Status:</strong> 
+                        {% if plan.status == 'completed' %}
+                            <span class="status-completed">Completed</span>
+                        {% elif plan.status == 'active' %}
+                            <span class="status-active">Active</span>
+                        {% else %}
+                            <span style="color: #ff9800;">{{ plan.status | capitalize }}</span>
+                        {% endif %}
+                    </p>
                     <p><strong>Initial Preferences:</strong>
                         Level: {{ plan.initial_preferences.fitness_level | capitalize }},
                         Focus: {{ plan.initial_preferences.focus_area | capitalize }}
                     </p>
-                    <p><strong>Current Day Index:</strong> {{ plan.current_day_index + 1 }} of {{ plan.plan_schedule|length }}</p>
+                    <p><strong>Current Day:</strong> {{ plan.current_day_index + 1 }} of {{ plan.plan_schedule|length }}</p>
 
-                    <span class="details-toggle" onclick="toggleDetails(this)">Show Details / Feedback History</span>
+                    <span class="details-toggle" onclick="toggleDetails(this)">
+                        <i class="fas fa-eye"></i> Show Details / Feedback History
+                    </span>
                     <div class="plan-schedule-hidden">
-                        <h4>Plan Schedule:</h4>
+                        <h4><i class="fas fa-list-alt"></i> Plan Schedule:</h4>
                         <ul>
                             {% for day in plan.plan_schedule %}
-                                <li>
+                                <div style="border-left-color: '{{ '#28a745' if day.status == 'completed' else ('#ff9800' if day.status == 'ongoing' else '#f0f0f0') }}'">
                                     <strong>Day {{ day.day }}:</strong> {{ day.type }} -
-                                    Status: {{ day.status | capitalize }}
+                                    Status: <span class="status-{{ day.status }}">{{ day.status | capitalize }}</span>
                                     {% if day.difficulty_rating %}
                                         (Difficulty: {{ day.difficulty_rating }}/5)
                                     {% endif %}
@@ -142,13 +265,13 @@
                         </ul>
 
                         {% if plan.feedback_history %}
-                            <h4>Feedback History:</h4>
-                            <ul>
+                            <h4><i class="fas fa-comment-dots"></i> Feedback History:</h4>
+                            <ul class="feedback-history">
                                 {% for feedback in plan.feedback_history %}
-                                    <li>
+                                    <li style="border-left-color: #845ec2; background-color: #f0f0ff;">
                                         Day {{ feedback.day_index + 1 }} ({{ feedback.timestamp.strftime('%Y-%m-%d %H:%M') }}):
-                                        Status: {{ feedback.status | capitalize }}, Difficulty: {{ feedback.difficulty }}/5
-                                        {% if feedback.notes %}<br>Notes: {{ feedback.notes }}{% endif %}
+                                        Status: <strong class="status-{{ feedback.status }}">{{ feedback.status | capitalize }}</strong>, Difficulty: <strong>{{ feedback.difficulty }}/5</strong>
+                                        {% if feedback.notes %}<br>Notes: <em>{{ feedback.notes }}</em>{% endif %}
                                     </li>
                                 {% endfor %}
                             </ul>
@@ -159,24 +282,26 @@
                 </div>
             {% endfor %}
         {% else %}
-            <p class="no-plans">You haven't generated any adaptive workout plans yet.</p>
+            <p class="no-plans">You haven't generated any adaptive workout plans yet. Click the button below to start one!</p>
         {% endif %}
 
         <div class="back-button">
-            <a href="{{ url_for('adaptive_plans.start_adaptive_plan') }}" class="btn">Start New Adaptive Plan</a>
-            <a href="{{ url_for('main.workouts') }}" class="btn">Back to Workout Options</a>
+            <a href="{{ url_for('adaptive_plans.start_adaptive_plan') }}" class="btn"><i class="fas fa-plus-circle"></i> Start New Adaptive Plan</a>
+            <a href="{{ url_for('main.workouts') }}" class="btn" style="background: #2c3e50;"><i class="fas fa-arrow-left"></i> Back to Workouts</a>
         </div>
     </div>
 
     <script>
         function toggleDetails(element) {
             const detailsDiv = element.nextElementSibling;
+            
+            // Toggle visibility and update icon/text
             if (detailsDiv.style.display === "block") {
                 detailsDiv.style.display = "none";
-                element.textContent = "Show Details / Feedback History";
+                element.innerHTML = '<i class="fas fa-eye"></i> Show Details / Feedback History';
             } else {
                 detailsDiv.style.display = "block";
-                element.textContent = "Hide Details / Feedback History";
+                element.innerHTML = '<i class="fas fa-eye-slash"></i> Hide Details / Feedback History';
             }
         }
     </script>

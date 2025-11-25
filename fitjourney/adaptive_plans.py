@@ -1,12 +1,124 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from .extensions import workout_plans_collection
+from .extensions import workout_plans_collection, gemini_client, personal_details_collection, health_issues_collection 
 from bson.objectid import ObjectId
 from datetime import datetime
+import json
 import os
 
 adaptive_bp = Blueprint('adaptive_plans', __name__, template_folder='templates')
 
+# --- AI Helper Functions (Retained from previous step) ---
 
+def generate_plan_with_ai(user_email, workout_days, level, focus):
+    """Generates a 7-day workout plan dynamically using Gemini."""
+    user_details = personal_details_collection.find_one({'email': user_email}) or {}
+    health_info = health_issues_collection.find_one({'email': user_email}) or {}
+    
+    user_bmi = user_details.get('bmi', 'N/A')
+    health_constraints = health_info.get('ai_processed_issues', 'None')
+    user_age = user_details.get('age', 'N/A')
+    
+    system_instruction = f"""
+    You are an expert fitness planner. Generate a comprehensive 7-day workout plan tailored to the user's profile.
+    
+    User Profile:
+    - Fitness Level: {level}
+    - Primary Focus: {focus}
+    - Workouts Per Week: {workout_days}
+    - Age: {user_age}
+    - BMI: {user_bmi}
+    - Health Constraints: {health_constraints}. EXCLUDE all exercises that could aggravate these constraints.
+    
+    Generate a 7-day schedule. Designate each day's 'type' as 'Strength', 'Cardio', 'Flexibility', or 'Rest'. Use 'Rest' for days without dedicated activity. Ensure the number of non-rest days roughly matches the Workouts Per Week preference.
+    
+    CRITICAL: Respond ONLY with a single JSON array that follows this strict schema. DO NOT include any text, markdown, or explanation outside of the JSON array.
+    
+    [
+        {{
+            "day": 1, 
+            "type": "Strength", 
+            "workout": "Warmup (5min). Bodyweight Squats (3x15). Push-ups (3xMax). Plank (3x45s). Cooldown (5min).", 
+            "status": "pending"
+        }},
+        // ... all 7 days with sequential 'day' numbers ...
+    ]
+    """
+    
+    try:
+        response = gemini_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[{"role": "user", "parts": [{"text": system_instruction}]}],
+            config={"temperature": 0.8}
+        )
+        json_string = response.text.strip().lstrip('`json').rstrip('`').strip()
+        return json.loads(json_string)
+        
+    except Exception as e:
+        print(f"Gemini Plan Generation Error: {e}")
+        flash("AI plan generation failed. Using default plan as a fallback.")
+        # Robust Fallback Plan
+        return [
+            {"day": 1, "type": "Strength", "workout": "Fallback: Full Body Circuit (3x10)", "status": "pending"},
+            {"day": 2, "type": "Cardio", "workout": "Fallback: 20 min Steady Cardio", "status": "pending"},
+            {"day": 3, "type": "Rest", "workout": "Rest Day", "status": "pending"},
+            {"day": 4, "type": "Strength", "workout": "Fallback: Upper Body (3x10)", "status": "pending"},
+            {"day": 5, "type": "Rest", "workout": "Rest Day", "status": "pending"},
+            {"day": 6, "type": "Flexibility", "workout": "Fallback: 30 min Yoga/Stretch", "status": "pending"},
+            {"day": 7, "type": "Rest", "workout": "Rest Day", "status": "pending"},
+        ]
+
+def adapt_plan_with_ai(plan_context, remaining_schedule, feedback_entry):
+    """Adapts the remaining plan days based on the latest feedback using Gemini."""
+    
+    # Context for the AI
+    context_string = f"""
+    Initial Preferences: Level={plan_context['fitness_level']}, Focus={plan_context['focus_area']}
+    Last Workout Day: {feedback_entry['day_index'] + 1}
+    Feedback Logged: Status={feedback_entry['status']}, Difficulty={feedback_entry['difficulty']}/5, Notes='{feedback_entry['notes']}'
+    
+    Goal: Rewrite the remaining plan based on this feedback.
+    - If difficulty was 4 or 5, slightly reduce intensity for similar upcoming days.
+    - If difficulty was 1 or 2, increase intensity (reps/duration) for similar upcoming days.
+    - If status was 'skipped', consider rescheduling or replacing the skipped type.
+    - If status was 'modified', use the notes to inform future changes.
+    """
+    
+    # Provide the remaining schedule in JSON format for the AI to modify
+    remaining_json_string = json.dumps(remaining_schedule)
+    
+    system_instruction = f"""
+    You are an adaptive fitness coach. Review the context and the remaining workout plan below.
+    You MUST modify the remaining plan to ADAPT to the user's latest feedback.
+    
+    CRITICAL: Respond ONLY with a single JSON array that represents the MODIFIED remaining schedule. DO NOT include any text, markdown, or explanation outside of the JSON array.
+    
+    CONTEXT: {context_string}
+    
+    REMAINING SCHEDULE TO MODIFY (JSON Array): {remaining_json_string}
+    """
+    
+    try:
+        response = gemini_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[{"role": "user", "parts": [{"text": system_instruction}]}],
+            config={"temperature": 0.5}
+        )
+        json_string = response.text.strip().lstrip('`json').rstrip('`').strip()
+        modified_schedule = json.loads(json_string)
+        
+        # Simple validation: ensure the modified schedule is an array and keeps the same structure
+        if not isinstance(modified_schedule, list) or not all(isinstance(d, dict) and 'day' in d for d in modified_schedule):
+            raise ValueError("AI returned an invalid JSON schedule structure.")
+            
+        return modified_schedule
+        
+    except Exception as e:
+        print(f"Gemini Plan Adaptation Error: {e}. Reverting to original remaining plan.")
+        flash("Adaptive update failed. Continuing with the original future schedule.")
+        return remaining_schedule # Return original un-adapted schedule as a safe fallback
+
+
+# --- Routes ---
 
 @adaptive_bp.route('/start_adaptive_plan', methods=['GET'])
 def start_adaptive_plan():
@@ -30,42 +142,9 @@ def generate_initial_adaptive_plan():
         flash("Please provide all initial adaptive plan details.")
         return redirect(url_for('adaptive_plans.start_adaptive_plan'))
 
-    initial_plan_days = []
-    generated_plan_description = ""
-
-    if fitness_level == 'beginner' and focus_area == 'strength':
-        generated_plan_description = "Beginner Strength & Full Body"
-        initial_plan_days = [
-            {"day": 1, "type": "Strength", "workout": "- Bodyweight Squats (3x10)\n- Push-ups (3xMax)\n- Plank (3x30s)", "status": "pending"},
-            {"day": 2, "type": "Cardio", "workout": "- 20 min Brisk Walk", "status": "pending"},
-            {"day": 3, "type": "Rest", "workout": "Active Recovery / Stretching", "status": "pending"},
-            {"day": 4, "type": "Strength", "workout": "- Lunges (3x8 each leg)\n- Incline Push-ups (3xMax)\n- Glute Bridge (3x12)", "status": "pending"},
-            {"day": 5, "type": "Cardio", "workout": "- 30 min Light Jog / Cycle", "status": "pending"},
-            {"day": 6, "type": "Rest", "workout": "Complete Rest", "status": "pending"},
-            {"day": 7, "type": "Rest", "workout": "Complete Rest", "status": "pending"},
-        ]
-    elif fitness_level == 'intermediate' and focus_area == 'cardio':
-         generated_plan_description = "Intermediate Cardio Endurance"
-         initial_plan_days = [
-            {"day": 1, "type": "Cardio", "workout": "- 40 min Steady-State Run", "status": "pending"},
-            {"day": 2, "type": "Strength", "workout": "- Full Body Circuit (Squats, Pushups, Rows - 3 rounds)", "status": "pending"},
-            {"day": 3, "type": "Rest", "workout": "Active Recovery (Yoga/Stretch)", "status": "pending"},
-            {"day": 4, "type": "Cardio", "workout": "- 30 min Interval Training (1min hard / 2min easy)", "status": "pending"},
-            {"day": 5, "type": "Strength", "workout": "- Core & Mobility (Plank, Side Plank, Bird Dog)", "status": "pending"},
-            {"day": 6, "type": "Cardio", "workout": "- 60 min Long Run", "status": "pending"},
-            {"day": 7, "type": "Rest", "workout": "Complete Rest", "status": "pending"},
-        ]
-    else:
-        generated_plan_description = "General Adaptive Plan (Default)"
-        initial_plan_days = [
-            {"day": 1, "type": "Strength", "workout": "- Default Strength Workout", "status": "pending"},
-            {"day": 2, "type": "Cardio", "workout": "- Default Cardio Workout", "status": "pending"},
-            {"day": 3, "type": "Rest", "workout": "Rest", "status": "pending"},
-            {"day": 4, "type": "Strength", "workout": "- Default Strength Workout 2", "status": "pending"},
-            {"day": 5, "type": "Cardio", "workout": "- Default Cardio Workout 2", "status": "pending"},
-            {"day": 6, "type": "Rest", "workout": "Rest", "status": "pending"},
-            {"day": 7, "type": "Rest", "workout": "Rest", "status": "pending"},
-        ]
+    # --- AI PLAN GENERATION ---
+    initial_plan_days = generate_plan_with_ai(user_email, workout_days_per_week, fitness_level, focus_area)
+    # -------------------------
 
     new_adaptive_plan = {
         'user_email': user_email,
@@ -152,6 +231,7 @@ def log_adaptive_feedback():
 
     current_workout_data = plan_schedule[current_day_index]
 
+    # 1. Update the completed day's data
     current_workout_data['status'] = workout_status
     current_workout_data['difficulty_rating'] = difficulty_rating
     current_workout_data['feedback_notes'] = feedback_notes
@@ -165,37 +245,67 @@ def log_adaptive_feedback():
         'notes': feedback_notes,
         'timestamp': datetime.now()
     }
+    
+    # 2. Get the remaining schedule that needs adaptation
+    remaining_schedule = plan_schedule[current_day_index + 1:]
+    
+    # --- AI ADAPTATION LOGIC ---
+    if remaining_schedule:
+        plan_context = current_plan.get('initial_preferences', {})
+        modified_remaining_schedule = adapt_plan_with_ai(plan_context, remaining_schedule, feedback_entry)
+        
+        # Reconstruct the full plan schedule
+        new_plan_schedule = plan_schedule[:current_day_index] + [current_workout_data] + modified_remaining_schedule
+    else:
+        new_plan_schedule = plan_schedule[:current_day_index] + [current_workout_data]
+    # --------------------------
 
+    # 3. Update DB with new plan, feedback, and advance the day index
+    new_day_index = current_day_index + 1
+    
     workout_plans_collection.update_one(
         {'_id': plan_id},
         {
             '$push': {'feedback_history': feedback_entry},
-            '$set': {f'plan_schedule.{current_day_index}': current_workout_data}
+            '$set': {
+                'plan_schedule': new_plan_schedule, # Save the new, adapted schedule
+                'current_day_index': new_day_index
+            }
         }
-    )
-
-    if workout_status == 'skipped' and current_workout_data['type'] == 'Strength' and 'Legs' in current_workout_data['workout']:
-        for i in range(current_day_index + 1, len(plan_schedule)):
-            if plan_schedule[i]['type'] != 'Rest':
-                flash(f"Leg workout was skipped. Adding a lighter leg focus to Day {i+1}!")
-                plan_schedule[i]['workout'] += "\n\n(Adaptive addition: Light Leg Focus: 3x15 Bodyweight Lunges)"
-                workout_plans_collection.update_one({'_id': plan_id}, {'$set': {'plan_schedule': plan_schedule}})
-                break
-
-    if difficulty_rating == 5 and current_workout_data['type'] == 'Strength':
-        flash("Workout was very hard. Future similar workouts might be adjusted down.")
-
-    if difficulty_rating == 1 and current_workout_data['type'] == 'Strength':
-        flash("Workout was easy. Consider increasing weight/reps next time.")
-
-    new_day_index = current_day_index + 1
-    workout_plans_collection.update_one(
-        {'_id': plan_id},
-        {'$set': {'current_day_index': new_day_index}}
     )
 
     flash("Workout feedback logged. Your plan has adapted!")
     return redirect(url_for('adaptive_plans.view_current_adaptive_day'))
+
+# --- NEW ROUTE: DELETE PLAN ---
+@adaptive_bp.route('/adaptive_plan/delete/<plan_id>', methods=['POST'])
+def delete_adaptive_plan(plan_id):
+    if 'user_email' not in session:
+        flash("Please log in to delete plans.")
+        return redirect(url_for('auth.login')) 
+    
+    try:
+        # 1. Ensure the plan belongs to the logged-in user
+        result = workout_plans_collection.delete_one({
+            '_id': ObjectId(plan_id),
+            'user_email': session['user_email']
+        })
+        
+        if result.deleted_count == 1:
+            # 2. If the deleted plan was the user's active plan, clear the session variable
+            if session.get('current_adaptive_plan_id') == plan_id:
+                session.pop('current_adaptive_plan_id', None)
+            
+            flash("Adaptive workout plan deleted successfully!", "success")
+        else:
+            flash("Error: Plan not found or you do not have permission to delete it.", "error")
+            
+    except Exception as e:
+        print(f"Error deleting plan {plan_id}: {e}")
+        flash("An error occurred during plan deletion.", "error")
+
+    return redirect(url_for('adaptive_plans.adaptive_plan_history'))
+# -----------------------------
 
 @adaptive_bp.route('/adaptive_plan/history')
 def adaptive_plan_history():

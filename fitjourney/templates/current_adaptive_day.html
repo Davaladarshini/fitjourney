@@ -7,10 +7,13 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/workout_options_styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        /* Basic styling for demonstration - you can move this to your CSS file */
+        /* INTERFACE OVERHAUL: Shifting focus from Feedback to Workout Plan */
+        /* Color Palette: #4facfe (Primary/Blue), #845ec2 (Accent/Purple) */
+        
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f7f6;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            /* Soft, light blue gradient background */
+            background: linear-gradient(135deg, #eef5ff, #f4f7f6);
             display: flex;
             justify-content: center;
             align-items: center;
@@ -21,39 +24,60 @@
         .container {
             background-color: #ffffff;
             padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border-radius: 16px; /* Increased border radius for a modern feel */
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15); /* Softer, deeper shadow */
             width: 100%;
             max-width: 700px;
             text-align: center;
         }
         h1 {
+            /* Main title styling */
             color: #303050;
-            margin-bottom: 20px;
-            font-size: 2.2em;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            font-weight: 700;
         }
         h2 {
-            color: #4a7dff;
+            /* DE-EMPHASIS: Use a standard dark color, smaller font, simpler border */
+            color: #555;
             margin-top: 30px;
             margin-bottom: 15px;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 5px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 8px;
             text-align: left;
+            font-size: 1.4em;
+            font-weight: 600;
         }
         .workout-details {
-            background-color: #f9f9f9;
-            border: 1px solid #eee;
-            border-radius: 8px;
-            padding: 20px;
+            /* EMPHASIS: Stronger visual presence for the Plan */
+            background-color: #f7f9ff; 
+            border: 1px solid #e0e0e0;
+            border-left: 6px solid #845ec2; /* Prominent purple accent bar */
+            border-radius: 10px;
+            padding: 25px;
             margin-bottom: 30px;
             text-align: left;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Subtle lift */
         }
         .workout-details p {
             margin: 10px 0;
             line-height: 1.6;
+            font-size: 1.05em;
         }
         .workout-details strong {
-            color: #555;
+            color: #333;
+        }
+        /* FIX: Ensure pre tag wraps long workout descriptions */
+        .workout-details pre {
+            white-space: pre-wrap; /* Allows text to wrap */
+            word-wrap: break-word; /* Forces long words to break */
+            font-family: inherit;
+            padding: 0;
+            margin: 0;
+            border: none;
+            background: none;
+            font-weight: 500; /* Slightly bolder workout text */
+            color: #000; /* Darker workout text for focus */
         }
         .feedback-form {
             text-align: left;
@@ -62,38 +86,50 @@
         .feedback-form label {
             display: block;
             margin-bottom: 8px;
-            font-weight: bold;
-            color: #555;
+            font-weight: 600;
+            color: #444;
         }
         .feedback-form select,
         .feedback-form textarea {
-            width: calc(100% - 20px);
-            padding: 10px;
-            margin-bottom: 15px;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
             border: 1px solid #ddd;
             border-radius: 8px;
             font-size: 1em;
             box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        /* De-emphasize focus state for feedback inputs */
+        .feedback-form select:focus,
+        .feedback-form textarea:focus {
+            border-color: #c0c0c0;
+            box-shadow: 0 0 0 3px rgba(192, 192, 192, 0.2);
+            outline: none;
         }
         .feedback-form textarea {
             min-height: 100px;
             resize: vertical;
         }
         .btn-submit {
-            background: linear-gradient(to right, #6a82fb, #fc5c7d);
+            /* Primary Blue/Purple Gradient Button */
+            background: linear-gradient(to right, #4facfe, #845ec2);
             color: white;
-            padding: 12px 25px;
+            padding: 15px 30px;
             border: none;
-            border-radius: 8px;
+            border-radius: 30px;
             cursor: pointer;
-            font-size: 1em;
+            font-size: 1.1em;
             font-weight: bold;
-            transition: background 0.3s ease;
-            display: inline-block; /* To allow text-align: center on parent if needed */
+            transition: all 0.3s ease;
+            display: inline-block;
             margin-top: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
         .btn-submit:hover {
-            background: linear-gradient(to right, #5c6efb, #eb4a68);
+            background: linear-gradient(to right, #845ec2, #4facfe);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
         }
         .flash-messages {
             margin-top: 20px;
@@ -101,13 +137,26 @@
             padding: 0;
         }
         .flash-messages li {
-            background-color: #ffe0b2; /* Light orange for warning/info */
-            color: #e65100; /* Darker orange for text */
-            padding: 10px;
-            border-radius: 5px;
+            /* Flash color */
+            background-color: #ffeadb; 
+            color: #d97706; 
+            padding: 12px;
+            border-radius: 8px;
             margin-bottom: 10px;
             text-align: center;
-            border: 1px solid #ffcc80;
+            border: 1px solid #fed7aa;
+        }
+        .back-link-bottom {
+            display: inline-block;
+            margin-top: 40px;
+            color: #845ec2; /* Purple accent color */
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        .back-link-bottom:hover {
+            color: #4facfe; /* Blue hover color */
+            text-decoration: underline;
         }
     </style>
 </head>
@@ -119,28 +168,28 @@
             {% if messages %}
                 <ul class="flash-messages">
                     {% for message in messages %}
-                        <li>{{ message }}</li>
+                        <li><i class="fas fa-info-circle"></i> {{ message }}</li>
                     {% endfor %}
                 </ul>
             {% endif %}
         {% endwith %}
 
         <div class="workout-details">
-            <p><strong>Type:</strong> {{ current_day_workout.type }}</p>
+            <p><strong>Type:</strong> <span style="color: #4facfe;">{{ current_day_workout.type }}</span></p>
             <p><strong>Workout:</strong></p>
             <pre>{{ current_day_workout.workout }}</pre>
-            <p><strong>Status:</strong> {{ current_day_workout.status | capitalize }}</p>
+            <p><strong>Status:</strong> <span style="color: #ff9800;">{{ current_day_workout.status | capitalize }}</span></p>
         </div>
 
         {% if current_day_workout.status == 'pending' %}
-            <h2>Log Your Feedback:</h2>
+            <h2><i class="fas fa-edit"></i> Log Your Feedback:</h2>
             <form action="{{ url_for('adaptive_plans.log_adaptive_feedback') }}" method="POST" class="feedback-form">
                 <div class="form-group">
                     <label for="workout_status">Workout Status:</label>
                     <select id="workout_status" name="workout_status" required>
-                        <option value="completed">Completed</option>
-                        <option value="skipped">Skipped</option>
-                        <option value="modified">Modified</option>
+                        <option value="completed">Completed (Plan will increase difficulty)</option>
+                        <option value="skipped">Skipped (Plan might reschedule or adjust)</option>
+                        <option value="modified">Modified (Use notes below to adjust)</option>
                     </select>
                 </div>
 
@@ -157,21 +206,21 @@
 
                 <div class="form-group">
                     <label for="feedback_notes">Notes (Optional):</label>
-                    <textarea id="feedback_notes" name="feedback_notes" rows="4" placeholder="Any comments about today's workout?"></textarea>
+                    <textarea id="feedback_notes" name="feedback_notes" rows="4" placeholder="e.g., 'Knee felt sore, had to cut lunges' or 'Felt easy, increase weight next time.'"></textarea>
                 </div>
 
-                <button type="submit" class="btn-submit">Submit Feedback</button>
+                <button type="submit" class="btn-submit"><i class="fas fa-paper-plane"></i> Submit Feedback & Adapt Plan</button>
             </form>
         {% else %}
-            <p style="text-align: center; margin-top: 20px; color: #666;">Feedback for this day has already been logged.</p>
+            <p style="text-align: center; margin-top: 20px; color: #666; font-style: italic;">Feedback for this day has already been logged. Ready for the next one?</p>
             <p style="text-align: center; margin-top: 10px;">
-                <a href="{{ url_for('adaptive_plans.view_current_adaptive_day') }}" class="btn-submit">View Next Day</a>
+                <a href="{{ url_for('adaptive_plans.view_current_adaptive_day') }}" class="btn-submit" style="background: #28a745;"><i class="fas fa-chevron-right"></i> View Next Day</a>
             </p>
         {% endif %}
 
-        <p style="text-align: center; margin-top: 40px;">
-            <a href="{{ url_for('adaptive_plans.adaptive_plan_history') }}" style="color: #4a7dff; text-decoration: none;">View Plan History</a>
-        </p>
+        <a href="{{ url_for('adaptive_plans.adaptive_plan_history') }}" class="back-link-bottom">
+            <i class="fas fa-history"></i> View Plan History
+        </a>
     </div>
 </body>
 </html>

@@ -20,6 +20,8 @@
             padding: 20px;
             box-sizing: border-box;
             border-right: 1px solid #333;
+            /* Added min-height to ensure sidebar uses full height */
+            min-height: 100vh;
         }
         #main {
             flex-grow: 1;
@@ -28,6 +30,8 @@
             align-items: center;
             background-color: #222;
             padding: 10px;
+            /* Added overflow to prevent content from pushing main out of bounds */
+            overflow: hidden;
         }
         h2 {
             margin-top: 0;
@@ -43,10 +47,17 @@
             font-size: 1.2em;
         }
         #videoFeed {
-            max-width: 90vw;
-            max-height: 90vh;
+            /* Modified for full screen fit in #main */
+            width: 100%; 
+            height: 100%; 
+            /* Ensures the video fits within the available space without distortion */
+            object-fit: contain; 
             border-radius: 8px;
             box-shadow: 0 0 12px #61dafb;
+            
+            /* --- ADDED FOR MIRROR EFFECT --- */
+            transform: scaleX(-1);
+            /* ------------------------------- */
         }
         .feedback {
             margin-top: 20px;
