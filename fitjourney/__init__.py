@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from .extensions import init_extensions
 from . import stats_calculator 
 
+
 def create_app():
     load_dotenv()
     app = Flask(__name__)
@@ -27,5 +28,6 @@ def create_app():
     app.register_blueprint(webcam_bp)
     from .adaptive_plans import adaptive_bp
     app.register_blueprint(adaptive_bp)
+
 
     return app

@@ -1,0 +1,77 @@
+/* fitjourney/static/css/booking_styles.css */
+
+/* FIX 1 (CRITICAL): Override the global floating label logic. */
+.booking-container .form-group label {
+    /* Force normal flow: label appears above input */
+    position: static !important; 
+    
+    /* Ensure the text, icon, and label behave as a single line above the input */
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px; /* Spacing below the label */
+    font-weight: 600;
+    color: #444;
+    gap: 8px;
+    top: auto !important; /* Neutralize top positioning */
+    left: auto !important; /* Neutralize left positioning */
+    cursor: default;
+}
+
+/* Fix for the inner icon that was misaligning the text */
+.booking-container .form-group label i.fas {
+    min-width: 20px; 
+}
+
+/* Target all primary form inputs/selects/textareas to ensure standard height and box model */
+.booking-container select,
+.booking-container textarea,
+.booking-container input[type="date"],
+.booking-container input[type="time"] {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 16px;
+    display: block; 
+    margin-top: 0; 
+    min-height: 44px; 
+}
+
+/* Ensure radio group remains horizontal and aligned */
+.radio-group {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+    align-items: center;
+}
+.radio-group label {
+    /* Override label display to align with inline radio inputs */
+    display: inline-flex !important; 
+    margin-bottom: 0;
+    cursor: pointer;
+    /* Reset positioning for radio labels as well */
+    position: static !important; 
+}
+
+/* Correct the date/time container spacing */
+.date-time-group {
+    display: flex;
+    gap: 15px;
+}
+.date-time-group input {
+    flex: 1;
+}
+
+/* Base styles for the container and button */
+.booking-container {
+    padding: 40px;
+}
+.btn-book {
+    background: linear-gradient(to right, #667eea, #764ba2);
+    color: white;
+    padding: 15px;
+    border-radius: 8px;
+    font-weight: bold;
+    margin-top: 20px;
+}

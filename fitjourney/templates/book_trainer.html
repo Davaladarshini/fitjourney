@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Book a Trainer | FITJourney</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/booking_styles.css') }}"> 
+    
+    <style>
+        body {
+            background-color: #f4f7f6;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+        .booking-container {
+            /* Basic container styles, main alignment is in booking_styles.css */
+            background: white;
+            width: 100%;
+            max-width: 650px;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+        p.subtitle {
+            text-align: center;
+            color: #777;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 25px;
+            position: relative; 
+        }
+        /* Overrides for floating label text position */
+        .booking-container .form-group label {
+            position: static !important; 
+            display: flex;
+            align-items: center;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #444;
+            gap: 8px;
+            top: auto !important; 
+            left: auto !important; 
+        }
+        
+        .booking-container .form-group label i.fas {
+            min-width: 20px; 
+        }
+
+        /* Input styling */
+        select,
+        textarea,
+        input[type="date"],
+        input[type="time"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+            display: block; 
+            margin-top: 0; 
+            min-height: 44px; 
+        }
+        
+        /* Radio button alignment */
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+            align-items: center;
+        }
+        .radio-group label {
+            display: inline-flex !important; 
+            margin-bottom: 0;
+            position: static !important; 
+        }
+        
+        /* Date/Time field container */
+        .date-time-group {
+            display: flex;
+            gap: 15px;
+        }
+        .date-time-group input {
+            flex: 1;
+        }
+        
+        /* Button styling */
+        .btn-book {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        .btn-book:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="booking-container">
+        <h1><i class="fas fa-calendar-check"></i> Book a Trainer</h1>
+        <p class="subtitle">Find the perfect expert to guide your fitness and wellness journey.</p>
+
+        <form action="{{ url_for('main.save_appointment') }}" method="POST">
+            
+            <div class="form-group">
+                <label><i class="fas fa-user-tag"></i> Preferred Trainer Gender:</label>
+                <div class="radio-group">
+                    <div>
+                        <input type="radio" id="gender_men" name="trainer_gender" value="Men" required>
+                        <label for="gender_men" style="font-weight: normal;">Men</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="gender_women" name="trainer_gender" value="Women">
+                        <label for="gender_women" style="font-weight: normal;">Women</label>
+                    </div>
+                    <div>
+                        <input type="radio" id="gender_no_pref" name="trainer_gender" value="No Preference" checked>
+                        <label for="gender_no_pref" style="font-weight: normal;">No Preference</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="focus_area"><i class="fas fa-bullseye"></i> Primary Focus/Wellness Area:</label>
+                <select id="focus_area" name="focus_area" required>
+                    <option value="">-- Select Focus Area --</option>
+                    <option value="physical_strength">Physical Fitness & Strength</option>
+                    <option value="weight_loss">Weight Loss & Nutrition</option>
+                    <option value="yoga_flexibility">Yoga & Flexibility</option>
+                    <option value="mental_wellness">Mental Wellness & Stress Reduction</option>
+                    <option value="post_rehab">Post-Injury Rehab/Pre-Hab</option>
+                    <option value="sport_specific">Sport-Specific Training</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="help_needed"><i class="fas fa-comment-dots"></i> What specific help do you need?</label>
+                <textarea id="help_needed" name="help_needed" rows="3" placeholder="E.g., 'Help creating a home workout plan for shoulder injury recovery' or 'Need accountability for morning cardio.'"></textarea>
+            </div>
+
+            <div class="form-group">
+                <label><i class="fas fa-clock"></i> Preferred Appointment Time (Suggested Idea):</label>
+                <div class="date-time-group">
+                    <input type="date" id="preferred_date" name="preferred_date">
+                    <input type="time" id="preferred_time" name="preferred_time">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="communication_method"><i class="fas fa-video"></i> Communication Method (Suggested Idea):</label>
+                <select id="communication_method" name="communication_method">
+                    <option value="video_call">Virtual Video Call (Zoom/Meet)</option>
+                    <option value="chat">Text Chat (Initial Consultation)</option>
+                    <option value="in_person">In-Person (If location matches)</option>
+                </select>
+            </div>
+
+
+            <button type="submit" class="btn-book"><i class="fas fa-calendar-alt"></i> Request Booking</button>
+        </form>
+        <a href="{{ url_for('auth.welcome') }}" class="back-link" style="margin-top: 15px;">← Back to Dashboard</a>
+    </div>
+
+<script>
+    // This script runs after the document loads to set the minimum date for the date picker.
+    function getTodayDate() {
+        const today = new Date();
+        const year = today.getFullYear();
+        // Month and day are 0-indexed, so add 1 and pad to 2 digits (e.g., 01, 12)
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const dateInput = document.getElementById('preferred_date');
+        if (dateInput) {
+            // Set the 'min' attribute to prevent selecting past dates
+            dateInput.min = getTodayDate();
+        }
+    });
+</script>
+</body>
+</html>
