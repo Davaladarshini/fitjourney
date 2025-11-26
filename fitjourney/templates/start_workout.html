@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Workout In Progress</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/workout_player_styles.css') }}"> {# New CSS for player #}
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/workout_player_styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
@@ -12,7 +12,9 @@
         <h1>Workout In Progress</h1>
 
         <div class="current-exercise">
-            <h2>Current Exercise: <span id="current-exercise-name"></span></h2>
+            <h2>Current Exercise:</h2>
+            <span id="current-exercise-name"></span>
+            
             <div id="exercise-details"></div>
             <div class="timer">
                 <span id="timer-display">00:00</span>
@@ -32,13 +34,12 @@
                 </ul>
         </div>
     </div>
-a = {{ workout_data | tojson | safe }};
-</script>
 
 <script type="text/javascript">
-        // Pass workout data from Flask to JavaScript securely
-        var workoutData = {{ workout_data | tojson | safe }};
-    </script>
-    <script src="{{ url_for('static', filename='js/workout_player.js') }}"></script> {# New JS for player #}
+    // REPLACEMENT: Define a safe, temporary global object that contains the JSON string.
+    // This avoids conflicts with 'var workoutData' inside the external JS file.
+    window.WORKOUT_DATA_JSON = '{{ workout_data | default([], True) | tojson | safe }}';
+</script>
+<script src="{{ url_for('static', filename='js/workout_player.js') }}"></script>
 </body>
 </html>

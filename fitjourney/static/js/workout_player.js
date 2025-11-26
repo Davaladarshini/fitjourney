@@ -1,6 +1,21 @@
 // static/js/workout_player.js
 
 document.addEventListener('DOMContentLoaded', function() {
+    // --- Data Initialization Change ---
+    // Safely retrieve the JSON string from the window object (defined in start_workout.html) and parse it.
+    const workoutDataString = window.WORKOUT_DATA_JSON || '[]';
+    
+    // The main workout object is initialized here, guaranteeing it's an array.
+    let currentWorkout;
+    try {
+        // Use a try-catch block for JSON parsing for maximum robustness
+        currentWorkout = JSON.parse(workoutDataString);
+    } catch (e) {
+        console.error("Error parsing workout data:", e);
+        currentWorkout = [];
+    }
+    // --- End Data Initialization Change ---
+
     const currentExerciseNameEl = document.getElementById('current-exercise-name');
     const exerciseDetailsEl = document.getElementById('exercise-details');
     const timerDisplayEl = document.getElementById('timer-display');
@@ -10,12 +25,18 @@ document.addEventListener('DOMContentLoaded', function() {
     const finishWorkoutBtn = document.getElementById('finish-workout-btn');
     const upcomingExercisesListEl = document.getElementById('upcoming-exercises-list');
 
-    let currentWorkout = workoutData; // This comes from Flask via the HTML script tag
     let currentExerciseIndex = 0;
     let timerInterval;
     let isPaused = true;
-    let timeLeftInExercise = 0; // In seconds
-    let totalWorkoutDuration = 0; // To track overall time if needed
+    let timeTrackingDirection = 'down'; 
+    
+    // Reps/Sets tracking state
+    let currentSet = 1;
+    let targetSets = 0;
+    let targetReps = 0;
+
+    // Timer state for Reps/Sets (counts total time taken for the current exercise)
+    let repsSetsTimeElapsed = 0; 
 
     // Function to format time for display (MM:SS)
     function formatTime(seconds) {
@@ -25,34 +46,42 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Function to update the timer display
-    function updateTimerDisplay() {
-        timerDisplayEl.textContent = formatTime(timeLeftInExercise);
+    function updateTimerDisplay(seconds) {
+        timerDisplayEl.textContent = formatTime(seconds);
     }
 
-    // Function to start the timer
+    // Function to start the timer (handles both count-up and count-down)
     function startTimer() {
-        if (timerInterval) clearInterval(timerInterval); // Clear any existing timer
+        if (timerInterval) clearInterval(timerInterval);
         isPaused = false;
         togglePauseBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
 
-        timerInterval = setInterval(() => {
-            if (!isPaused) {
-                timeLeftInExercise--;
-                updateTimerDisplay();
+        if (timeTrackingDirection === 'down') {
+            // Duration logic (Count Down)
+            let timeLeftInExercise = currentWorkout[currentExerciseIndex].duration * 60;
+            
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    timeLeftInExercise--;
+                    updateTimerDisplay(timeLeftInExercise);
 
-                if (timeLeftInExercise <= 0) {
-                    clearInterval(timerInterval);
-                    // Automatically move to next exercise for duration-based
-                    if (currentExerciseIndex < currentWorkout.length - 1) {
-                        currentExerciseIndex++;
-                        loadCurrentExercise();
-                    } else {
-                        // Workout finished
-                        finishWorkout();
+                    if (timeLeftInExercise <= 0) {
+                        clearInterval(timerInterval);
+                        moveNextExercise();
                     }
                 }
-            }
-        }, 1000); // Update every second
+            }, 1000); 
+
+        } else if (timeTrackingDirection === 'up') {
+            // Reps/Sets logic (Count Up)
+            
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    repsSetsTimeElapsed++;
+                    updateTimerDisplay(repsSetsTimeElapsed);
+                }
+            }, 1000); 
+        }
     }
 
     // Function to pause the timer
@@ -68,54 +97,131 @@ document.addEventListener('DOMContentLoaded', function() {
             finishWorkout();
             return;
         }
+        
+        // Reset exercise-specific timers/states
+        pauseTimer();
+        repsSetsTimeElapsed = 0;
+        updateTimerDisplay(0);
 
         const exercise = currentWorkout[currentExerciseIndex];
         currentExerciseNameEl.textContent = exercise.name;
-        exerciseDetailsEl.innerHTML = ''; // Clear previous details
-
+        exerciseDetailsEl.innerHTML = '';
+        
+        // Duration-based Logic
         if (exercise.type === 'duration') {
+            timeTrackingDirection = 'down';
             exerciseDetailsEl.textContent = `Duration: ${exercise.duration} minutes`;
-            timeLeftInExercise = exercise.duration * 60; // Convert minutes to seconds
-            // If starting a duration exercise, automatically start timer
-            if (!isPaused) { // Only start if not globally paused
-                startTimer();
-            } else {
-                updateTimerDisplay(); // Just update display if paused
-            }
+            
+            // Auto-start duration exercises
+            isPaused = false; 
+            startTimer(); 
 
+        // Reps/Sets-based Logic (Count-up timer, Manual set completion)
         } else if (exercise.type === 'reps_sets') {
-            exerciseDetailsEl.textContent = `Sets: ${exercise.sets}, Reps: ${exercise.reps}`;
-            // For reps/sets, timer will count up or be controlled manually
-            timeLeftInExercise = 0; // Reset for reps/sets
-            pauseTimer(); // Reps/sets are typically self-paced, so start paused
-            timerDisplayEl.textContent = '00:00'; // Reset timer display
+            timeTrackingDirection = 'up';
+            targetSets = exercise.sets;
+            targetReps = exercise.reps;
+            currentSet = 1;
+            
+            // Display initial set/rep data and update button
+            updateRepsSetsDisplay(); 
+            
+            // Start the count-up timer immediately
+            isPaused = false;
+            startTimer(); 
         }
 
-        updateTimerDisplay(); // Ensure timer display is correct immediately
         updateNavigationButtons();
         renderUpcomingExercises();
     }
 
+    // Function to update display for reps/sets exercises
+    function updateRepsSetsDisplay() {
+        if (timeTrackingDirection === 'up') {
+            // MODIFIED DISPLAY LOGIC TO EMPHASIZE GOAL 
+            exerciseDetailsEl.innerHTML = `
+                <div style="font-size: 1.4em; font-weight: bold; color: #007bff; margin-bottom: 10px;">
+                    GOAL: ${targetSets} Sets Total
+                </div>
+                <div style="font-size: 1.2em; color: #555; margin-bottom: 5px;">
+                    Current Set: <span style="font-weight: bold; color: #dc3545;">${currentSet}</span>
+                </div>
+                <div>Target Reps: ${targetReps}</div>
+            `;
+            
+            // Change Next button function and text
+            nextExerciseBtn.innerHTML = '<i class="fas fa-check"></i> Complete Set';
+            nextExerciseBtn.onclick = completeSet;
+            
+        } else {
+             // Revert Next button function and text for duration/last set state
+            nextExerciseBtn.innerHTML = 'Next <i class="fas fa-forward"></i>';
+            nextExerciseBtn.onclick = moveNextExercise;
+        }
+    }
+
+    // Function to handle set completion
+    function completeSet() {
+        // Optional: Could send set completion time to a backend endpoint here
+        console.log(`Set ${currentSet} completed in ${formatTime(repsSetsTimeElapsed)}.`);
+        
+        if (currentSet < targetSets) {
+            currentSet++;
+            repsSetsTimeElapsed = 0; // Reset timer for the new set
+            updateRepsSetsDisplay();
+            startTimer(); // Restart timer for the new set
+        } else {
+            // All sets complete, move to the next exercise
+            moveNextExercise();
+        }
+    }
+    
+    // Centralized function to move to the next exercise
+    function moveNextExercise() {
+        currentExerciseIndex++;
+        if (currentExerciseIndex < currentWorkout.length) {
+            loadCurrentExercise();
+        } else {
+            finishWorkout();
+        }
+    }
+
+
     // Function to update navigation button states
     function updateNavigationButtons() {
         prevExerciseBtn.disabled = currentExerciseIndex === 0;
-        nextExerciseBtn.disabled = currentExerciseIndex >= currentWorkout.length - 1;
-        if (currentExerciseIndex >= currentWorkout.length -1) {
-            nextExerciseBtn.style.display = 'none'; // Hide next if it's the last exercise
-            finishWorkoutBtn.style.display = 'inline-block'; // Show finish button
+        
+        const isLastExercise = currentExerciseIndex >= currentWorkout.length - 1;
+
+        if (isLastExercise) {
+            nextExerciseBtn.style.display = 'none'; 
+            finishWorkoutBtn.style.display = 'inline-flex';
         } else {
-            nextExerciseBtn.style.display = 'inline-block';
+            nextExerciseBtn.style.display = 'inline-flex';
             finishWorkoutBtn.style.display = 'none';
         }
+        
+        // Ensure the pause button is always set correctly on load
+        if (isPaused) {
+            togglePauseBtn.innerHTML = '<i class="fas fa-play"></i> Resume';
+        } else {
+            togglePauseBtn.innerHTML = '<i class="fas fa-pause"></i> Pause';
+        }
+        
+        togglePauseBtn.disabled = false;
     }
 
     // Function to render upcoming exercises
     function renderUpcomingExercises() {
-        upcomingExercisesListEl.innerHTML = ''; // Clear current list
+        upcomingExercisesListEl.innerHTML = '';
         for (let i = currentExerciseIndex + 1; i < currentWorkout.length; i++) {
             const exercise = currentWorkout[i];
+            const detailText = exercise.type === 'duration' 
+                ? exercise.duration + ' min' 
+                : exercise.sets + ' sets x ' + exercise.reps + ' reps';
+                
             const listItem = document.createElement('li');
-            listItem.textContent = `${exercise.name} (${exercise.type === 'duration' ? exercise.duration + ' min' : exercise.sets + ' sets x ' + exercise.reps + ' reps'})`;
+            listItem.textContent = `${exercise.name} (${detailText})`;
             upcomingExercisesListEl.appendChild(listItem);
         }
         if (upcomingExercisesListEl.children.length === 0) {
@@ -128,10 +234,10 @@ document.addEventListener('DOMContentLoaded', function() {
         if (currentExerciseIndex > 0) {
             currentExerciseIndex--;
             loadCurrentExercise();
-            pauseTimer(); // Pause when moving back/forward
         }
     });
-
+    
+    // Toggle pause uses the central pauseTimer/startTimer functions
     togglePauseBtn.addEventListener('click', () => {
         if (isPaused) {
             startTimer();
@@ -140,16 +246,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    nextExerciseBtn.addEventListener('click', () => {
-        if (currentExerciseIndex < currentWorkout.length - 1) {
-            currentExerciseIndex++;
-            loadCurrentExercise();
-            pauseTimer(); // Pause when moving back/forward
-        } else {
-            // This case should be handled by finishWorkoutBtn, but as a fallback
-            finishWorkout();
-        }
-    });
+    // The 'Next' button's behavior is now set dynamically in updateRepsSetsDisplay()
 
     finishWorkoutBtn.addEventListener('click', finishWorkout);
 
@@ -157,19 +254,16 @@ document.addEventListener('DOMContentLoaded', function() {
     function finishWorkout() {
         clearInterval(timerInterval);
         alert('Workout Finished! Great job!');
-        // Optionally redirect to a summary page or home
-        window.location.href = '/dashboard'; // Or wherever you want to send them
+        window.location.href = '/dashboard';
     }
 
     // Initial load
     if (currentWorkout && currentWorkout.length > 0) {
-        // Automatically start the first exercise's timer if it's duration-based
-        isPaused = false; // Set to false to auto-start if duration-based
         loadCurrentExercise();
     } else {
         currentExerciseNameEl.textContent = "No workout loaded.";
         exerciseDetailsEl.textContent = "Please build a workout first.";
-        timerDisplayEl.textContent = "00:00";
+        updateTimerDisplay(0);
         prevExerciseBtn.disabled = true;
         togglePauseBtn.disabled = true;
         nextExerciseBtn.disabled = true;

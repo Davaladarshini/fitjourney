@@ -4,50 +4,52 @@ document.addEventListener('DOMContentLoaded', function() {
     const exerciseLibraryList = document.getElementById('exercise-library-list');
     const workoutSessionList = document.getElementById('workout-session-list');
 
-    // Initialize Sortable for the exercise library (source)
-    new Sortable(exerciseLibraryList, {
-        group: {
-            name: 'shared',
-            pull: 'clone', // Allows cloning items from here
-            put: false // Does not allow items to be dropped into here
-        },
-        animation: 150,
-        sort: false, // Items in the library shouldn't be reordered
-        forceFallback: true, // Needed for drag and drop to work reliably across different list types
-        onEnd: function (evt) {
-            // This function runs when dragging from the library stops
-            // If the item was dragged *out* of the library (to session list)
-            if (evt.to === workoutSessionList) {
-                const originalItem = evt.item; // The cloned item in the target list
-                const exerciseName = originalItem.dataset.name;
-                const exerciseType = originalItem.dataset.type;
-
-                // Remove the cloned item initially placed by SortableJS
-                originalItem.remove();
-
-                // Call our custom function to create the session item with inputs
-                addExerciseToSession(exerciseName, exerciseType);
-            }
+    // --- CRITICAL DATA INITIALIZATION ---
+    // Safely retrieve and parse the data from the window object.
+    let libraryData = window.EXERCISE_LIBRARY_DATA || [];
+    
+    if (typeof libraryData === 'string') {
+        try {
+            libraryData = JSON.parse(libraryData);
+        } catch (e) {
+            console.error("Failed to parse EXERCISE_LIBRARY_DATA. Using empty array.", e);
+            libraryData = [];
         }
-    });
-
-    // Initialize Sortable for the workout session (target and sortable)
-    new Sortable(workoutSessionList, {
-        group: 'shared', // Allows items from the 'shared' group to be put here
-        animation: 150,
-        handle: '.handle', // Drag handle for reordering within the session
-        onEnd: function (evt) {
-            // This event fires when an item is dropped, useful for reordering feedback
-            console.log('Item moved or added to session list:', evt.item);
-        }
-    });
-
+    }
+    // --- END DATA INITIALIZATION ---
+    
+    // --- Core Function: Render Initial Library ---
+    function renderExerciseLibrary() {
+        exerciseLibraryList.innerHTML = '';
+        libraryData.forEach(exercise => {
+            const listItem = document.createElement('li');
+            listItem.classList.add('exercise-item');
+            listItem.dataset.name = exercise.name;
+            listItem.dataset.type = exercise.type;
+            
+            const buttonText = exercise.type === 'duration' ? 'Add (Time)' : 'Add (Reps)';
+            
+            listItem.innerHTML = `
+                <div class="details">
+                    <span>${exercise.name}</span>
+                    <p style="font-size:0.85em; color:#888;">${exercise.type.replace('_', ' ').toUpperCase()}</p>
+                </div>
+                <button class="add-btn" 
+                        onclick="window.addExerciseToSession('${exercise.name}', '${exercise.type}')">
+                    <i class="fas fa-plus"></i> ${buttonText}
+                </button>
+            `;
+            exerciseLibraryList.appendChild(listItem);
+        });
+    }
+    // --- End Render Initial Library ---
+    
     // Function to add an exercise to the workout session with dynamic inputs
-    function addExerciseToSession(exerciseName, exerciseType) {
+    window.addExerciseToSession = function(exerciseName, exerciseType) {
         const listItem = document.createElement('li');
         listItem.classList.add('session-item');
-        listItem.dataset.name = exerciseName; // Store name
-        listItem.dataset.type = exerciseType; // Store type
+        listItem.dataset.name = exerciseName; 
+        listItem.dataset.type = exerciseType; 
 
         let detailsHtml = `<div class="handle"><i class="fas fa-grip-vertical"></i></div><div class="details"><span>${exerciseName}</span>`;
 
@@ -63,10 +65,20 @@ document.addEventListener('DOMContentLoaded', function() {
 
         listItem.innerHTML = `
             ${detailsHtml}
-            <button class="remove-btn" onclick="removeExercise(this)">Remove</button>
+            <button class="remove-btn" onclick="removeExercise(this)"><i class="fas fa-trash"></i></button>
         `;
         workoutSessionList.appendChild(listItem);
     }
+    
+    // Initialize Sortable for the workout session (Allows dragging to reorder)
+    new Sortable(workoutSessionList, {
+        group: 'session', 
+        animation: 150,
+        handle: '.handle', 
+        onEnd: function (evt) {
+            console.log('Item reordered:', evt.item);
+        }
+    });
 
     // Function to remove an exercise from the workout session
     window.removeExercise = function(buttonElement) {
@@ -97,16 +109,19 @@ document.addEventListener('DOMContentLoaded', function() {
         return workoutData;
     }
 
-    // Function to save the workout (existing functionality)
+    // Function to save the workout
     window.saveWorkout = function() {
         const workoutData = getWorkoutData();
-        console.log("Workout to save:", workoutData); // For debugging
+        console.log("Workout to save:", workoutData); 
+
+        if (workoutData.length === 0) {
+            alert('Please add exercises to your workout session before saving!');
+            return;
+        }
 
         fetch('/save_custom_workout', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(workoutData),
         })
         .then(response => {
@@ -128,7 +143,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     };
 
-    // New function to start the workout
+    // Function to start the workout
     window.startWorkout = function() {
         const workoutData = getWorkoutData();
 
@@ -137,13 +152,9 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        console.log("Workout to start:", workoutData); // For debugging
-
-        fetch('/start_custom_workout', { // New endpoint for starting
+        fetch('/start_custom_workout', { 
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(workoutData),
         })
         .then(response => {
@@ -154,7 +165,6 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             if (data.success && data.redirect_url) {
-                // Redirect to the workout player page
                 window.location.href = data.redirect_url;
             } else {
                 alert('Error starting workout: ' + data.message);
@@ -165,4 +175,7 @@ document.addEventListener('DOMContentLoaded', function() {
             alert('An error occurred while trying to start the workout: ' + error.message);
         });
     };
+
+    // Initial load
+    renderExerciseLibrary();
 });

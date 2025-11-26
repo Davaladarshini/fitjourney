@@ -1,10 +1,132 @@
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash, jsonify
-# UPDATED IMPORT: Added personal_details_collection and re
-from .extensions import gemini_client, workout_plans_collection, custom_workouts_collection, personal_details_collection 
+# UPDATED IMPORT: Added health_issues_collection
+from .extensions import gemini_client, workout_plans_collection, custom_workouts_collection, personal_details_collection, health_issues_collection 
 from datetime import datetime
 import re # Used for keyword matching
 
 ai_workouts_bp = Blueprint('ai_workouts', __name__)
+
+# --- UPDATED: Static Exercise Library for Workout Builder (COMPREHENSIVE LIST) ---
+STATIC_EXERCISE_LIBRARY = [
+    # Strength/Reps-Sets
+    {"name": "Bodyweight Squats", "type": "reps_sets"},
+    {"name": "Push Ups", "type": "reps_sets"},
+    {"name": "Crunches", "type": "reps_sets"},
+    {"name": "Pull-ups", "type": "reps_sets"},
+
+
+    
+    # Cardio/Reps-Sets or Duration
+    {"name": "Jumping Jacks", "type": "reps_sets"},
+    {"name": "Running (Jog)", "type": "duration"},
+    {"name": "Rope Skipping", "type": "duration"},
+    {"name": "Cycling", "type": "duration"},
+    
+    # Core/Hold/Flexibility (Duration)
+    {"name": "Plank Hold", "type": "duration"},
+    {"name": "Wall Sit", "type": "duration"},
+    {"name": "Stretch (Warmup)", "type": "duration"},
+    {"name": "Stretch (Cooldown)", "type": "duration"},
+]
+# --- END UPDATED ---
+
+
+def generate_bmi_workout_with_ai(user_email, user_bmi):
+    """Generates a personalized workout and tips based on BMI using Gemini."""
+    
+    # FIX: Access health_issues_collection directly
+    health_info = health_issues_collection.find_one({'email': user_email}) or {}
+    health_constraints = health_info.get('ai_processed_issues', 'None')
+    
+    bmi_category = "Healthy Weight"
+    if user_bmi < 18.5: bmi_category = "Underweight"
+    elif user_bmi >= 25.0 and user_bmi < 30.0: bmi_category = "Overweight"
+    elif user_bmi >= 30.0: bmi_category = "Obese"
+
+    system_instruction = f"""
+    You are an expert fitness coach specializing in BMI-based recommendations. 
+    The user's current BMI is {user_bmi}, categorized as {bmi_category}.
+    User's Health Constraints: {health_constraints}. Ensure the plan is safe given these constraints.
+    
+    Generate a concise, 3-day workout plan (Workout 1: Full Body, Workout 2: Cardio Focus, Workout 3: Flexibility/Mobility) and a section for essential tips.
+    
+    Your response MUST be formatted cleanly with clear headings but avoid complex markdown (like tables). Use #### for main headings and - for list items.
+
+    Example structure:
+    #### BMI Category: {bmi_category}
+    #### Goal: [Specific Goal based on category]
+    
+    #### Workout 1: Full Body
+    - Exercise 1: [Details]
+    - Exercise 2: [Details]
+    
+    #### Essential Tips
+    - Tip 1
+    - Tip 2
+    """
+    
+    try:
+        response = gemini_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[{"role": "user", "parts": [{"text": system_instruction}]}],
+            config={"temperature": 0.8}
+        )
+        return response.text
+        
+    except Exception as e:
+        print(f"Gemini BMI Plan Generation Error: {e}")
+        return "AI plan generation failed. Check your API key and network connection."
+
+
+# --- NEW AJAX ROUTE FOR MODAL CONTENT ---
+@ai_workouts_bp.route('/fetch_bmi_recommendation_content', methods=['POST'])
+def fetch_bmi_recommendation_content():
+    if 'user_email' not in session:
+        return jsonify({'error': 'Please log in to get recommendations.'}), 401
+        
+    user_email = session['user_email']
+    
+    user_details = personal_details_collection.find_one({'email': user_email}) or {}
+    user_bmi = user_details.get('bmi')
+    
+    if user_bmi is None or user_bmi <= 0:
+        return jsonify({'error': "BMI not found. Please update your weight and height in your profile."}), 400
+        
+    # Generate the plan (calls the helper function)
+    ai_recommendation = generate_bmi_workout_with_ai(user_email, user_bmi)
+    
+    # Return the recommendation and BMI in a JSON object for the modal
+    return jsonify({
+        'success': True,
+        'bmi': user_bmi,
+        'recommendation': ai_recommendation
+    }), 200
+
+# --- Existing bmi_recommendation route (kept as a full-page fallback) ---
+@ai_workouts_bp.route('/bmi_recommendation')
+def bmi_recommendation():
+    if 'user_email' not in session:
+        flash("Please log in to get BMI recommendations.")
+        return redirect(url_for('auth.login'))
+        
+    user_email = session['user_email']
+    
+    # Fetch user details (including BMI)
+    user_details = personal_details_collection.find_one({'email': user_email}) or {}
+    user_bmi = user_details.get('bmi')
+    
+    if user_bmi is None or user_bmi <= 0:
+        flash("Please update your weight and height in your profile to calculate your BMI first.")
+        return redirect(url_for('auth.edit_profile'))
+        
+    # Generate the plan (calls the helper function)
+    ai_recommendation = generate_bmi_workout_with_ai(user_email, user_bmi)
+    
+    return render_template('bmi_recommendation.html', 
+                           bmi=user_bmi, 
+                           recommendation=ai_recommendation)
+# --- End existing bmi_recommendation route ---
+
 
 @ai_workouts_bp.route('/start_goal_mapping')
 def start_goal_mapping():
@@ -152,7 +274,9 @@ def build_workout():
     if 'user_email' not in session: 
         flash("Please log in to build a workout.")
         return redirect(url_for('auth.login'))
-    return render_template('workout_builder.html')
+    
+    # Pass the static library data to the template
+    return render_template('workout_builder.html', exercise_library_data=STATIC_EXERCISE_LIBRARY)
 
 @ai_workouts_bp.route('/save_custom_workout', methods=['POST'])
 def save_custom_workout():

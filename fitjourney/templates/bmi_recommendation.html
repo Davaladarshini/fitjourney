@@ -141,8 +141,7 @@
     /* Action Area */
     .action-section {
       display: grid;
-      /* Original grid was 2fr 1fr (Start then BMI). New layout is 1fr 2fr (BMI then Start). */
-      grid-template-columns: 2fr 1fr; /* This default will be overridden inline below */
+      grid-template-columns: 2fr 1fr;
       gap: 25px;
     }
     
@@ -170,30 +169,22 @@
       margin-top: 15px;
     }
     .btn-action:hover { background: #5a6fd6; }
-    
-    /* REMOVED .btn-secondary-action STYLES */
     .btn-secondary-action {
-        /* Adopting primary button look but as a <button> */
-        background: #667eea;
-        color: white;
-        border: none;
+        /* Changed from <a> to <button> styles */
+        background: #e2e8f0;
+        color: #333;
+        border: none; /* Make sure it doesn't have a default button border */
         cursor: pointer;
-        text-decoration: none;
-        font-weight: bold;
-        padding: 12px 30px;
-        border-radius: 8px;
-        transition: background 0.3s;
-        margin-top: 15px;
     }
-    .btn-secondary-action:hover { background: #5a6fd6; }
+    .btn-secondary-action:hover { background: #cbd5e1; }
 
     @media (max-width: 900px) {
       .action-section { grid-template-columns: 1fr; }
     }
 
-    /* --- MODAL STYLES (Improved Interface) --- */
+    /* --- MODAL STYLES --- */
     .modal {
-        display: none; 
+        display: none; /* Hidden by default */
         position: fixed;
         z-index: 1000; 
         left: 0;
@@ -201,119 +192,64 @@
         width: 100%;
         height: 100%;
         overflow: auto;
-        background-color: rgba(0,0,0,0.8); /* Darker overlay */
+        background-color: rgba(0,0,0,0.7); /* Black w/ opacity */
     }
     .modal-content {
-        background-color: #ffffff; /* Clean white background */
-        margin: 5% auto; /* Centered */
+        background-color: #fefefe;
+        margin: 5% auto; /* 5% from the top and centered */
         padding: 30px;
-        border-radius: 16px; /* Smoother border */
-        width: 95%; 
-        max-width: 800px; /* Wider modal for better content display */
-        box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+        border-radius: 12px;
+        width: 90%; 
+        max-width: 700px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        animation: animatetop 0.4s;
         min-height: 400px;
-        max-height: 90vh; /* Prevents modal from exceeding screen height */
-        overflow-y: auto; /* Enable scroll if content overflows */
-        
-        /* New Smooth Fade & Scale Animation */
-        animation: smoothfade 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        white-space: pre-wrap; /* Preserve formatting of AI text */
     }
-
-    /* New Keyframe for Smoother Animation */
-    @keyframes smoothfade {
-        from { opacity: 0; transform: translateY(-50px) scale(0.9); } 
-        to { opacity: 1; transform: translateY(0) scale(1); }
+    @keyframes animatetop {
+        from {top: -300px; opacity: 0} 
+        to {top: 5%; opacity: 1}
     }
-
     .close-btn {
-        color: #777;
+        color: #aaa;
         float: right;
-        font-size: 32px; /* Larger close button */
+        font-size: 28px;
         font-weight: bold;
         transition: color 0.3s;
     }
     .close-btn:hover,
     .close-btn:focus {
-        color: #cc0000;
+        color: #000;
         text-decoration: none;
         cursor: pointer;
     }
     .modal-header {
-        border-bottom: 2px solid #667eea; /* Stronger primary color border */
-        padding-bottom: 15px;
-        margin-bottom: 25px;
+        border-bottom: 2px solid #eee;
+        padding-bottom: 10px;
+        margin-bottom: 20px;
         color: #667eea;
-        font-size: 1.8em;
-        font-weight: 700;
+        font-size: 1.5em;
+        font-weight: 600;
     }
-
-    /* AI Content Formatting */
-    #modal-body h4 { /* Targetting the '####' converted headings */
-        font-size: 1.2em;
-        color: #764ba2; /* Accent purple for headings */
-        margin-top: 20px;
-        margin-bottom: 10px;
-        padding-left: 5px;
-        border-left: 4px solid #845ec2; /* Highlight bar */
-    }
-    #modal-body ul {
-        list-style-type: none;
-        padding-left: 0;
-        margin-top: 10px; /* Added spacing */
-    }
-    #modal-body ul li {
-        padding: 8px 10px 8px 30px; /* Increased padding */
-        position: relative;
-        color: #333;
-        font-size: 1.0em; /* Slightly larger font */
-        margin-bottom: 5px;
-        background-color: #f8f9fa; /* Light background for separation */
-        border-radius: 6px;
-        border: 1px solid #eee;
-        transition: all 0.2s ease;
-    }
-    #modal-body ul li:hover {
-        background-color: #eef7ff; /* Blue background on hover */
-        box-shadow: 0 1px 5px rgba(0,0,0,0.05);
-    }
-    #modal-body ul li::before {
-        content: '\f058'; /* Font Awesome Check-circle icon */
-        font-family: 'Font Awesome 6 Free'; /* Specify FA font */
-        font-weight: 900; /* Solid style for FA icons */
-        position: absolute;
-        left: 10px; /* Position the icon nicely */
-        top: 50%;
-        transform: translateY(-50%);
-        color: #4caf50; /* Green checkmark color */
-        font-size: 1.1em;
-    }
-
-    /* Loading State Improvement (Custom Dumbbell Loader) */
     .modal-loading {
         text-align: center;
         padding-top: 100px;
-        font-size: 1.4em;
+        font-size: 1.2em;
         color: #667eea;
     }
-    /* Hide the old loader styles */
+    /* Simple spinning loader */
     .loader {
-        display: none;
-    }
-    
-    .dumbbell-loader {
-        font-size: 4em; /* Size of the dumbbell icon */
-        color: #ff9800; /* Orange color for energy/weight */
-        animation: spin 1.5s linear infinite, pulse 1.5s ease-in-out infinite alternate;
-        margin: 30px auto;
-        display: block;
+        border: 4px solid #f3f3f3; 
+        border-top: 4px solid #667eea; 
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        animation: spin 2s linear infinite;
+        margin: 20px auto;
     }
     @keyframes spin {
         0% { transform: rotate(0deg); }
         100% { transform: rotate(360deg); }
-    }
-    @keyframes pulse {
-        0% { transform: scale(1); }
-        100% { transform: scale(1.1); }
     }
   </style>
 </head>
@@ -395,21 +331,21 @@
         </div>
     </div>
 
-    <div class="action-section" style="grid-template-columns: 1fr 1fr;">
-      <div class="action-card">
-        <h3 style="margin-top: 0;">Smart Body Personalization</h3>
-        <p style="color: #666; font-size: 0.9rem;">Generate a personalized workout based on your current BMI.</p>
-        <button id="bmiRecommendationBtn" onclick="showRecommendationModal()" class="btn-action btn-secondary-action">
-            Get AI Workout
-        </button>
-      </div>
-
+    <div class="action-section">
       <div class="action-card" style="text-align: left; display: flex; justify-content: space-between; align-items: center;">
         <div>
             <h2 style="margin-top: 0; color: #333;">Start Your Workout</h2>
             <p style="color: #666; margin-bottom: 0;">Choose from AI plans, Webcam training, or Yoga.</p>
         </div>
-        <a href="{{ url_for('main.workouts') }}" class="btn-action">Go to Workouts</a>
+        <a href="{{ url_for('main.workouts') }}" class="btn-action">Go to Workouts <i class="fas fa-arrow-right"></i></a>
+      </div>
+
+      <div class="action-card">
+        <h3 style="margin-top: 0;">Smart Body Personalization</h3>
+        <p style="color: #666; font-size: 0.9rem;">Generate a personalized workout based on your current BMI.</p>
+        <button id="bmiRecommendationBtn" onclick="showRecommendationModal()" class="btn-action btn-secondary-action">
+            <i class="fas fa-robot"></i> Get AI Workout
+        </button>
       </div>
     </div>
 
@@ -421,7 +357,7 @@
 <div id="recommendationModal" class="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="document.getElementById('recommendationModal').style.display='none'">&times;</span>
-        <div class="modal-header"><i class="fas fa-robot"></i> Smart Body Personalization</div>
+        <div class="modal-header">Smart Body Personalization</div>
         <div id="modal-body">
             </div>
     </div>
@@ -448,37 +384,13 @@
     const modal = document.getElementById('recommendationModal');
     const recommendationBtn = document.getElementById('bmiRecommendationBtn');
 
-    // Helper function to format the AI text (which uses #### and -)
-    function formatAIText(text) {
-        // 1. Replace placeholder for list items with actual list tags
-        let html = text.replace(/^- (.*)/gm, '<li>$1</li>');
-
-        // 2. Wrap list items in <ul> tags
-        html = html.replace(/(<li>.*?<\/li>[\s\n]*)+/g, '<ul>$&</ul>');
-
-        // 3. Replace AI headings (####) with styled h4 tags
-        html = html.replace(/#### (.*)/g, '<h4>$1</h4>');
-        
-        // 4. ***NEW STEP: Remove remaining asterisks (Markdown for bold/emphasis)***
-        // Removing '**' first, then '*'
-        html = html.replace(/\*\*/g, ''); 
-        html = html.replace(/\*/g, ''); 
-
-        // 5. Ensure line breaks are respected outside of tags
-        // This is important to ensure list items are correctly wrapped and not split by <br>
-        html = html.replace(/\n/g, '<br>');
-
-        return html;
-    }
-
     function showRecommendationModal() {
         // 1. Show Loading State
         modal.style.display = 'block';
         modalBody.innerHTML = `
             <div class="modal-loading">
-                <i class="fas fa-dumbbell dumbbell-loader"></i>
-                <p>Generating your personalized plan with FitBot...</p>
-                <p style="font-size: 0.8em; color: #845ec2;">This may take a few seconds...</p>
+                <div class="loader"></div>
+                <p>Generating your personalized plan with Gemini AI...</p>
             </div>
         `;
         recommendationBtn.disabled = true;
@@ -497,22 +409,20 @@
             if (status !== 200) {
                 // Handle API error or validation errors (e.g., BMI not set)
                 modalBody.innerHTML = `
-                    <div style="color: #cc0000; text-align: center; padding-top: 50px;">
-                        <i class="fas fa-exclamation-triangle fa-2x"></i>
-                        <h4 style="color: #cc0000; margin-bottom: 5px;">Generation Failed</h4>
-                        <p style="margin-top: 15px;">Error: ${body.error || 'Failed to connect to AI service.'}</p>
-                        <p style="font-size: 0.9em; color: #555;">Please make sure your BMI is set in <a href="{{ url_for('auth.edit_profile') }}" style="color: #667eea; font-weight: bold;">My Profile</a> and try again.</p>
+                    <div style="color: red; text-align: center;">
+                        <i class="fas fa-exclamation-triangle"></i> Error: ${body.error || 'Failed to connect to AI service.'}
+                        <p style="margin-top: 15px;">Please make sure your BMI is set in <a href="{{ url_for('auth.edit_profile') }}">My Profile</a>.</p>
                     </div>
                 `;
             } else {
                 // 3. Display Content on Success
-                const formattedContent = formatAIText(body.recommendation);
+                const formattedContent = body.recommendation.replace(/#/g, '<h4>'); // Simple conversion for headings
                 
                 modalBody.innerHTML = `
-                    <p style="text-align: center; font-size: 1.2em; margin-bottom: 25px; color: #4facfe;">
+                    <p style="text-align: center; font-size: 1.1em; margin-bottom: 25px;">
                         Your current BMI: <strong>${body.bmi}</strong>
                     </p>
-                    <div class="ai-content-display">
+                    <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px;">
                         ${formattedContent}
                     </div>
                 `;
