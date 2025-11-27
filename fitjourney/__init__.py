@@ -1,4 +1,4 @@
-# davaladarshini/fitjourney/fitjourney-e53c093079553197daf0844b57fee768990dab1a/fitjourney/__init__.py
+# davaladarshini/fitjourney/fitjourney-57ed9ec687a77c30868aa9a2eca533cdab423e3d/fitjourney/__init__.py
 
 import os
 from flask import Flask
@@ -12,7 +12,9 @@ def create_app():
     app = Flask(__name__)
     app.secret_key = os.getenv('FLASK_SECRET_KEY', os.urandom(24).hex())
     
-    init_extensions()
+    # --- MODIFIED LINE ---
+    init_extensions(app) 
+    # ---------------------
     
     from .routes_auth import auth_bp
     app.register_blueprint(auth_bp)
