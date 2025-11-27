@@ -18,6 +18,33 @@
             align-items: center;
             min-height: 100vh;
         }
+
+        /* --- Floating Exit Button (Top-Left) --- */
+        .exit-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 55px;
+            height: 55px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea; /* Primary theme color */
+            font-size: 1.8rem; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+            border: 2px solid transparent;
+        }
+
+        .exit-btn:hover {
+            transform: translateX(-5px); 
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            color: #764ba2; /* Darker accent color */
+        }
         
         /* CONTAINER - CLEAN WHITE BOX */
         .selection-container {
@@ -112,36 +139,34 @@
             background-color: #574cae;
         }
         
-        /* BACK BUTTON */
-        .btn-secondary {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 25px;
-            background-color: #f0f0f0;
-            color: #555;
-            border: 1px solid #ddd;
-            text-decoration: none;
-            border-radius: 8px;
-            transition: background-color 0.3s;
-            font-weight: 600;
-        }
-        .btn-secondary:hover {
-            background-color: #e0e0e0;
+        /* Responsive */
+        @media (max-width: 768px) {
+            .exit-btn {
+                top: 20px; left: 20px; width: 45px; height: 45px; font-size: 1.4rem;
+            }
         }
     </style>
 </head>
 <body>
+    <a href="{{ url_for('main.workouts') }}" class="exit-btn" title="Back to Workouts">
+        <i class="fas fa-angle-double-left"></i>
+    </a>
+
     <div class="selection-container">
         <h1><i class="fas fa-video"></i> Trainer Selection</h1>
         <p class="subtitle">Choose an exercise below to launch the real-time, webcam-guided form analysis.</p>
         
         {% macro get_exercise_icon(key) %}
-            {% if 'lunge' in key %}<i class="fas fa-redo-alt"></i>
-            {% elif 'squat' in key or 'ohp' in key %}<i class="fas fa-hands-bias"></i>
-            {% elif 'square' in key %}<i class="fas fa-weight-hanging"></i>
-            {% elif 'jack' in key %}<i class="fas fa-walking"></i>
-            {% else %}<i class="fas fa-dumbbell"></i>
+            {% if 'lunge' in key %}
+                <i class="fas fa-walking"></i>
+            {% elif 'squat' in key and 'ohp' in key %}
+                <i class="fas fa-dumbbell"></i>
+            {% elif 'squat' in key %}
+                <i class="fas fa-child"></i>
+            {% elif 'jack' in key %}
+                <i class="fas fa-bolt"></i>
+            {% else %}
+                <i class="fas fa-running"></i>
             {% endif %}
         {% endmacro %}
         
@@ -160,12 +185,6 @@
                 <p style="grid-column: 1 / -1; color: red;">Error: Could not load exercise data. Please check app.py and webcam_stream.py</p>
             {% endif %}
         </div>
-        <a href="{{ url_for('main.workouts') }}" class="btn-secondary">
-            <i class="fas fa-arrow-left"></i> Back to Workouts
-        </a>
     </div>
-
-    
 </body>
-
 </html>

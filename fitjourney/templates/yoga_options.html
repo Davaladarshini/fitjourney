@@ -5,101 +5,303 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Yoga AI Workout Options</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
     <style>
-        /* This CSS is designed to match the UI you provided */
+        /* --- Base Styles (Matched to Meditation Page) --- */
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f0f2f5;
-            padding: 20px;
-        }
-        .container {
-            max-width: 900px;
-            margin: auto;
-            text-align: center;
-        }
-        .header {
-            margin-bottom: 40px;
-        }
-        .header h1 {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6; /* Clean, light grey background */
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             color: #333;
         }
-        /* This is the key part to create the similar card layout */
+
+        .container {
+            max-width: 1100px;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* --- Header --- */
+        .header {
+            margin-bottom: 60px;
+            animation: fadeInDown 0.8s ease;
+        }
+        .header h1 {
+            font-size: 3rem;
+            font-weight: 700;
+            color: #667eea; /* Primary Blue/Purple */
+            margin-bottom: 10px;
+        }
+        .header h1 span {
+            color: #4facfe; /* Cyan Accent */
+        }
+        .header p {
+            color: #777;
+            font-size: 1.1rem;
+            font-weight: 400;
+        }
+
+        /* --- Cards Grid --- */
         .options-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 30px;
             justify-content: center;
+            padding: 10px;
         }
+
+        /* --- Option Card (Clean White) --- */
         .option-card {
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            overflow: hidden;
-            text-align: center;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 40px 30px;
             text-decoration: none;
             color: inherit;
-            padding: 25px;
-        }
-        .option-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
-        }
-        .card-content {
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            transition: all 0.3s ease;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: space-between;
-            height: 100%;
+            border: 1px solid #f0f0f0;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.6s ease-out backwards;
+            min-height: 360px; /* Taller to match the screenshot style */
         }
-        .card-content h3 {
-            margin-top: 0;
-            margin-bottom: 10px;
-            color: #555;
-            font-size: 1.2em;
+
+        /* Staggered Animation */
+        .option-card:nth-child(1) { animation-delay: 0.1s; }
+        .option-card:nth-child(2) { animation-delay: 0.2s; }
+        .option-card:nth-child(3) { animation-delay: 0.3s; }
+        .option-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .option-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
-        .card-content p {
-            margin: 0;
-            color: #777;
-            font-size: 0.9em;
-        }
-        .select-btn {
-            display: inline-block;
-            margin-top: 25px;
-            padding: 10px 20px;
-            background-color: #6a5acd; /* A shade of blue/purple to match your UI */
+
+        /* Icon Circle - Unified Blue/Purple Theme */
+        .icon-wrapper {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
             color: white;
-            border-radius: 5px;
-            text-decoration: none;
+            margin-bottom: 25px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transition: transform 0.4s ease;
+        }
+        
+        .option-card:hover .icon-wrapper {
+            transform: scale(1.1);
+        }
+
+        /* --- GRADIENTS FOR ICONS (Cool Tones) --- */
+        
+        /* 1. Yoga For You (Blue -> Purple) */
+        .card-yoga-bmi .icon-wrapper { 
+            background: linear-gradient(135deg, #4facfe 0%, #764ba2 100%); 
+        }
+
+        /* 2. Surya Namaskar (Purple -> Deep Blue) */
+        .card-surya .icon-wrapper { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
+        }
+
+        /* 3. AI Sequence (Cyan -> Blue) */
+        .card-ai .icon-wrapper { 
+            background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); 
+        }
+
+        /* 4. Challenge Mode (Soft Blue -> Lavender) */
+        .card-challenge .icon-wrapper { 
+            background: linear-gradient(135deg, #89f7fe 0%, #66a6ff 100%); 
+        }
+
+        /* Typography */
+        .option-card h3 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            color: #333;
+            margin: 0 0 15px;
+        }
+        .option-card p {
+            font-size: 0.9rem;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            flex-grow: 1; 
+        }
+
+        /* Gradient Button (Matches Screenshot) */
+        .select-btn {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); /* Purple Gradient */
+            color: white;
+            border-radius: 30px;
+            font-weight: 600;
             border: none;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 1rem;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
-        .select-btn:hover {
-            background-color: #483d8b;
+        
+        .option-card:hover .select-btn {
+            background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
+
+        /* --- Exit Button --- */
+        .exit-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 55px;
+            height: 55px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea;
+            font-size: 1.8rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+            border: 2px solid transparent;
+        }
+        .exit-btn:hover {
+            transform: translateX(-5px); 
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            color: #764ba2; 
+        }
+
+        /* --- Loading Overlay --- */
+        #loadingOverlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 9999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .loader-icon {
+            font-size: 5rem;
+            color: #667eea;
+            animation: float 2s ease-in-out infinite;
+        }
+
+        .loader-aura {
+            position: absolute;
+            width: 120px; height: 120px;
+            background: rgba(102, 126, 234, 0.15);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .loading-text {
+            margin-top: 25px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 1.3rem;
+            color: #333;
+            font-weight: 600;
+            animation: fadeText 1.5s infinite alternate;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes pulse { 0% { transform: scale(0.8); opacity: 0.8; } 100% { transform: scale(1.5); opacity: 0; } }
+        @keyframes fadeText { from { opacity: 0.6; } to { opacity: 1; } }
     </style>
 </head>
 <body>
+
+    <a href="{{ url_for('main.workouts') }}" class="exit-btn" title="Back">
+        <i class="fas fa-angle-double-left"></i>
+    </a>
+
+    <div id="loadingOverlay">
+        <div class="loader-aura"></div>
+        <div class="loader-icon"><i class="fas fa-robot"></i></div>
+        <div class="loading-text" id="loadingMessage">Consulting the Yoga Masters...</div>
+    </div>
+
     <div class="container">
         <div class="header">
-            <h1>Advanced Yoga Options</h1>
-            <p>Select a feature to enhance your yoga practice with AI.</p>
+            <h1>Advanced <span>Yoga Options</span></h1>
+            <p>Empower your practice with AI-driven insights.</p>
         </div>
 
         <div class="options-grid">
-            {% for option in options %}
-            <a href="{{ option.link }}" class="option-card">
-                <div class="card-content">
-                    <div>
-                        <h3>{{ option.title }}</h3>
-                        <p>{{ option.description }}</p>
-                    </div>
-                    <button class="select-btn">Select →</button>
-                </div>
+            
+            <a href="{{ url_for('yoga.yoga_bmi_recommendation') }}" class="option-card card-yoga-bmi" onclick="showLoader('Designing your perfect flow...')">
+                <div class="icon-wrapper"><i class="fas fa-heartbeat"></i></div>
+                <h3>Yoga for You</h3>
+                <p>Custom poses tailored to your body & health profile.</p>
+                <button class="select-btn">Get Plan</button>
             </a>
-            {% endfor %}
+
+            <a href="{{ url_for('yoga.repetition_counter') }}" class="option-card card-surya">
+                <div class="icon-wrapper"><i class="fas fa-sun"></i></div>
+                <h3>Surya Namaskar</h3>
+                <p>Audio-visual guide for Sun Salutations with tracking.</p>
+                <button class="select-btn">Start Flow</button>
+            </a>
+
+            <a href="{{ url_for('yoga.ai_personalized_sequence') }}" class="option-card card-ai">
+                <div class="icon-wrapper"><i class="fas fa-brain"></i></div>
+                <h3>AI Sequence</h3>
+                <p>Generate a custom flow based on specific goals.</p>
+                <button class="select-btn">Create</button>
+            </a>
+
+            <a href="{{ url_for('yoga.challenge_mode') }}" class="option-card card-challenge">
+                <div class="icon-wrapper"><i class="fas fa-trophy"></i></div>
+                <h3>Challenge Mode</h3>
+                <p>Daily AI-curated challenges to test your skills.</p>
+                <button class="select-btn">Accept</button>
+            </a>
+
         </div>
     </div>
+
+    <script>
+        function showLoader(message) {
+            const overlay = document.getElementById('loadingOverlay');
+            const text = document.getElementById('loadingMessage');
+            if (message) { text.textContent = message; }
+            overlay.style.display = 'flex';
+            
+            let i = 0;
+            const messages = ["Checking your stats...", "Aligning chakras...", "Designing your flow..."];
+            setInterval(() => {
+                text.textContent = messages[i % messages.length];
+                i++;
+            }, 2000);
+        }
+    </script>
 </body>
 </html>

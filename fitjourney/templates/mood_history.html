@@ -4,12 +4,62 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mood History</title>
-    <!-- Assuming your main style.css provides global styles and :root variables -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- Specific styles for the mood history display -->
     <link rel="stylesheet" href="{{ url_for('static', filename='css/mood_history.css') }}">
+    
+    <style>
+        /* Ensure body matches the aesthetic */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6;
+        }
+
+        /* --- Floating Exit Button (Top-Left) --- */
+        .exit-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 55px;
+            height: 55px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea; /* Primary theme color */
+            font-size: 1.8rem; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+            border: 2px solid transparent;
+        }
+
+        .exit-btn:hover {
+            transform: translateX(-5px); 
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            color: #764ba2; /* Darker accent color */
+        }
+
+        /* Responsive adjustment */
+        @media (max-width: 768px) {
+            .exit-btn {
+                top: 20px;
+                left: 20px;
+                width: 45px;
+                height: 45px;
+                font-size: 1.4rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <a href="{{ url_for('mindfulness.meditation_options') }}" class="exit-btn" title="Back to Options">
+        <i class="fas fa-angle-double-left"></i>
+    </a>
+
     <div class="container">
         <header class="parallax-header">
             <h1>Your Mood History</h1>
@@ -24,7 +74,7 @@
 
                 {% if moods %}
                     {% for mood in moods %}
-                    <div class="mood-entry rating-{{ mood.mood_rating }}"> {# Added class for specific emoji if desired #}
+                    <div class="mood-entry rating-{{ mood.mood_rating }}"> 
                         <p class="rating">Mood: {{ mood.mood_rating }} / 5</p>
                         {% if mood.mood_notes %}
                             <p>Notes: {{ mood.mood_notes }}</p>
@@ -39,7 +89,8 @@
                     <p>No mood entries yet. Start tracking your mood!</p>
                 {% endif %}
             </div>
-            <a href="/meditation-options" class="btn btn-secondary" style="margin-top: 30px;">← Back to Meditation Options</a>
+            
+            <a href="{{ url_for('mindfulness.meditation_options') }}" class="btn btn-secondary" style="margin-top: 30px;">← Back to Options</a>
         </div>
     </div>
 </body>

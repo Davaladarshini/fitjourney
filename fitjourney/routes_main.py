@@ -7,6 +7,7 @@ from datetime import datetime # NEW Import
 
 main_bp = Blueprint('main', __name__)
 
+
 @main_bp.route('/dashboard')
 def dashboard():
     if 'user_name' not in session:
@@ -72,3 +73,10 @@ def save_appointment():
     
     flash("Appointment request submitted successfully! A trainer will be in touch soon.")
     return redirect(url_for('auth.welcome')) # Redirects to the Dashboard
+
+@main_bp.route('/about_us')
+def about_us():
+    if 'user_name' not in session:
+        return redirect(url_for('auth.login'))
+    # This will render the new about_us.html template
+    return render_template('about_us.html')

@@ -1,10 +1,10 @@
-# fitjourney/routes_yoga.py
-
-from flask import Blueprint, render_template, request, url_for
+from flask import Blueprint, render_template, request, url_for, session, flash, redirect
+from .extensions import gemini_client, personal_details_collection, health_issues_collection
 from datetime import datetime
 
 yoga_bp = Blueprint('yoga', __name__)
 
+# --- Helper Function: Generate Static Sequence ---
 def generate_yoga_sequence(goal):
     """Generates a multi-pose yoga sequence based on the selected goal."""
     sequences = {
@@ -39,16 +39,13 @@ def generate_yoga_sequence(goal):
             ]
         }
     }
-    return sequences.get(goal, {"title": "General Sequence", "poses": [{"name": "No goal selected. Please choose a goal."}]})
+    return sequences.get(goal, {"title": "General Sequence", "poses": [{"name": "No goal selected. Please choose a goal.", "duration": "", "description": ""}]})
+
+# --- Routes ---
 
 @yoga_bp.route('/yoga_workouts')
 def yoga_workouts():
-    options = [
-        {"title": "Repetition Counter", "description": "Tracks rounds for Sun Salutations.", "link": url_for('yoga.repetition_counter')},
-        {"title": "AI-Personalized Sequence", "description": "AI generates a custom flow based on your goals.", "link": url_for('yoga.ai_personalized_sequence')},
-        {"title": "Challenge Mode", "description": "AI suggests daily/weekly yoga challenges.", "link": url_for('yoga.challenge_mode')}
-    ]
-    return render_template('yoga_options.html', options=options)
+    return render_template('yoga_options.html')
 
 @yoga_bp.route('/repetition_counter')
 def repetition_counter():
@@ -64,7 +61,52 @@ def ai_personalized_sequence():
 
 @yoga_bp.route('/challenge_mode')
 def challenge_mode():
-    challenges = ["Hold Tree Pose for 2 minutes on each leg today.", "Perform 10 cat-cow poses to warm up your spine."]
+    challenges = [
+        "Hold Tree Pose for 2 minutes on each leg today.", 
+        "Perform 10 cat-cow poses to warm up your spine.",
+        "Try a 5-minute meditation after your flow.",
+        "Practice 5 rounds of Sun Salutation A."
+    ]
     day_of_year = datetime.now().timetuple().tm_yday
     daily_challenge = challenges[(day_of_year - 1) % len(challenges)]
     return render_template('challenge_mode.html', daily_challenge=daily_challenge)
+
+# --- REVERTED: Gemini BMI Recommendation Route (Text Only) ---
+@yoga_bp.route('/yoga_bmi_recommendation')
+def yoga_bmi_recommendation():
+    if 'user_email' not in session:
+        flash("Please log in to get personalized recommendations.")
+        return redirect(url_for('auth.login'))
+        
+    user_email = session['user_email']
+    
+    # Fetch user details
+    user_details = personal_details_collection.find_one({'email': user_email}) or {}
+    health_info = health_issues_collection.find_one({'email': user_email}) or {}
+    
+    user_bmi = user_details.get('bmi', 'N/A')
+    health_constraints = health_info.get('ai_processed_issues', 'None')
+    
+    system_prompt = f"""
+    You are an expert Yoga Therapist. Create a safe and effective yoga routine for a user with the following profile:
+    - BMI: {user_bmi}
+    - Health Issues/Injuries: {health_constraints}
+    
+    1. Suggest 3-5 specific poses that are beneficial for their body type and safe for their conditions.
+    2. Explain WHY each pose is chosen.
+    3. Provide a modification for each pose to make it accessible.
+    
+    Format your response in clean HTML (use <h3> for pose names, <ul> for details, <strong> for emphasis). Do NOT use markdown code blocks.
+    """
+    
+    try:
+        response = gemini_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=[{"role": "user", "parts": [{"text": system_prompt}]}]
+        )
+        ai_plan = response.text
+    except Exception as e:
+        print(f"Gemini Error: {e}")
+        ai_plan = "<p>Sorry, our AI yoga instructor is currently unavailable. Please try again later.</p>"
+
+    return render_template('yoga_bmi_recommendation.html', plan=ai_plan)

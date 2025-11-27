@@ -3,75 +3,168 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI Personalized Sequence</title>
+    <title>AI Personalized Sequence | FITJourney</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* Floating Exit Button */
+        .exit-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 55px;
+            height: 55px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea; 
+            font-size: 1.8rem; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+            border: 2px solid transparent;
+        }
+        .exit-btn:hover {
+            transform: translateX(-5px); 
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            color: #764ba2; 
+        }
+
         .plan-container {
             max-width: 700px;
-            margin: 50px auto;
-            padding: 30px;
+            width: 100%;
+            margin-top: 40px;
+            padding: 40px;
             background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .plan-container h1 {
-            color: #6a5acd;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
             text-align: center;
-            margin-bottom: 20px;
         }
+        
+        h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        p.subtitle {
+            color: #666;
+            margin-bottom: 30px;
+        }
+
+        /* Form Styles */
         .goal-form {
-            text-align: center;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
         }
+        
         .goal-form select {
-            padding: 10px;
+            padding: 12px 20px;
             font-size: 1em;
-            border-radius: 5px;
-            border: 1px solid #ccc;
-            margin-right: 10px;
+            border-radius: 30px;
+            border: 2px solid #eee;
+            outline: none;
+            font-family: 'Poppins', sans-serif;
+            min-width: 200px;
         }
+        
         .goal-form button {
-            padding: 10px 20px;
-            background-color: #007bff;
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 30px;
             cursor: pointer;
+            font-weight: 600;
+            transition: transform 0.2s;
         }
+        
+        .goal-form button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        /* Sequence Display */
         .yoga-sequence {
-            margin-top: 30px;
+            margin-top: 40px;
+            text-align: left;
         }
-        .pose-item {
-            border-bottom: 1px solid #eee;
-            padding: 15px 0;
-        }
-        .pose-item:last-child {
-            border-bottom: none;
-        }
-        .pose-item h2 {
-            margin: 0;
+        
+        .sequence-title {
             color: #333;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #f0f0f0;
         }
+
+        .pose-item {
+            background: #f9faff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+            transition: transform 0.2s;
+        }
+        
+        .pose-item:hover {
+            transform: translateX(5px);
+        }
+
+        .pose-item h3 {
+            margin: 0 0 5px 0;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
         .pose-item p {
-            margin: 5px 0 0;
-            color: #777;
+            margin: 0;
+            color: #666;
+            font-size: 0.95em;
+            line-height: 1.5;
         }
     </style>
 </head>
 <body>
+    
+    <a href="{{ url_for('yoga.yoga_workouts') }}" class="exit-btn" title="Back to Yoga Options">
+        <i class="fas fa-angle-double-left"></i>
+    </a>
+
     <div class="plan-container">
-        <h1>AI Personalized Sequence</h1>
+        <h1><i class="fas fa-spa"></i> Personalized Yoga</h1>
+        <p class="subtitle">Select a goal to generate a curated flow.</p>
+
         {% if generated_plan %}
             <div class="yoga-sequence">
-                <h2>{{ generated_plan.title }}</h2>
+                <h2 class="sequence-title">{{ generated_plan.title }}</h2>
                 {% for pose in generated_plan.poses %}
                     <div class="pose-item">
-                        <h3>{{ pose.name }} - {{ pose.duration }}</h3>
+                        <h3>{{ pose.name }} <span style="font-weight: normal; font-size: 0.9em; color: #888;">({{ pose.duration }})</span></h3>
                         <p>{{ pose.description }}</p>
                     </div>
                 {% endfor %}
             </div>
+            <div style="text-align: center; margin-top: 30px;">
+                <a href="{{ url_for('yoga.ai_personalized_sequence') }}" style="color: #667eea; text-decoration: none; font-weight: 500;">Create New Plan</a>
+            </div>
         {% else %}
-            <p>Select a goal to generate a custom yoga sequence.</p>
             <form class="goal-form" method="POST" action="{{ url_for('yoga.ai_personalized_sequence') }}">
                 <select name="yoga_goal">
                     <option value="stress_relief">Stress Relief</option>

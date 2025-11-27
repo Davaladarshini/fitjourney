@@ -4,9 +4,16 @@
     <meta charset="UTF-8">
     <style>
         /* CSS for AI Chatbot */
+        
+        /* Define Bouncing Animation */
+        @keyframes bounceInfinite {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
         #chatbot-toggle-btn {
             position: fixed;
-            bottom: 30px;
+            bottom: 120px; 
             left: 30px;
             z-index: 1000;
             width: 60px;
@@ -18,17 +25,27 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             font-size: 1.5rem;
             cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            
+            /* Centering the Icon */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
+
+            /* Apply Animation */
+            animation: bounceInfinite 2s infinite ease-in-out;
+            transition: box-shadow 0.3s ease; 
         }
 
         #chatbot-toggle-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            /* Pause animation on hover for easier clicking */
+            animation-play-state: paused;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.6);
         }
 
         #chatbot-window {
             position: fixed;
-            bottom: 100px;
+            bottom: 190px; 
             left: 20px;
             width: 320px;
             height: 400px;
@@ -110,6 +127,12 @@
             height: 40px;
             cursor: pointer;
             transition: background-color 0.2s;
+            
+            /* Centering Send Icon */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 0;
         }
 
         .chatbot-input button:hover {

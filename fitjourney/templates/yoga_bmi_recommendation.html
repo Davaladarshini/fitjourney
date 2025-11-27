@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Personalized Yoga Plan</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f4f7f6;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+
+        /* Floating Exit Button */
+        .exit-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 55px;
+            height: 55px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea; 
+            font-size: 1.8rem; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+            border: 2px solid transparent;
+        }
+        .exit-btn:hover {
+            transform: translateX(-5px); 
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            color: #764ba2; 
+        }
+
+        .content-container {
+            max-width: 800px;
+            width: 100%;
+            margin-top: 60px;
+            padding: 40px;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+        }
+
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+
+        .ai-content {
+            line-height: 1.8;
+            color: #444;
+            font-size: 1.05rem;
+        }
+        
+        .ai-content h3 {
+            color: #667eea;
+            margin-top: 25px;
+            margin-bottom: 10px;
+        }
+        
+        .ai-content ul {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .ai-content li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    
+    <a href="{{ url_for('yoga.yoga_workouts') }}" class="exit-btn" title="Back to Yoga Options">
+        <i class="fas fa-angle-double-left"></i>
+    </a>
+
+    <div class="content-container">
+        <h1><i class="fas fa-spa" style="color: #667eea;"></i> Yoga For You</h1>
+        <p style="text-align: center; color: #777; margin-bottom: 30px;">Based on your BMI & Health Profile</p>
+        
+        <div class="ai-content">
+            {{ plan | safe }}
+        </div>
+    </div>
+
+</body>
+</html>

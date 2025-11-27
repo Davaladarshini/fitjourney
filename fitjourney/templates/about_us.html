@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Us | FITJourney</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* --- Base Layout & Animations --- */
+        body { 
+            background-color: #f8f9fc; 
+            margin: 0; 
+            font-family: 'Segoe UI', 'Roboto', sans-serif; 
+            overflow-x: hidden;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .layout-container { display: flex; min-height: 100vh; }
+        
+        aside {
+            width: 250px; background: #fff; padding: 30px 20px; 
+            box-shadow: 4px 0 15px rgba(0,0,0,0.03); 
+            display: flex; flex-direction: column; flex-shrink: 0;
+            z-index: 10;
+        }
+        
+        main { 
+            flex-grow: 1; 
+            padding: 40px; 
+            overflow-y: auto;
+            background-image: radial-gradient(circle at top right, #eef2f3 0%, #ffffff 100%);
+        }
+
+        /* --- Hero Header Section --- */
+        .about-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white; 
+            padding: 50px 40px; 
+            border-radius: 20px;
+            text-align: center; 
+            margin-bottom: 40px;
+            box-shadow: 0 20px 40px rgba(118, 75, 162, 0.15);
+            animation: fadeInUp 0.8s ease-out;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .about-header::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -10%;
+            width: 300px; height: 300px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 50%;
+        }
+
+        .about-header h1 {
+            margin: 0;
+            font-size: 2.5rem;
+            font-weight: 800;
+            letter-spacing: 1px;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .about-header p {
+            margin-top: 10px;
+            font-size: 1.1rem;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        /* --- Content Styling --- */
+        .about-content {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* --- Creators Grid (Tight Horizontal Flow) --- */
+        .creators-grid {
+            display: flex;
+            flex-direction: row;
+            flex-wrap: wrap; /* Wraps only if screen is very small (mobile) */
+            justify-content: center; /* Centers them together */
+            gap: 20px; /* Tighter gap to fit them together */
+            margin-top: 20px;
+        }
+
+        /* --- Compact Creator Card Styling --- */
+        .creator-card {
+            background-color: #ffffff;
+            border-radius: 20px;
+            padding: 25px 15px; /* Reduced padding */
+            text-align: center;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            
+            /* Smaller sizing to fit 4 in a row */
+            flex: 1 1 220px; 
+            max-width: 280px; 
+            
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border: 1px solid rgba(255,255,255,0.8);
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.8s ease-out backwards;
+        }
+
+        /* Stagger animation */
+        .creator-card:nth-child(1) { animation-delay: 0.1s; }
+        .creator-card:nth-child(2) { animation-delay: 0.2s; }
+        .creator-card:nth-child(3) { animation-delay: 0.3s; }
+        .creator-card:nth-child(4) { animation-delay: 0.4s; }
+
+        .creator-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.12);
+            z-index: 2; /* Brings hovered card to front */
+        }
+        
+        .creator-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 4px;
+            background: linear-gradient(to right, #667eea, #764ba2);
+            transform: scaleX(0);
+            transition: transform 0.4s ease;
+        }
+        .creator-card:hover::after {
+            transform: scaleX(1);
+        }
+
+        /* Avatar Image */
+        .avatar-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+        
+        .creator-avatar {
+            width: 120px; height: 120px; /* Slightly smaller avatars */
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid #fff;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1);
+            transition: transform 0.4s ease;
+        }
+        
+        .creator-card:hover .creator-avatar {
+            transform: scale(1.05);
+            border-color: #f0f4ff;
+        }
+
+        /* Text Styling */
+        .creator-card h3 { 
+            margin: 5px 0 2px; 
+            color: #2d3748; 
+            font-size: 1.3rem; 
+            font-weight: 700;
+        }
+        
+        .creator-card .role {
+            color: #667eea;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .creator-card .bio { 
+            font-size: 0.9rem; 
+            color: #718096; 
+            line-height: 1.5; 
+            margin-bottom: 20px; 
+            flex-grow: 1;
+            padding: 0 5px;
+        }
+
+        /* --- Social Icons Section --- */
+        .social-links {
+            display: flex;
+            gap: 10px;
+            margin-top: auto;
+        }
+
+        .social-icon {
+            width: 38px; height: 38px;
+            border-radius: 50%;
+            background-color: #f7fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a0aec0;
+            font-size: 1.1rem;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+
+        .social-icon:hover { 
+            color: white; 
+            transform: translateY(-3px) scale(1.1); 
+            box-shadow: 0 8px 15px rgba(0,0,0,0.15);
+        }
+        
+        .social-icon.email:hover { background: linear-gradient(45deg, #dd4b39, #c23321); }
+        .social-icon.linkedin:hover { background: linear-gradient(45deg, #0077b5, #005582); }
+        .social-icon.git:hover { background: linear-gradient(45deg, #333, #111); }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .about-header { padding: 40px 20px; }
+            .creators-grid { gap: 20px; }
+            /* On tablet/mobile, allow them to grow a bit more to fill width */
+            .creator-card { flex: 1 1 40%; max-width: 45%; }
+        }
+        @media (max-width: 500px) {
+            .creator-card { flex: 1 1 100%; max-width: 100%; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="layout-container">
+    <aside>
+        <div style="font-size: 20px; font-weight: bold; color: #667eea; margin-bottom: 40px; display: flex; align-items: center; gap: 10px;">
+            <i class="fas fa-bolt"></i> FITJourney
+        </div>
+        
+        <nav style="flex: 1;">
+            <a href="{{ url_for('main.dashboard') }}" style="display: block; padding: 12px; margin-bottom: 10px; color: #555; text-decoration: none;">
+                <i class="fas fa-home" style="width: 25px;"></i> Dashboard
+            </a>
+            <a href="{{ url_for('main.workouts') }}" style="display: block; padding: 12px; margin-bottom: 10px; color: #555; text-decoration: none;">
+                <i class="fas fa-dumbbell" style="width: 25px;"></i> Workouts
+            </a>
+            <a href="{{ url_for('main.statistics') }}" style="display: block; padding: 12px; margin-bottom: 10px; color: #555; text-decoration: none;">
+                <i class="fas fa-chart-line" style="width: 25px;"></i> Statistics
+            </a>
+            <a href="{{ url_for('main.appointments') }}" style="display: block; padding: 12px; margin-bottom: 10px; color: #555; text-decoration: none;">
+                <i class="fas fa-calendar-check" style="width: 25px;"></i> Appointments
+            </a>
+            <a href="{{ url_for('auth.profile') }}" style="display: block; padding: 12px; margin-bottom: 10px; color: #555; text-decoration: none;">
+                <i class="fas fa-user-circle" style="width: 25px;"></i> My Profile
+            </a>
+            <a href="{{ url_for('main.about_us') }}" style="display: block; padding: 12px; margin-bottom: 10px; background: #f0f4ff; color: #667eea; border-radius: 8px; font-weight: 600; text-decoration: none; border-left: 4px solid #667eea;">
+                <i class="fas fa-info-circle" style="width: 25px;"></i> About Us
+            </a>
+        </nav>
+
+        <a href="{{ url_for('auth.logout') }}" style="display: block; padding: 12px; color: #ef4444; text-decoration: none; margin-top: auto;">
+            <i class="fas fa-sign-out-alt" style="width: 25px;"></i> Logout
+        </a>
+    </aside>
+
+    <main>
+        <div class="about-header">
+            <h1>Meet the Team</h1>
+            <p>Innovating fitness through technology and passion.</p>
+        </div>
+
+        <div class="about-content">
+            <div class="creators-grid">
+                
+                <div class="creator-card">
+                    <div class="avatar-wrapper">
+                        <img src="{{ url_for('static', filename='images/Creator 1.jpeg') }}" alt="Creator 1" class="creator-avatar">
+                    </div>
+                    <h3>Jhanavi Balla</h3>
+                    <span class="role">AI Engineer & Lead</span>
+                    <p class="bio">"Passionate about merging AI with health for a better tomorrow. Built the core vision for FITJourney."</p>
+                    
+                    <div class="social-links">
+                        <a href="jhanaviballa23904@gmail.com" class="social-icon email" title="Email Me"><i class="fas fa-envelope"></i></a>
+                        <a href="https://linkedin.com" target="_blank" class="social-icon linkedin" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://github.com" target="_blank" class="social-icon git" title="GitHub"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+
+                <div class="creator-card">
+                    <div class="avatar-wrapper">
+                        <img src="{{ url_for('static', filename='images/Creator 2.jpeg') }}" alt="Creator 2" class="creator-avatar">
+                    </div>
+                    <h3>Davala Darshini</h3>
+                    <span class="role">Full Stack Dev</span>
+                    <p class="bio">"Ensuring a seamless user experience from the database to the pixel-perfect interface."</p>
+                    
+                    <div class="social-links">
+                        <a href="davaladarshini01@gmail.com" class="social-icon email" title="Email Me"><i class="fas fa-envelope"></i></a>
+                        <a href="https://linkedin.com" target="_blank" class="social-icon linkedin" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://github.com/Davaladarshini" target="_blank" class="social-icon git" title="GitHub"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+
+                <div class="creator-card">
+                    <div class="avatar-wrapper">
+                        <img src="{{ url_for('static', filename='images/Creator 3.jpeg') }}" alt="Creator 3" class="creator-avatar">
+                    </div>
+                    <h3>Nikitha S Gowda</h3>
+                    <span class="role">UI/UX Designer</span>
+                    <p class="bio">"Designing intuitive interfaces that keep you motivated and engaged every day."</p>
+                    
+                    <div class="social-links">
+                        <a href="nikithasgowda13@gmail.com" class="social-icon email" title="Email Me"><i class="fas fa-envelope"></i></a>
+                        <a href="https://linkedin.com" target="_blank" class="social-icon linkedin" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://github.com" target="_blank" class="social-icon git" title="GitHub"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+
+                <div class="creator-card">
+                    <div class="avatar-wrapper">
+                        <img src="{{ url_for('static', filename='images/Creator 4.jpeg') }}" alt="Creator 4" class="creator-avatar">
+                    </div>
+                    <h3>Disha N Gowda</h3>
+                    <span class="role">Data Scientist</span>
+                    <p class="bio">"Turning raw health data into personalized, actionable insights for your dashboard."</p>
+                    
+                    <div class="social-links">
+                        <a href="gowdandisha@gmail.com" class="social-icon email" title="Email Me"><i class="fas fa-envelope"></i></a>
+                        <a href="www.linkedin.com/in/disha-n-636a63253" target="_blank" class="social-icon linkedin" title="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="https://github.com/dishagowda777" target="_blank" class="social-icon git" title="GitHub"><i class="fab fa-github"></i></a>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+</div>
+
+</body>
+</html>

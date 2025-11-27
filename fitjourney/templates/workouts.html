@@ -57,7 +57,7 @@
         .card h3 { margin-top: 15px; color: #333; }
         .card p { color: #666; flex-grow: 1; margin-bottom: 20px; }
         
-        .card button, .dropdown-btn { 
+        .card button { 
             padding: 12px 25px; 
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
             border: none; 
@@ -67,31 +67,6 @@
             font-weight: bold;
             width: 100%;
         }
-        
-        /* Dropdown Styles */
-        .dropdown-container { position: relative; width: 100%; }
-        .dropdown-options { 
-            display: none; 
-            position: absolute; 
-            top: 100%; 
-            left: 0; 
-            background-color: white; 
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1); 
-            width: 100%; 
-            z-index: 100; 
-            border-radius: 8px; 
-            margin-top: 5px;
-            overflow: hidden;
-        }
-        .dropdown-option { 
-            display: block; 
-            padding: 12px; 
-            text-decoration: none; 
-            color: #333; 
-            border-bottom: 1px solid #eee;
-        }
-        .dropdown-option:last-child { border-bottom: none; }
-        .dropdown-option:hover { background-color: #f0f4ff; color: #667eea; }
     </style>
 </head>
 <body>
@@ -119,6 +94,9 @@
                 <a href="{{ url_for('auth.profile') }}" style="display: block; padding: 12px; margin-bottom: 10px; color: #555; text-decoration: none;">
                     <i class="fas fa-user-circle" style="width: 25px;"></i> My Profile
                 </a>
+                <a href="{{ url_for('main.about_us') }}" style="display: block; padding: 12px; margin-bottom: 10px; color: #555; text-decoration: none;">
+                    <i class="fas fa-info-circle" style="width: 25px;"></i> About Us
+                </a>
             </nav>
 
             <a href="/logout" style="display: block; padding: 12px; color: #ef4444; text-decoration: none; margin-top: auto;">
@@ -133,6 +111,7 @@
             </header>
 
             <div class="workout-grid">
+                
                 <div class="card">
                     <i class="fas fa-robot" style="font-size: 40px; color: #667eea; margin-bottom: 15px;"></i>
                     <h3>Auto-Classify</h3>
@@ -170,38 +149,26 @@
                 </div>
 
                 <div class="card">
-                    <i class="fas fa-spa" style="font-size: 40px; color: #43e97b; margin-bottom: 15px;"></i>
-                    <h3>Meditation & Yoga</h3>
-                    <p>Mindfulness and flexibility exercises</p>
-                    <div class="dropdown-container">
-                        <button class="dropdown-btn" onclick="toggleDropdown(this)">Select <i class="fas fa-chevron-down"></i></button>
-                        <div class="dropdown-options">
-                            <a href="{{ url_for('mindfulness.guided_meditation') }}" class="dropdown-option">Meditation</a>
-                            <a href="{{ url_for('yoga.yoga_workouts') }}" class="dropdown-option">Yoga</a>
-                        </div>
-                    </div>
+                    <i class="fas fa-brain" style="font-size: 40px; color: #43e97b; margin-bottom: 15px;"></i>
+                    <h3>Mindfulness</h3>
+                    <p>Meditation, Breathing, and your AI Wellness Companion</p>
+                    <form action="{{ url_for('mindfulness.meditation_options') }}" method="get" style="width: 100%;">
+                        <button type="submit">Explore <i class="fas fa-arrow-right"></i></button>
+                    </form>
                 </div>
+
+                <div class="card">
+                    <i class="fas fa-om" style="font-size: 40px; color: #ff6b6b; margin-bottom: 15px;"></i>
+                    <h3>Yoga Studio</h3>
+                    <p>Flexibility flows, poses, and relaxation sequences</p>
+                    <form action="{{ url_for('yoga.yoga_workouts') }}" method="get" style="width: 100%;">
+                        <button type="submit">Start Yoga <i class="fas fa-arrow-right"></i></button>
+                    </form>
+                </div>
+
             </div>
         </main>
     </div>
 
-    <script>
-        function toggleDropdown(button) {
-            const dropdownOptions = button.nextElementSibling;
-            dropdownOptions.style.display = dropdownOptions.style.display === 'block' ? 'none' : 'block';
-        }
-
-        window.onclick = function(event) {
-            if (!event.target.matches('.dropdown-btn') && !event.target.matches('.dropdown-btn *')) {
-                const dropdowns = document.getElementsByClassName("dropdown-options");
-                for (let i = 0; i < dropdowns.length; i++) {
-                    const openDropdown = dropdowns[i];
-                    if (openDropdown.style.display === 'block') {
-                        openDropdown.style.display = 'none';
-                    }
-                }
-            }a
-        }
-    </script>
 </body>
 </html>

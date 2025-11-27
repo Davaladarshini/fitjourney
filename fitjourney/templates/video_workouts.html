@@ -34,6 +34,7 @@
             justify-content: center;
             align-items: flex-start;
             padding: 40px 0;
+            position: relative;
         }
 
         @keyframes animatedGradient {
@@ -42,21 +43,48 @@
             100% { background-position: 0% 50%; }
         }
 
+        /* --- NEW LEFT EXIT BUTTON STYLES --- */
+        .exit-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 55px;
+            height: 55px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color); 
+            font-size: 1.8rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+            border: 2px solid transparent;
+        }
+
+        .exit-btn:hover {
+            transform: translateX(-5px); /* Subtle move left */
+            box-shadow: 0 8px 25px rgba(106, 92, 205, 0.3);
+            color: var(--primary-dark);
+        }
+
         /* Adjustments for main container to hold two cards per row */
         .main {
-            max-width: 1000px; /* Increased max-width to accommodate two cards */
-            width: 95%; /* Adjusted width for better responsiveness */
+            max-width: 1000px; 
+            width: 95%; 
             margin: 0 auto;
             padding: 20px;
             box-sizing: border-box;
-            display: flex; /* Enable Flexbox */
-            flex-wrap: wrap; /* Allow cards to wrap to the next row */
-            justify-content: center; /* Center cards horizontally */
-            gap: 25px; /* Space between cards */
+            display: flex; 
+            flex-wrap: wrap; 
+            justify-content: center; 
+            gap: 25px; 
         }
 
         h1 {
-            width: 100%; /* Make heading span full width */
+            width: 100%; 
             text-align: center;
             margin-bottom: 40px;
             font-family: 'Montserrat', sans-serif;
@@ -69,13 +97,12 @@
             background: var(--card-bg);
             border-radius: 12px;
             padding: 25px 30px;
-            /* Removed margin-bottom here as gap in .main handles spacing */
             box-shadow: var(--shadow-light);
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             border: 1px solid #eee;
-            width: calc(50% - 30px); /* Adjust width for two cards, considering gap */
-            box-sizing: border-box; /* Include padding and border in the width calculation */
-            margin-bottom: 25px; /* Maintain vertical spacing for wrapped rows */
+            width: calc(50% - 30px); 
+            box-sizing: border-box; 
+            margin-bottom: 25px; 
         }
 
         .card:hover {
@@ -99,16 +126,15 @@
             margin-bottom: 15px;
         }
 
-        /* Styles for the video player */
         .video-player {
             width: 100%;
-            height: 200px; /* Adjust height as needed */
+            height: 200px; 
             background-color: #000;
             border-radius: 8px;
-            margin-bottom: 15px; /* Space between video and dropdown */
+            margin-bottom: 15px; 
         }
 
-        /* Styles for the custom dropdown */
+        /* Dropdown Styles */
         .custom-dropdown {
             position: relative;
             display: inline-block;
@@ -129,9 +155,9 @@
             gap: 8px;
             transition: background 0.3s ease, transform 0.2s ease;
             outline: none;
-            width: 100%; /* Make button span full width */
+            width: 100%; 
             justify-content: center;
-            box-sizing: border-box; /* Include padding in width */
+            box-sizing: border-box; 
         }
 
         .dropdown-toggle:hover {
@@ -144,7 +170,7 @@
         }
 
         .dropdown-menu {
-            display: none; /* Hidden by default */
+            display: none; 
             position: absolute;
             background-color: var(--card-bg);
             min-width: 160px;
@@ -199,21 +225,22 @@
             transform: rotate(180deg);
         }
 
-        /* Responsive adjustments for smaller screens */
+        /* Responsive adjustments */
         @media (max-width: 768px) {
             h1 {
                 font-size: 2em;
                 margin-bottom: 30px;
+                /* margin-top: 40px; Removed extra margin as button is floating */
             }
 
             .main {
                 padding: 15px;
-                gap: 20px; /* Slightly smaller gap on mobile */
+                gap: 20px; 
             }
 
             .card {
-                width: 100%; /* Cards stack in a single column on smaller screens */
-                margin-bottom: 20px; /* Adjust spacing when stacked */
+                width: 100%; 
+                margin-bottom: 20px; 
                 padding: 20px;
             }
 
@@ -225,19 +252,29 @@
                 font-size: 0.9em;
                 padding: 8px 15px;
             }
+            
+            .exit-btn {
+                top: 20px;
+                left: 20px;
+                width: 45px;
+                height: 45px;
+                font-size: 1.4rem;
+            }
         }
     </style>
 </head>
 <body>
+    <a href="{{ url_for('main.workouts') }}" class="exit-btn" title="Back to Workouts">
+        <i class="fas fa-angle-double-left"></i>
+    </a>
+
     <div class="main">
         <h1>🏋️‍♂️ Fitness Hub: Choose Your Workout</h1>
 
-        <!-- Full Body Workout Card -->
         <div class="card">
             <h3><i class="fas fa-running"></i> Full Body Workout</h3>
             <p>A comprehensive routine designed to engage all major muscle groups for overall strength and conditioning. Perfect for a balanced fitness approach.</p>
             <video controls class="video-player" id="fullBodyVideo">
-                <!-- Default video for Full Body -->
                 <source src="static/video/fitness-fullbody1.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
@@ -252,12 +289,10 @@
             </div>
         </div>
 
-        <!-- Upper Body Card -->
         <div class="card">
             <h3><i class="fas fa-dumbbell"></i> Upper Body</h3>
             <p>Target your arms, shoulders, chest, and back. Build strength and definition in your upper physique with these focused exercises.</p>
             <video controls class="video-player" id="upperBodyVideo">
-                <!-- Default video for Upper Body -->
                 <source src="static/video/fitness-upperbody1.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
@@ -272,12 +307,10 @@
             </div>
         </div>
 
-        <!-- Lower Body Card -->
         <div class="card">
             <h3><i class="fas fa-walking"></i> Lower Body</h3>
             <p>Strengthen your legs, glutes, and calves. Essential for power, stability, and everyday functional movement.</p>
             <video controls class="video-player" id="lowerBodyVideo">
-                <!-- Default video for Lower Body -->
                 <source src="static/video/fitness-lowerbody1.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
@@ -292,14 +325,12 @@
             </div>
         </div>
 
-        <!-- Core Workout Card -->
         <div class="card">
             <h3><i class="fas fa-child"></i> Core Workout</h3>
             <p>
                 Build a strong foundation with targeted exercises for your abdominal and back muscles, improving posture and overall stability.
             </p>
             <video controls class="video-player" id="coreVideo">
-                <!-- Default video for Core -->
                 <source src="static/video/fitness-core1.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
@@ -314,12 +345,10 @@
             </div>
         </div>
 
-        <!-- Stretching Card -->
         <div class="card">
             <h3><i class="fas fa-spa"></i> Stretching</h3>
             <p>Enhance flexibility, reduce muscle soreness, and prevent injuries with these essential stretching routines.</p>
             <video controls class="video-player" id="stretchingVideo">
-                <!-- Default video for Stretching -->
                 <source src="static/video/fitness-stretches1.mp4" type="video/mp4">
                 Your browser does not support the video tag.
             </video>
@@ -340,38 +369,33 @@
             const dropdownMenu = buttonElement.nextElementSibling;
             const arrow = buttonElement.querySelector('.arrow');
 
-            // Close other open dropdowns
             document.querySelectorAll('.dropdown-menu.show').forEach(menu => {
                 if (menu !== dropdownMenu) {
                     menu.classList.remove('show');
-                    menu.previousElementSibling.classList.remove('active'); // Deactivate other buttons
+                    menu.previousElementSibling.classList.remove('active');
                 }
             });
 
-            // Toggle current dropdown
             dropdownMenu.classList.toggle('show');
-            buttonElement.classList.toggle('active'); // Toggle active state for the button
+            buttonElement.classList.toggle('active');
         }
 
         function playVideo(videoId, videoSrc) {
             const videoPlayer = document.getElementById(videoId);
             if (videoPlayer) {
                 videoPlayer.src = videoSrc;
-                videoPlayer.load(); // Load the new video
-                videoPlayer.play(); // Play the new video
+                videoPlayer.load();
+                videoPlayer.play();
             } else {
                 console.error('Video player with ID "' + videoId + '" not found.');
             }
 
-
-            // Close the dropdown after selecting a video
             const dropdownMenu = videoPlayer.nextElementSibling.querySelector('.dropdown-menu');
             const dropdownToggle = videoPlayer.nextElementSibling.querySelector('.dropdown-toggle');
             dropdownMenu.classList.remove('show');
             dropdownToggle.classList.remove('active');
         }
 
-        // Close dropdowns if clicked outside
         window.onclick = function(event) {
             if (!event.target.matches('.dropdown-toggle') && !event.target.matches('.dropdown-toggle *')) {
                 document.querySelectorAll('.dropdown-menu.show').forEach(menu => {

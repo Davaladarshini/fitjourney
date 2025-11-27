@@ -155,22 +155,43 @@
             font-weight: bold;
         }
 
-        /* Exit Button */
-        .exit-btn { 
-            position: absolute; top: 20px; right: 20px; padding: 10px 20px; 
-            background-color: #db6d6d;
-            color: white; border: none; 
-            border-radius: 8px; cursor: pointer; z-index: 11; 
-            pointer-events: auto; box-shadow: 0 2px 5px rgba(0,0,0,0.4); 
-            transition: background-color 0.3s, transform 0.2s; 
-            font-weight: 600;
+        /* --- UPDATED CIRCULAR EXIT BUTTON (Top-Right) --- */
+        .exit-btn {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            background: rgba(30, 30, 30, 0.9);
+            border: 2px solid #4facfe; /* Matching blue accent */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4facfe;
+            font-size: 1.8rem;
+            box-shadow: 0 0 15px rgba(79, 172, 254, 0.3);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+            pointer-events: auto; /* Ensure clickable despite overlay */
+        }
+
+        .exit-btn:hover {
+            background-color: #4facfe;
+            color: #0d1117;
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(79, 172, 254, 0.6);
         }
     </style>
 </head>
 <body>
     <div class="stream-container">
         
-        <!-- LEFT PANE (Guide Video & AI Coach Panel) -->
+        <a href="{{ url_for('main.workouts') }}" class="exit-btn" title="Exit Trainer">
+            <i class="fas fa-angle-double-left"></i>
+        </a>
+
         <div id="left-pane">
             <h2 class="guide-title"><i class="fas fa-video"></i> Reference: {{ exercise | replace('_', ' ') | capitalize }}</h2>
             
@@ -188,19 +209,16 @@
                 </video>
             </div>
             
-            <!-- AI COACHING PANEL -->
             <div id="ai-coach-panel">
                 <div>
                     <div class="panel-header">
                         <i class="fas fa-ruler-combined"></i> Angle Measurement
                     </div>
-                    <!-- Feedback Text Area: Updated by JS for color/content -->
                     <div id="real-time-feedback-box">
                         Checking camera and pose detection...
                     </div>
                 </div>
 
-                <!-- Reps, Stage, Angle display -->
                 <div class="panel-footer">
                     <span>REPS: <span id="rep-count-display" class="rep-count-data">0</span></span>
                     <span>STAGE: <span id="stage-display" class="rep-count-data">WAIT</span></span>
@@ -209,13 +227,11 @@
             </div>
 
 
-            <!-- DYNAMIC ANIME GUIDE (Cute, bigger bot) -->
             <div class="anime-guide">
                 <i class="fas fa-robot"></i> 
             </div>
         </div>
 
-        <!-- PRELOADER -->
         <div id="preloader">
             <h1 style="display: flex; align-items: center;">
                 <i class="fas fa-camera" style="margin-right: 15px;"></i> Initializing Trainer...
@@ -223,18 +239,11 @@
             <div id="motivational-message"></div>
         </div>
         
-        <!-- WEBCAM FEED (MJPEG Stream) -->
         <img id="webcam-feed" 
              src="{{ url_for('webcam.video_feed', exercise_name=exercise) }}" 
              alt="Webcam Trainer Video Feed"
              style="opacity: 0;">
 
-        <!-- UI OVERLAY -->
-        <div class="ui-overlay">            
-            <button class="exit-btn" onclick="window.location.href='{{ url_for('main.workouts') }}'">
-                <i class="fas fa-times-circle"></i> Exit Trainer
-            </button>
-        </div>
     </div>
     
     <script>

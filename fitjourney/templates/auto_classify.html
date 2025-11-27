@@ -5,6 +5,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AI Fitness Auto-Classifier</title>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
     <style>
         body {
             margin: 0;
@@ -13,6 +16,7 @@
             height: 100vh;
             background-color: #121212;
             color: #f0f0f0;
+            position: relative;
         }
         #sidebar {
             width: 280px;
@@ -20,7 +24,6 @@
             padding: 20px;
             box-sizing: border-box;
             border-right: 1px solid #333;
-            /* Added min-height to ensure sidebar uses full height */
             min-height: 100vh;
         }
         #main {
@@ -30,8 +33,8 @@
             align-items: center;
             background-color: #222;
             padding: 10px;
-            /* Added overflow to prevent content from pushing main out of bounds */
             overflow: hidden;
+            position: relative;
         }
         h2 {
             margin-top: 0;
@@ -47,17 +50,12 @@
             font-size: 1.2em;
         }
         #videoFeed {
-            /* Modified for full screen fit in #main */
             width: 100%; 
             height: 100%; 
-            /* Ensures the video fits within the available space without distortion */
             object-fit: contain; 
             border-radius: 8px;
             box-shadow: 0 0 12px #61dafb;
-            
-            /* --- ADDED FOR MIRROR EFFECT --- */
             transform: scaleX(-1);
-            /* ------------------------------- */
         }
         .feedback {
             margin-top: 20px;
@@ -70,9 +68,41 @@
             color: #6eff6e;
             font-weight: bold;
         }
+
+        /* --- NEW CIRCULAR EXIT BUTTON STYLES --- */
+        .exit-btn {
+            position: fixed;
+            top: 30px;
+            right: 30px;
+            width: 55px;
+            height: 55px;
+            background: #1e1e1e; /* Dark background to match sidebar */
+            border: 2px solid #61dafb; /* Cyan border to match theme */
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #61dafb; /* Cyan Icon */
+            font-size: 1.5rem;
+            box-shadow: 0 0 15px rgba(97, 218, 251, 0.2);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+        }
+
+        .exit-btn:hover {
+            background-color: #61dafb;
+            color: #121212; /* Dark icon on cyan bg */
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(97, 218, 251, 0.6);
+        }
     </style>
 </head>
 <body>
+    <a href="{{ url_for('main.workouts') }}" class="exit-btn" title="Exit Auto-Classify">
+        <i class="fas fa-angle-double-left"></i>
+    </a>
+
     <div id="sidebar">
         <h2>Exercise Info</h2>
         <p><strong>Active Exercise:</strong> <span id="activeExercise">Waiting...</span></p>

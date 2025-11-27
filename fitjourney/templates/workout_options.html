@@ -6,8 +6,52 @@
     <title>Choose Your Workout Journey</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/workout_options_styles.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* --- New Exit Button Styles --- */
+        .exit-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 55px;
+            height: 55px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6a5acd; /* Brand Purple */
+            font-size: 1.8rem; /* Big Icon size */
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+            border: 2px solid transparent;
+        }
+
+        .exit-btn:hover {
+            transform: translateX(-5px); /* Subtle move left */
+            box-shadow: 0 8px 25px rgba(106, 90, 205, 0.3);
+            border-color: #6a5acd;
+            color: #6a5acd;
+        }
+        
+        /* Responsive adjustment */
+        @media (max-width: 768px) {
+            .exit-btn {
+                top: 20px;
+                left: 20px;
+                width: 45px;
+                height: 45px;
+                font-size: 1.4rem;
+            }
+        }
+    </style>
 </head>
 <body>
+    <a href="{{ url_for('main.workouts') }}" class="exit-btn" title="Exit Custom Workout">
+        <i class="fas fa-angle-double-left"></i>
+    </a>
+
     <div class="container">
         <h1 class="page-title">Choose Your Workout Journey</h1>
         <p class="subtitle">Select an option to personalize your fitness path and enhance your results.</p>
@@ -29,13 +73,12 @@
             </div>
 
             <div class="option-card">
-    <div class="icon-wrapper bg-green">
-        <i class="fas fa-edit"></i>
-    </div>
-    <h2>Workout Builder</h2>
-    <p>Create and customize your own workout routines from scratch using our extensive exercise library and intuitive builder.</p>
-    <a href="{{ url_for('ai_workouts.build_workout') }}" class="btn btn-primary">Build My Workout</a>
-</div>
+                <div class="icon-wrapper bg-green">
+                    <i class="fas fa-edit"></i>
+                </div>
+                <h2>Workout Builder</h2>
+                <p>Create and customize your own workout routines from scratch using our extensive exercise library and intuitive builder.</p>
+                <a href="{{ url_for('ai_workouts.build_workout') }}" class="btn btn-primary">Build My Workout</a>
             </div>
         </div>
     </div>

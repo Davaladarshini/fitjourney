@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>FitBot's Reply | FITJourney</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: #f4f7f6;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+        .chat-card {
+            background: white;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            max-width: 500px;
+            width: 90%;
+            text-align: center;
+            animation: slideUp 0.5s ease;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); }}
+        
+        .bot-avatar {
+            width: 80px; height: 80px;
+            background: #eef2ff;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2.5rem; color: #667eea;
+        }
+
+        h1 { font-size: 1.5rem; color: #333; margin-bottom: 20px; }
+
+        .message-bubble {
+            background: #f0f4ff;
+            padding: 25px;
+            border-radius: 20px;
+            border-top-left-radius: 0;
+            text-align: left;
+            color: #444;
+            line-height: 1.6;
+            margin-bottom: 30px;
+            position: relative;
+        }
+        
+        .message-bubble::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -10px;
+            width: 0; height: 0;
+            border-top: 15px solid #f0f4ff;
+            border-left: 15px solid transparent;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+        .btn:hover { background: #5a6fd6; }
+        .btn-outline {
+            background: transparent;
+            color: #888;
+            margin-top: 15px;
+            display: block;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+
+<div class="chat-card">
+    <div class="bot-avatar"><i class="fas fa-robot"></i></div>
+    <h1>FitBot says...</h1>
+    
+    <div class="message-bubble">
+        "{{ message }}"
+    </div>
+
+    <a href="{{ url_for('mindfulness.meditation_options') }}" class="btn">Thanks, FitBot!</a>
+    <a href="{{ url_for('mindfulness.mood_history') }}" class="btn-outline">View my mood history</a>
+</div>
+
+</body>
+</html>

@@ -2,48 +2,345 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Track Your Mood</title>
-    <!-- Assuming your main style.css provides global styles and :root variables -->
+    <title>Chat with FitBot | FITJourney</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <!-- Specific styles for the mood tracker form -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/mood_tracker.css') }}">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #fdfbfb 0%, #ebedee 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+
+        /* --- Floating Exit Button (Top-Left) --- */
+        .exit-btn {
+            position: fixed;
+            top: 30px;
+            left: 30px;
+            width: 55px;
+            height: 55px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #667eea; 
+            font-size: 1.8rem; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            z-index: 1000;
+            text-decoration: none;
+            border: 2px solid transparent;
+        }
+
+        .exit-btn:hover {
+            transform: translateX(-5px); 
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+            color: #764ba2; 
+        }
+
+        .tracker-card {
+            background: #ffffff;
+            padding: 40px;
+            border-radius: 24px;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 550px;
+            text-align: center;
+            animation: fadeIn 0.8s ease-out;
+            border: 1px solid #f0f0f0;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h1 { 
+            color: #333; 
+            margin-bottom: 5px; 
+            font-size: 1.8rem;
+        }
+        p.subtitle { 
+            color: #888; 
+            margin-bottom: 30px; 
+            font-weight: 300;
+        }
+
+        /* Friendlier Mood Emojis */
+        .mood-group {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            background: #fafafa;
+            padding: 15px;
+            border-radius: 20px;
+        }
+
+        .mood-option input { display: none; }
+        
+        .mood-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            opacity: 0.5;
+        }
+
+        .mood-option label i {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+            color: #ccc;
+            transition: all 0.3s;
+        }
+
+        .mood-option span { font-size: 0.75rem; font-weight: 500; color: #999; }
+
+        .mood-option input:checked + label {
+            transform: scale(1.15);
+            opacity: 1;
+        }
+
+        /* --- UPDATED COLOR PALETTE --- */
+        #mood1:checked + label i { color: #fa0202; } /* Rough - Red */
+        #mood2:checked + label i { color: #f7800a; } /* Low - Orange */
+        #mood3:checked + label i { color: #87ef9d; } /* Okay - Light Green */
+        #mood4:checked + label i { color: #1dd1a1; } /* Good - Teal */
+        #mood5:checked + label i { color: #f0d18e; } /* Great - Pale Gold */
+
+        /* Chat Bubble Style Input */
+        .input-wrapper {
+            position: relative;
+            margin-top: 20px;
+            text-align: left;
+        }
+        
+        textarea {
+            width: 100%;
+            padding: 20px;
+            padding-right: 50px;
+            border: 2px solid #f0f0f0;
+            border-radius: 20px;
+            border-bottom-right-radius: 0; /* Speech bubble effect */
+            font-family: 'Poppins', sans-serif;
+            font-size: 1rem;
+            color: #444;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.3s;
+            box-sizing: border-box;
+            background: #fafafa;
+            min-height: 120px;
+        }
+        textarea:focus { border-color: #667eea; background: #fff; }
+
+        .mic-btn {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #999;
+            font-size: 1.4rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .mic-btn:hover { color: #667eea; }
+        .mic-btn.recording { color: #ff6b6b; animation: pulse 1s infinite; }
+
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.5; } 100% { opacity: 1; } }
+
+        /* "Talk" Button */
+        .btn-submit {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 30px;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+        .btn-submit:hover { transform: translateY(-3px); box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4); }
+
+        .back-link {
+            display: block;
+            margin-top: 25px;
+            color: #999;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+        .back-link:hover { color: #667eea; }
+        
+        /* --- CUTE LOADING OVERLAY --- */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.92);
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        
+        .loading-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        .cute-loader {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 20px;
+            animation: bounce 0.8s infinite alternate;
+        }
+
+        @keyframes bounce {
+            from { transform: translateY(0); }
+            to { transform: translateY(-15px); }
+        }
+
+        .loading-text {
+            font-size: 1.2rem;
+            color: #555;
+            font-weight: 500;
+            animation: pulseText 1.5s infinite;
+        }
+        
+        @keyframes pulseText {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .exit-btn {
+                top: 20px;
+                left: 20px;
+                width: 45px;
+                height: 45px;
+                font-size: 1.4rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header class="parallax-header">
-            <h1>Track Your Mood</h1>
-            <p>How are you feeling today?</p>
-        </header>
 
-        <div class="card">
-            <div class="mood-form-container">
-                <form action="{{ url_for('mindfulness.save_mood') }}" method="POST">
-                    <div class="mood-options">
-                        <!-- Mood rating options (you can use emojis or simple labels) -->
-                        <input type="radio" id="mood5" name="mood_rating" value="5" required>
-                        <label for="mood5">😊 Very Happy</label>
+    <a href="{{ url_for('mindfulness.meditation_options') }}" class="exit-btn" title="Back to Options">
+        <i class="fas fa-angle-double-left"></i>
+    </a>
 
-                        <input type="radio" id="mood4" name="mood_rating" value="4">
-                        <label for="mood4">🙂 Happy</label>
-
-                        <input type="radio" id="mood3" name="mood_rating" value="3">
-                        <label for="mood3">😐 Neutral</label>
-
-                        <input type="radio" id="mood2" name="mood_rating" value="2">
-                        <label for="mood2">😟 Sad</label>
-
-                        <input type="radio" id="mood1" name="mood_rating" value="1">
-                        <label for="mood1">😔 Very Sad</label>
-                    </div>
-
-                    <textarea name="mood_notes" placeholder="Write a few words about why you feel this way (optional)..."></textarea>
-                    
-                    <button type="submit" class="submit-btn">Save Mood</button>
-                </form>
-            </div>
-            <a href="/meditation-options" class="btn btn-secondary" style="margin-top: 30px;">← Back to Meditation Options</a>
-        </div>
+    <div class="loading-overlay" id="loadingOverlay">
+        <i class="fas fa-robot cute-loader"></i>
+        <div class="loading-text">FitBot is thinking...</div>
     </div>
+
+    <div class="tracker-card">
+        <h1>Hey, how's your day going?</h1>
+        <p class="subtitle">I'm here to listen. No judgment, just support.</p>
+
+        <form id="moodForm" action="{{ url_for('mindfulness.save_mood') }}" method="POST">
+            
+            <div class="mood-group">
+                <div class="mood-option">
+                    <input type="radio" name="mood_rating" id="mood1" value="1">
+                    <label for="mood1"><i class="fas fa-tired"></i><span>Rough</span></label>
+                </div>
+                <div class="mood-option">
+                    <input type="radio" name="mood_rating" id="mood2" value="2">
+                    <label for="mood2"><i class="fas fa-frown-open"></i><span>Low</span></label>
+                </div>
+                <div class="mood-option">
+                    <input type="radio" name="mood_rating" id="mood3" value="3" checked>
+                    <label for="mood3"><i class="fas fa-meh"></i><span>Okay</span></label>
+                </div>
+                <div class="mood-option">
+                    <input type="radio" name="mood_rating" id="mood4" value="4">
+                    <label for="mood4"><i class="fas fa-smile"></i><span>Good</span></label>
+                </div>
+                <div class="mood-option">
+                    <input type="radio" name="mood_rating" id="mood5" value="5">
+                    <label for="mood5"><i class="fas fa-grin-beam"></i><span>Great!</span></label>
+                </div>
+            </div>
+
+            <div class="input-wrapper">
+                <textarea id="moodNotes" name="mood_notes" placeholder="Tap the mic to vent, or type what's on your mind..."></textarea>
+                <button type="button" id="micBtn" class="mic-btn" title="Tap to speak"><i class="fas fa-microphone"></i></button>
+            </div>
+
+            <button type="submit" class="btn-submit">Send to FitBot</button>
+        </form>
+
+        <a href="{{ url_for('mindfulness.meditation_options') }}" class="back-link">Skip for now</a>
+    </div>
+
+<script>
+    // --- Voice Input Logic ---
+    const micBtn = document.getElementById('micBtn');
+    const notesArea = document.getElementById('moodNotes');
+
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        const recognition = new SpeechRecognition();
+        
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+
+        micBtn.addEventListener('click', () => {
+            if (micBtn.classList.contains('recording')) {
+                recognition.stop();
+            } else {
+                recognition.start();
+            }
+        });
+
+        recognition.onstart = () => {
+            micBtn.classList.add('recording');
+            notesArea.placeholder = "Listening...";
+        };
+
+        recognition.onend = () => {
+            micBtn.classList.remove('recording');
+            notesArea.placeholder = "Tap the mic to vent, or type what's on your mind...";
+        };
+
+        recognition.onresult = (event) => {
+            const transcript = event.results[0][0].transcript;
+            const currentText = notesArea.value;
+            notesArea.value = currentText ? currentText + " " + transcript : transcript;
+        };
+    } else {
+        micBtn.style.display = 'none'; // Hide if not supported
+    }
+
+    // --- Loading Overlay Logic ---
+    const form = document.getElementById('moodForm');
+    const loader = document.getElementById('loadingOverlay');
+
+    form.addEventListener('submit', function() {
+        // Show the cute loader when form is submitted
+        loader.classList.add('active');
+    });
+</script>
+
 </body>
 </html>
