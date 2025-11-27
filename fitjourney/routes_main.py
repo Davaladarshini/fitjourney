@@ -1,11 +1,59 @@
 # davaladarshini/fitjourney/fitjourney-e53c093079553197daf0844b57fee768990dab1a/fitjourney/routes_main.py
 
-from flask import Blueprint, render_template, session, redirect, url_for, request, flash # Added request, flash
+import os # <<< NEW: Import os for MAIL_USERNAME
+from flask import Blueprint, render_template, session, redirect, url_for, request, flash 
 from . import stats_calculator 
-from .extensions import appointment_requests_collection # NEW Import
-from datetime import datetime # NEW Import
+from .extensions import appointment_requests_collection, mail # <<< MODIFIED: Import mail
+from datetime import datetime 
+from flask_mail import Message # <<< NEW: Import Message class
+import logging 
 
 main_bp = Blueprint('main', __name__)
+
+# --- CONFIGURATION CONSTANT ---
+# IMPORTANT: Replace this with the actual Gmail address you want to receive notifications at.
+TRAINER_EMAIL_ADDRESS = 'jamforbusinesss@gmail.com' 
+
+# UPDATED HELPER FUNCTION: Sends a real email using Flask-Mail.
+def send_booking_notification(recipient_email, user_name, booking_details, is_trainer_notification=False):
+    """
+    Sends a real email using Flask-Mail for the trainer notification.
+    """
+    if is_trainer_notification:
+        subject = f"ACTION REQUIRED: New Trainer Booking from {user_name}"
+        body = f"""
+ACTION REQUIRED: A new client has requested an appointment. Please review the details below and contact them to finalize the booking.
+
+Client Name: {user_name}
+Client Email: {booking_details['user_email']}
+Focus Area: {booking_details['focus_area']}
+Preferred Trainer Gender: {booking_details['trainer_gender']}
+Preferred Date/Time: {booking_details['preferred_date']} at {booking_details['preferred_time']}
+Communication Method: {booking_details['communication_method']}
+Specific Help Needed: {booking_details['help_needed'] or 'None'}
+
+Please follow up with the client promptly.
+"""
+    else:
+        # We only send the trainer notification, so this path is not taken.
+        return False 
+
+    try:
+        msg = Message(
+            subject=subject, 
+            # Sender is set globally in extensions.py config
+            sender=os.getenv('MAIL_USERNAME'), 
+            recipients=[recipient_email] 
+        )
+        msg.body = body
+        mail.send(msg) # <<< REAL EMAIL SENDING
+        logging.warning(f"--- REAL EMAIL SENT SUCCESSFULLY to {recipient_email} ---")
+        return True
+    except Exception as e:
+        logging.error(f"Failed to send real email via Flask-Mail to {recipient_email}: {e}")
+        # Flash an error to the user if the notification fails
+        flash(f"Warning: Trainer notification failed to send due to a mail server error. Please check your credentials. Error: {e}", "error")
+        return False 
 
 @main_bp.route('/dashboard')
 def dashboard():
@@ -38,7 +86,7 @@ def workout_options():
         return redirect(url_for('auth.login'))
     return render_template('workout_options.html')
 
-# --- NEW APPOINTMENT ROUTES ---
+# --- APPOINTMENT ROUTES ---
 @main_bp.route('/appointments', methods=['GET'])
 def appointments():
     if 'user_name' not in session:
@@ -52,6 +100,7 @@ def save_appointment():
         return redirect(url_for('auth.login'))
     
     user_email = session['user_email']
+    user_name = session.get('user_name', 'FITJourney User') 
     form_data = request.form
     
     # 1. Create the booking document
@@ -70,5 +119,13 @@ def save_appointment():
     # 2. Save to MongoDB
     appointment_requests_collection.insert_one(booking_document)
     
-    flash("Appointment request submitted successfully! A trainer will be in touch soon.")
-    return redirect(url_for('auth.welcome')) # Redirects to the Dashboard
+    # 3. Send Email Notification to TRAINER (Action Required) - ONLY EMAIL SENT
+    send_booking_notification(
+        recipient_email=TRAINER_EMAIL_ADDRESS,
+        user_name=user_name,
+        booking_details=booking_document,
+        is_trainer_notification=True
+    )
+
+    flash("Appointment request submitted successfully! A trainer has been notified and will contact you shortly.")
+    return redirect(url_for('auth.welcome'))
