@@ -1,4 +1,3 @@
-# fitjourney/routes_auth.py
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
 from .extensions import users_collection, personal_details_collection, health_issues_collection, gemini_client
 from datetime import datetime
@@ -180,6 +179,14 @@ def save_profile():
             age = today.year - dob_date.year - ((today.month, today.day) < (dob_date.month, dob_date.day))
         except ValueError:
             pass 
+
+    # --- NEW SERVER-SIDE AGE VALIDATION ---
+    MIN_AGE = 10 
+    if dob_val and age is not None and age < MIN_AGE:
+        # Flash an error and redirect to prevent saving the profile.
+        flash(f"You must be at least {MIN_AGE} years old to create a profile. Please provide a valid Date of Birth.", "danger")
+        return redirect(url_for('auth.edit_profile'))
+    # --- END NEW VALIDATION ---
 
     # Update Personal Details
     personal_details_collection.update_one(
