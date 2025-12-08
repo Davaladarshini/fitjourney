@@ -1,7 +1,8 @@
-# davaladarshini/fitjourney/fitjourney-91d06a9bed6e94f39b02db2c17256440962f8b46/fitjourney/routes_auth.py
 from flask import Blueprint, render_template, request, redirect, url_for, session, flash
-from .extensions import users_collection, personal_details_collection, health_issues_collection, gemini_client # Updated import
+from .extensions import users_collection, personal_details_collection, health_issues_collection, gemini_client
 from datetime import datetime
+import re
+from werkzeug.security import generate_password_hash, check_password_hash
 
 auth_bp = Blueprint('auth', __name__)
 
@@ -14,8 +15,8 @@ def process_health_issues_with_ai(user_text):
     system_prompt = "You are a medical assistant. Extract specific health conditions from the user's text. Return ONLY a comma-separated list of conditions (e.g., 'Hypertension, Knee Injury'). If none, return 'None'."
     
     try:
-        response = gemini_client.models.generate_content( # Updated API call
-            model="gemini-2.5-flash", # Using the Gemini model
+        response = gemini_client.models.generate_content(
+            model="gemini-2.5-flash",
             contents=[
                 {"role": "user", "parts": [
                     {"text": system_prompt},
@@ -24,13 +25,12 @@ def process_health_issues_with_ai(user_text):
             ],
             config={"temperature": 0.0}
         )
-        ai_summary = response.text # Use .text for the response content
+        ai_summary = response.text
         return ai_summary
     except Exception as e:
         print(f"AI Error: {e}")
-        return user_text # Fallback to raw text if AI fails
+        return user_text  # Fallback to raw text if AI fails
 
-# ... (rest of the file remains the same)
 # --- Routes ---
 
 @auth_bp.route('/')
@@ -41,15 +41,16 @@ def index():
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email = request.form['email']
+        email = request.form['email'].strip().lower()
         password = request.form['password']
 
-        user = users_collection.find_one({'email': email, 'password': password})
-        if user:
-            session['user_name'] = user['name']
-            session['user_email'] = user['email']
-            flash(f"Welcome back, {user['name']}!")
-            return redirect(url_for('auth.welcome')) 
+        # Find user by email
+        user = users_collection.find_one({'email': email})
+        if user and 'password' in user and check_password_hash(user['password'], password):
+            session['user_name'] = user.get('name')
+            session['user_email'] = user.get('email')
+            flash(f"Welcome back, {user.get('name')}!")
+            return redirect(url_for('auth.welcome'))
         else:
             flash("Invalid email or password.")
             return redirect(url_for('auth.login'))
@@ -60,19 +61,36 @@ def login():
 @auth_bp.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        name = request.form['name']
-        email = request.form['email']
-        password = request.form['password']
+        name = request.form.get('name', '').strip()
+        email = request.form.get('email', '').strip().lower()
+        password = request.form.get('password', '')
 
+        # Basic field validation
+        if not name or not email or not password:
+            flash('Please fill all required fields.', 'danger')
+            return render_template('register.html', name=name, email=email)
+
+        # Password policy: lowercase, uppercase, digit, special char, min length 8
+        PASSWORD_REGEX = re.compile(
+            r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};\'":\\|,.<>\/?]).{8,64}$'
+        )
+        if not PASSWORD_REGEX.fullmatch(password):
+            flash("Password must contain lowercase, uppercase, number, special character and be 8–64 characters long.", "danger")
+            return render_template('register.html', name=name, email=email)
+
+        # Check if email already registered
         if users_collection.find_one({'email': email}):
             flash('Email already registered.')
             return redirect(url_for('auth.register'))
 
-        # 1. Create Login Entry
+        # Hash password before storing
+        hashed_password = generate_password_hash(password)
+
+        # 1. Create Login Entry (store hashed password)
         users_collection.insert_one({
             'name': name,
             'email': email,
-            'password': password, 
+            'password': hashed_password,
             'created_at': datetime.now()
         })
 
@@ -144,9 +162,10 @@ def save_profile():
     weight = None
     bmi = None
     try:
-        height = float(data['height']) 
-        weight = float(data['weight']) 
-        bmi = round(weight / ((height / 100) ** 2), 2)
+        height = float(data.get('height')) if data.get('height') else None
+        weight = float(data.get('weight')) if data.get('weight') else None
+        if height and weight:
+            bmi = round(weight / ((height / 100) ** 2), 2)
     except (ValueError, TypeError):
         pass
 
@@ -161,13 +180,21 @@ def save_profile():
         except ValueError:
             pass 
 
+    # --- NEW SERVER-SIDE AGE VALIDATION ---
+    MIN_AGE = 10 
+    if dob_val and age is not None and age < MIN_AGE:
+        # Flash an error and redirect to prevent saving the profile.
+        flash(f"You must be at least {MIN_AGE} years old to create a profile. Please provide a valid Date of Birth.", "danger")
+        return redirect(url_for('auth.edit_profile'))
+    # --- END NEW VALIDATION ---
+
     # Update Personal Details
     personal_details_collection.update_one(
         {'email': email},
         {'$set': {
             'DoB': dob_val,
             'age': age,
-            'gender': data['gender'],
+            'gender': data.get('gender'),
             'height': height,
             'weight': weight,
             'bmi': bmi

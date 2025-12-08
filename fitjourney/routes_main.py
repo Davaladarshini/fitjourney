@@ -1,7 +1,8 @@
 import os
 from flask import Blueprint, render_template, session, redirect, url_for, request, flash 
 from . import stats_calculator 
-from .extensions import appointment_requests_collection, mail 
+# MODIFIED: Added personal_details_collection to imports
+from .extensions import appointment_requests_collection, mail, personal_details_collection 
 from datetime import datetime 
 from flask_mail import Message 
 import logging 
@@ -57,7 +58,12 @@ Please follow up with the client promptly.
 def dashboard():
     if 'user_name' not in session:
         return redirect(url_for('auth.login'))
-    return render_template('welcome.html', name=session['user_name']) 
+    
+    # ADDED FIX: Fetch user details and pass them to the template
+    user_email = session['user_email']
+    user_details = personal_details_collection.find_one({'email': user_email})
+
+    return render_template('welcome.html', name=session['user_name'], user_details=user_details) 
 
 @main_bp.route('/statistics')
 def statistics():

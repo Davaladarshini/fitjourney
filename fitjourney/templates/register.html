@@ -101,6 +101,19 @@
         .auth-switch a:hover {
             text-decoration: underline;
         }
+
+        /* Minimal styles for the added password requirement & feedback */
+        .pwd-requirements {
+            display: block;
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #444;
+        }
+        .pwd-feedback {
+            margin-top: 8px;
+            font-size: 0.95rem;
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -120,6 +133,11 @@
             <div class="form-group">
                 <label for="password"></label>
                 <input type="password" id="password" name="password" placeholder="Create a password" required autocomplete="new-password">
+                <!-- ADDED: password requirement message (minimal, non-intrusive) -->
+                <small id="pwd-requirements" class="pwd-requirements">
+                    Password must be at least <strong>8</strong> characters and include lowercase, uppercase, number, and a special character.
+                </small>
+                <div id="pwd-feedback" class="pwd-feedback" aria-live="polite"></div>
             </div>
 
             <button type="submit" class="btn-submit">Register</button>
@@ -129,5 +147,43 @@
             Already have an account? <a href="{{ url_for('auth.login') }}">Login here</a>
         </div>
     </div>
+
+    <!-- ADDED: client-side validation script (keeps everything else unchanged) -->
+    <script>
+    (function () {
+        const pwd = document.getElementById('password');
+        const form = pwd.closest('form') || document.querySelector('form');
+        const feedback = document.getElementById('pwd-feedback');
+
+        // Regex: at least one lowercase, uppercase, digit, special char, minimum length 8
+        const pwdRegex = /(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]).{8,}/;
+
+        // Live feedback while typing
+        pwd.addEventListener('input', () => {
+            const v = pwd.value;
+            if (!v) {
+                feedback.style.display = 'none';
+                return;
+            }
+            const ok = pwdRegex.test(v);
+            feedback.style.display = 'block';
+            feedback.style.color = ok ? 'green' : '#c00';
+            feedback.textContent = ok ? 'Password looks good.' : 'Password must be 8+ chars and include lowercase, uppercase, number, and special character.';
+        });
+
+        // Prevent form submit if password invalid
+        if (form) {
+            form.addEventListener('submit', (e) => {
+                if (!pwdRegex.test(pwd.value)) {
+                    e.preventDefault();
+                    feedback.style.display = 'block';
+                    feedback.style.color = '#c00';
+                    feedback.textContent = 'Please follow the password requirements before registering.';
+                    pwd.focus();
+                }
+            });
+        }
+    })();
+    </script>
 </body>
 </html>
