@@ -8,172 +8,266 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
     <style>
+        /* --- CORE LAYOUT --- */
         body {
             font-family: 'Segoe UI', sans-serif;
             margin: 0;
             padding: 0;
             text-align: center;
-            background: none;
+            /* Fallback color */
+            background-color: #f0f7f9; 
             overflow-x: hidden;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
         }
 
-        #bg-video {
+        /* --- AESTHETIC DYNAMIC BACKGROUND (THE AURORA) --- */
+        .aurora-container {
             position: fixed;
             top: 0;
             left: 0;
             width: 100vw;
             height: 100vh;
-            object-fit: cover;
             z-index: -1;
+            overflow: hidden;
+            background: #ffffff;
         }
 
-        h1 {
-            color: #6c63ff;
-            font-size: 2.5rem;
-            margin-top: 60px;
+        .orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px); /* This creates the aesthetic soft look */
+            opacity: 0.6;
+            animation: float-around infinite ease-in-out;
         }
 
-        p {
+        /* 1. The Blue Orb */
+        .orb-1 {
+            width: 50vw;
+            height: 50vw;
+            background: #4facfe;
+            top: -10%;
+            left: -10%;
+            animation-duration: 18s;
+        }
+
+        /* 2. The Purple Orb */
+        .orb-2 {
+            width: 40vw;
+            height: 40vw;
+            background: #845ec2;
+            bottom: -10%;
+            right: -10%;
+            animation-duration: 22s;
+            animation-delay: -5s;
+        }
+
+        /* 3. The Green/Teal Accent Orb */
+        .orb-3 {
+            width: 30vw;
+            height: 30vw;
+            background: #4caf50;
+            top: 40%;
+            left: 40%;
+            opacity: 0.4;
+            animation-duration: 15s;
+            animation-delay: -2s;
+        }
+
+        @keyframes float-around {
+            0% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+
+        /* --- GLASSMORPHISM CARD --- */
+        .content-overlay {
+            position: relative;
+            z-index: 10;
+            max-width: 1200px;
+            width: 90%;
+            padding: 40px;
+            
+            /* The Glass Effect */
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            
+            border-radius: 25px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
+            animation: fadeIn 1s ease-out;
+            margin: 20px;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- TYPOGRAPHY & BUTTONS --- */
+        .main-header { margin-bottom: 30px; }
+        .main-header h1 {
+            font-size: 3.5rem;
+            margin: 0;
+            font-weight: 800;
+            color: #333;
+        }
+
+        .app-name {
+            background: linear-gradient(to right, #4facfe, #845ec2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .main-header p {
             color: #555;
-            margin-bottom: 30px;
-        }
-
-        .hero-image svg {
-            max-width: 200px;
-            margin-bottom: 30px;
+            margin-top: 10px;
+            font-size: 1.2rem;
         }
 
         .button-group {
-            margin: 20px auto;
+            margin: 0 auto 50px auto;
             display: flex;
             justify-content: center;
-            gap: 10px;
+            gap: 20px;
         }
 
         .btn {
-            padding: 12px 25px;
-            font-size: 1rem;
+            padding: 15px 35px;
+            font-size: 1.1rem;
             border: none;
             cursor: pointer;
-            border-radius: 8px;
-            transition: background 0.3s ease;
+            border-radius: 30px;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
         .btn-login {
-            background-color: #4facfe;
+            background: linear-gradient(to right, #667eea, #4facfe);
             color: white;
         }
-
-        .btn-login:hover {
-            background-color: #3a9fe0;
-        }
+        .btn-login:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(79, 172, 254, 0.4); }
 
         .btn-register {
-            background-color: #845ec2;
-            color: white;
+            background: white;
+            color: #845ec2;
+            border: 2px solid #845ec2;
+        }
+        .btn-register:hover { 
+            background: #845ec2; 
+            color: white; 
+            transform: translateY(-3px);
+            box-shadow: 0 10px 25px rgba(132, 94, 194, 0.3);
         }
 
-        .btn-register:hover {
-            background-color: #734db4;
+        /* --- HERO & FEATURES --- */
+        .hero-intro { margin-bottom: 50px; }
+        .hero-tagline { font-size: 1.3rem; font-style: italic; color: #666; }
+        .hero-icon {
+            font-size: 4rem;
+            background: linear-gradient(45deg, #4facfe, #4caf50);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+            animation: pulse 3s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(1); opacity: 0.8; }
         }
 
         .features {
-            display: flex;
-            justify-content: center;
-            gap: 30px;
-            margin: 60px auto;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 25px;
         }
 
         .feature-card {
-            background: #ffffffee;
-            padding: 20px;
-            width: 220px;
-            border-radius: 15px;
-            box-shadow: 0 0 12px rgba(0, 0, 0, 0.05);
-            transition: transform 0.3s ease;
+            background: rgba(255, 255, 255, 0.7); /* Semi-transparent */
+            padding: 25px;
+            border-radius: 20px;
+            transition: transform 0.3s ease, background 0.3s;
+            border: 1px solid rgba(255,255,255,0.8);
         }
 
         .feature-card:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+            background: #ffffff;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05);
         }
 
         .feature-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-            color: #4facfe;
+            font-size: 35px;
+            margin-bottom: 15px;
+            color: #845ec2;
         }
 
-        .feature-title {
-            font-weight: bold;
-            margin-bottom: 8px;
-        }
+        .feature-title { font-weight: bold; font-size: 1.2rem; margin-bottom: 8px; color: #444; }
+        .feature-desc { color: #666; font-size: 0.95rem; line-height: 1.5; }
 
-        .feature-desc {
-            color: #666;
-            font-size: 0.9rem;
+        @media (max-width: 768px) {
+            .main-header h1 { font-size: 2.5rem; }
+            .button-group { flex-direction: column; }
+            .content-overlay { padding: 20px; width: 95%; }
+            .orb { opacity: 0.4; } /* Tone down bg on mobile */
         }
     </style>
 </head>
 
 <body>
-    <!-- Background Video -->
-    <video id="bg-video" autoplay muted loop playsinline>
-        <source src="{{ url_for('static', filename='video/fitness-bg.mp4') }}" type="video/mp4">
-        Your browser does not support the video tag.
-    </video>
 
-    <!-- Script to Unmute on First User Click -->
-    <script>
-        window.addEventListener('click', function () {
-            const video = document.getElementById('bg-video');
-            video.muted = false;
-            video.currentTime = 0;
-            video.play();
-        }, { once: true });
-    </script>
-
-    <h1>Welcome to <span style="color:#4facfe;">FITJourney</span></h1>
-    <p>Your personalized fitness companion</p>
-
-    <div class="hero-image">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 300">
-            <defs>
-                <linearGradient id="gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-                    <stop offset="0%" style="stop-color:#4facfe;stop-opacity:1" />
-                    <stop offset="100%" style="stop-color:#00f2fe;stop-opacity:1" />
-                </linearGradient>
-            </defs>
-            <path fill="url(#gradient)" d="M50,150 Q125,50 200,150 T350,150" opacity="0.2"/>
-            <circle cx="100" cy="150" r="30" fill="#ff6b6b"/>
-            <circle cx="250" cy="120" r="40" fill="#4facfe"/>
-            <circle cx="400" cy="180" r="35" fill="#845ec2"/>
-            <path d="M100,150 Q150,100 200,150" stroke="#ff6b6b" stroke-width="3" fill="none"/>
-            <path d="M250,120 Q300,80 350,150" stroke="#4facfe" stroke-width="3" fill="none"/>
-        </svg>
+    <div class="aurora-container">
+        <div class="orb orb-1"></div>
+        <div class="orb orb-2"></div>
+        <div class="orb orb-3"></div>
     </div>
 
-    <div class="button-group">
-        <a href="{{ url_for('auth.login') }}" class="btn btn-login">Login <i class="fas fa-arrow-right"></i></a>
-        <a href="{{ url_for('auth.register') }}" class="btn btn-register"><i class="fas fa-user-plus"></i> Register</a>
+    <div class="content-overlay">
+        <header class="main-header">
+            <h1>Welcome to <span class="app-name">FITJourney</span></h1>
+            <p>Your AI-powered personalized fitness companion.</p>
+        </header>
+
+        <div class="button-group">
+            <a href="{{ url_for('auth.login') }}" class="btn btn-login">Login <i class="fas fa-sign-in-alt"></i></a>
+            <a href="{{ url_for('auth.register') }}" class="btn btn-register"><i class="fas fa-user-plus"></i> Register</a>
+        </div>
+        
+        <div class="hero-intro">
+             <i class="fas fa-spa hero-icon"></i>
+             <p class="hero-tagline">Unlock adaptive workouts, real-time webcam coaching, and mental wellness tools.</p>
+        </div>
+
+        <div class="features">
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-brain"></i></div>
+                <div class="feature-title">Adaptive AI Plans</div>
+                <div class="feature-desc">Dynamic routines that adjust to your feedback and track your progress.</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-camera"></i></div>
+                <div class="feature-title">Webcam Form Coach</div>
+                <div class="feature-desc">Real-time feedback on your form using MediaPipe and OpenCV.</div>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon"><i class="fas fa-headphones"></i></div>
+                <div class="feature-title">Mindfulness & ChatBot</div>
+                <div class="feature-desc">Guided meditation, breathing, and supportive AI wellness chat.</div>
+            </div>
+        </div>
     </div>
 
-    <div class="features">
-        <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-heartbeat"></i></div>
-            <div class="feature-title">Health Tracking</div>
-            <div class="feature-desc">Monitor your progress with detailed analytics</div>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-dumbbell"></i></div>
-            <div class="feature-title">Smart Workouts</div>
-            <div class="feature-desc">Personalized exercises based on your goals</div>
-        </div>
-        <div class="feature-card">
-            <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-            <div class="feature-title">Progress Insights</div>
-            <div class="feature-desc">Visualize your fitness journey</div>
-        </div>
-    </div>
 </body>
 </html>
