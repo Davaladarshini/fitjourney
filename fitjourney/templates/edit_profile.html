@@ -126,7 +126,7 @@
             <div style="display: flex; gap: 15px;">
                 <div style="flex: 1;">
                     <label>Date of Birth</label>
-                    <input type="date" name="dob" value="{{ user_details.DoB if user_details else '' }}" required>
+                    <input type="date" id="dobInput" name="dob" value="{{ user_details.DoB if user_details else '' }}" required>
                 </div>
                 <div style="flex: 1;">
                     <label>Gender</label>
@@ -153,5 +153,28 @@
     <a href="{{ url_for('auth.profile') }}" class="back-link">← Cancel</a>
 </div>
 
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const dobInput = document.getElementById('dobInput');
+        
+        // Only run if the element exists
+        if (dobInput) {
+            const today = new Date();
+            const MIN_AGE = 10;
+            
+            // Calculate the date 10 years ago from today
+            const maxDate = new Date(today.getFullYear() - MIN_AGE, today.getMonth(), today.getDate());
+            
+            // Format the max date as YYYY-MM-DD
+            const year = maxDate.getFullYear();
+            // Note: getMonth() returns 0-11, so we add 1 for the correct month number
+            const month = String(maxDate.getMonth() + 1).padStart(2, '0');
+            const day = String(maxDate.getDate()).padStart(2, '0');
+            
+            // Set the max selectable date to ensure user is at least 10 years old
+            dobInput.max = `${year}-${month}-${day}`;
+        }
+    });
+</script>
 </body>
 </html>
