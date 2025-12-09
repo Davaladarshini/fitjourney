@@ -22,10 +22,10 @@ TARGET_DATA = {
         'C': mp_pose.PoseLandmark.LEFT_HIP.value
     },
     'angle_thresholds': {
-        'arm_open': 160,
-        'arm_close': 30,
-        'leg_open': 45,
-        'leg_close': 20,
+        'arm_open': 135,           # AGGRESSIVELY RELAXED (Was 160)
+        'arm_close': 50,           # AGGRESSIVELY RELAXED (Was 30)
+        'leg_open': 25,            # AGGRESSIVELY RELAXED (Was 45)
+        'leg_close': 35,           # AGGRESSIVELY RELAXED (Was 20)
         'arm_low_feedback': 140,
         'arm_high_feedback': 180,
         'leg_low_feedback': 35,
@@ -170,6 +170,3 @@ def generate_frames_jumping_jack():
             yield (b'--frame\r\n' + b'Content-Type: image/jpeg\r\n\r\n' + buffer.tobytes() + b'\r\r\n')
         
         camera.release(); cv2.destroyAllWindows()
-
-def get_latest_feedback_jumping_jack():
-    return json.dumps(LATEST_FEEDBACK_JUMPING_JACK)
