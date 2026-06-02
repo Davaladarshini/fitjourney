@@ -11,3 +11,4 @@ numpy
 mediapipe
 Flask-Mail
 dnspython==2.6.1
+gunicorn==26.0.0
