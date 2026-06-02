@@ -142,9 +142,13 @@ def generate_ai_plan():
         
         # --- NEW LOGIC: FETCH USER PROFILE AND APPLY HEALTH CHECK ---
         ai_warning_message = None
-        user_details = personal_details_collection.find_one({'email': session.get('user_email')})
-        # BMI is calculated and saved on profile update (routes_auth.py)
-        user_bmi = user_details.get('bmi') if user_details else None
+        user_email = session.get('user_email')
+        
+        # Fetch detailed user profile and health info
+        user_details = personal_details_collection.find_one({'email': user_email}) or {}
+        health_info = health_issues_collection.find_one({'email': user_email}) or {}
+        user_bmi = user_details.get('bmi')
+        health_constraints = health_info.get('ai_processed_issues', 'None')
 
         # Simple check for common weight loss keywords
         # Checks if phrases like 'lose weight', 'reduce 5kg', etc., are present
@@ -166,19 +170,31 @@ The plan generated below is **ADJUSTED** to focus on healthy **muscle gain and b
 ---
 """
             # 2. Re-phrase the user prompt to force the AI to generate a SAFE plan
-            modified_goal = f"My user is underweight (BMI {user_bmi}) and initially asked to lose weight. IGNORE that request and instead, generate a comprehensive workout plan focused purely on safe weight gain, muscle hypertrophy, and building core strength. Emphasize a calorie-surplus diet. The user's original input was: '{user_goal}'."
+            modified_goal = f"""
+My user is underweight (BMI {user_bmi}) and initially asked to lose weight. 
+***ACTION: IGNORE THE WEIGHT LOSS REQUEST.***
+Instead, generate a comprehensive workout plan focused purely on safe weight gain, muscle hypertrophy, and building core strength. Emphasize a calorie-surplus diet. 
+
+Health Constraints: {health_constraints}. EXCLUDE all exercises that could aggravate these constraints.
+The user's original input was: '{user_goal}'"""
             user_prompt_to_use = modified_goal
         
         else:
-            # Use the original prompt/goal if the health check passes or is irrelevant
-            user_prompt_to_use = f"Create a workout plan for someone whose goal is: {user_goal}"
+            # Use the original prompt/goal but add context for better, safer plans
+            user_prompt_to_use = f"""
+Create a comprehensive workout plan for someone whose goal is: {user_goal}
+
+User Health Profile:
+- BMI: {user_bmi if user_bmi is not None else 'Not Available'}
+- Health Constraints: {health_constraints}. Ensure the plan is safe given these constraints.
+"""
             
         # --- END NEW LOGIC ---
 
-        # UPDATED SYSTEM PROMPT: Forbids Markdown and focuses on clean text formatting.
+        # UPDATED SYSTEM PROMPT: Now includes the requirement to consider health constraints.
         system_prompt = """
 You are a highly experienced and motivational fitness coach. 
-Your task is to generate a comprehensive, personalized workout plan. 
+Your task is to generate a comprehensive, personalized workout plan based on the user's goal and health profile provided below. 
 Format the response using only line breaks and simple punctuation, like dashes or parentheses. 
 DO NOT use Markdown, Hashtags (#), Asterisks (*), or bold formatting unless specifically requested in the user prompt (e.g., if the user prompt includes the health warning message).
 """
